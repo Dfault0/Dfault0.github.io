@@ -235,6 +235,44 @@
       </tags>
   </entry>
   <entry>
+    <title>the fuzzing book study notes</title>
+    <url>/2021/11/15/the-fuzzing-book-study-notes/</url>
+    <content><![CDATA[<h1 id="The-Researcher-Tour"><a href="#The-Researcher-Tour" class="headerlink" title="The Researcher Tour"></a>The Researcher Tour</h1><p><a href="https://www.fuzzingbook.org/">https://www.fuzzingbook.org</a></p>
+<p>Fuzzing: Breaking Things with Random Inputs</p>
+<p><em>Create random inputs, and see if they break things.</em> Just let it run long enough and you’ll see.</p>
+<h2 id="Mining-Function-Specifications"><a href="#Mining-Function-Specifications" class="headerlink" title="Mining Function Specifications"></a>Mining Function Specifications</h2><p>当我们测试一个程序的时候，不仅仅需要覆盖所有的行为，也还需要检查他的结果是否符合预期。</p>
+<p><em>dynamic invariants</em>的作用：</p>
+<ul>
+<li>Dynamic invariants provide important information for symbolic fuzzing, such as types and ranges of function arguments.</li>
+<li>Dynamic invariants provide pre- and postconditions for formal program proofs and verification.</li>
+<li>Dynamic invariants provide a large number of assertions that can check whether function behavior has changed.</li>
+<li>Checks provided by dynamic invariants can be very useful as oracles for checking the effects of generated tests</li>
+</ul>
+<h3 id="code-coverage"><a href="#code-coverage" class="headerlink" title="code coverage"></a>code coverage</h3>]]></content>
+      <categories>
+        <category>Fuzzing</category>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>Fuzzing</tag>
+        <tag>notes</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>配置自己的个人博客 github + hexo</title>
+    <url>/2022/03/18/%E9%85%8D%E7%BD%AE%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%20github%20+%20hexo/</url>
+    <content><![CDATA[<h1 id="配置自己的个人博客-github-hexo"><a href="#配置自己的个人博客-github-hexo" class="headerlink" title="配置自己的个人博客 github + hexo"></a>配置自己的个人博客 github + hexo</h1><p>基本教程：</p>
+<p><a href="https://zhuanlan.zhihu.com/p/26625249">https://zhuanlan.zhihu.com/p/26625249</a></p>
+]]></content>
+      <categories>
+        <category>Fuzzing - notes</category>
+      </categories>
+      <tags>
+        <tag>Fuzzing</tag>
+        <tag>notes</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>libFuzzer workshop study</title>
     <url>/2021/11/15/libFuzzer-workshop-study/</url>
     <content><![CDATA[<h1 id="libFuzzer-workshop-study"><a href="#libFuzzer-workshop-study" class="headerlink" title="libFuzzer workshop study"></a>libFuzzer workshop study</h1><h2 id="libfuzzer-基本使用方法（官方）"><a href="#libfuzzer-基本使用方法（官方）" class="headerlink" title="libfuzzer 基本使用方法（官方）"></a>libfuzzer 基本使用方法（官方）</h2><p>The first step in using libFuzzer on a library is to implement a <em>fuzz target</em> – a function that accepts an array of bytes and does something interesting with these bytes using the API under test. Like this:</p>
@@ -278,30 +316,6 @@
       <tags>
         <tag>notes</tag>
         <tag>libFuzzer</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>the fuzzing book study notes</title>
-    <url>/2021/11/15/the-fuzzing-book-study-notes/</url>
-    <content><![CDATA[<h1 id="The-Researcher-Tour"><a href="#The-Researcher-Tour" class="headerlink" title="The Researcher Tour"></a>The Researcher Tour</h1><p><a href="https://www.fuzzingbook.org/">https://www.fuzzingbook.org</a></p>
-<p>Fuzzing: Breaking Things with Random Inputs</p>
-<p><em>Create random inputs, and see if they break things.</em> Just let it run long enough and you’ll see.</p>
-<h2 id="Mining-Function-Specifications"><a href="#Mining-Function-Specifications" class="headerlink" title="Mining Function Specifications"></a>Mining Function Specifications</h2><p>当我们测试一个程序的时候，不仅仅需要覆盖所有的行为，也还需要检查他的结果是否符合预期。</p>
-<p><em>dynamic invariants</em>的作用：</p>
-<ul>
-<li>Dynamic invariants provide important information for symbolic fuzzing, such as types and ranges of function arguments.</li>
-<li>Dynamic invariants provide pre- and postconditions for formal program proofs and verification.</li>
-<li>Dynamic invariants provide a large number of assertions that can check whether function behavior has changed.</li>
-<li>Checks provided by dynamic invariants can be very useful as oracles for checking the effects of generated tests</li>
-</ul>
-<h3 id="code-coverage"><a href="#code-coverage" class="headerlink" title="code coverage"></a>code coverage</h3>]]></content>
-      <categories>
-        <category>Fuzzing</category>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>Fuzzing</tag>
-        <tag>notes</tag>
       </tags>
   </entry>
   <entry>
@@ -363,20 +377,6 @@
       </categories>
       <tags>
         <tag>Penetration</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>配置自己的个人博客 github + hexo</title>
-    <url>/2022/03/18/%E9%85%8D%E7%BD%AE%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%20github%20+%20hexo/</url>
-    <content><![CDATA[<h1 id="配置自己的个人博客-github-hexo"><a href="#配置自己的个人博客-github-hexo" class="headerlink" title="配置自己的个人博客 github + hexo"></a>配置自己的个人博客 github + hexo</h1><p>基本教程：</p>
-<p><a href="https://zhuanlan.zhihu.com/p/26625249">https://zhuanlan.zhihu.com/p/26625249</a></p>
-]]></content>
-      <categories>
-        <category>Fuzzing - notes</category>
-      </categories>
-      <tags>
-        <tag>Fuzzing</tag>
-        <tag>notes</tag>
       </tags>
   </entry>
 </search>
