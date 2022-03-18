@@ -1,37 +1,337 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-{% block page_class %}page-post-detail{% endblock %}
+<link rel="stylesheet" href="/css/main.css">
 
 
-{% block content %}
 
-  <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-    <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="使用AFL++模糊测试libxml2简单模糊测试12345在这里的时候需要用绝对路径相对路径是会报错的。&#x2F;home&#x2F;fourth&#x2F;fuzz$ make CC&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLplusplus&#x2F;afl-clang-fast CXX&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLplusplus&#x2F;afl-clang-fast++ LD&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="afl fuzz libxml2">
+<meta property="og:url" content="http://dfault0.github.io/2021/11/05/afl-fuzz-libxml2/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="使用AFL++模糊测试libxml2简单模糊测试12345在这里的时候需要用绝对路径相对路径是会报错的。&#x2F;home&#x2F;fourth&#x2F;fuzz$ make CC&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLplusplus&#x2F;afl-clang-fast CXX&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLplusplus&#x2F;afl-clang-fast++ LD&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLp">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-11-05T02:45:34.000Z">
+<meta property="article:modified_time" content="2022-03-18T04:12:08.786Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="AFL">
+<meta property="article:tag" content="Fuzzing">
+<meta property="article:tag" content="复现">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2021/11/05/afl-fuzz-libxml2/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2021/11/05/afl-fuzz-libxml2/","path":"2021/11/05/afl-fuzz-libxml2/","title":"afl fuzz libxml2"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>afl fuzz libxml2 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
     </div>
   </div>
 
-{% endblock %}
+  <div class="site-meta">
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8AFL-%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95libxml2"><span class="nav-number">1.</span> <span class="nav-text">使用AFL++模糊测试libxml2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95"><span class="nav-number">1.1.</span> <span class="nav-text">简单模糊测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#persistent-mode"><span class="nav-number">1.2.</span> <span class="nav-text">persistent mode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#QEMU-mode"><span class="nav-number">1.3.</span> <span class="nav-text">QEMU mode</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">2.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/11/05/afl-fuzz-libxml2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="afl fuzz libxml2 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          afl fuzz libxml2
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-11-05 10:45:34" itemprop="dateCreated datePublished" datetime="2021-11-05T10:45:34+08:00">2021-11-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-03-18 12:12:08" itemprop="dateModified" datetime="2022-03-18T12:12:08+08:00">2022-03-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/category/fuzzing/" itemprop="url" rel="index"><span itemprop="name">fuzzing</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="使用AFL-模糊测试libxml2"><a href="#使用AFL-模糊测试libxml2" class="headerlink" title="使用AFL++模糊测试libxml2"></a>使用AFL++模糊测试libxml2</h1><h2 id="简单模糊测试"><a href="#简单模糊测试" class="headerlink" title="简单模糊测试"></a>简单模糊测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">在这里的时候需要用绝对路径相对路径是会报错的。</span><br><span class="line">/home/fourth/fuzz</span><br><span class="line">$ make CC=/home/fourth/fuzz/AFLplusplus/afl-clang-fast CXX=/home/fourth/fuzz/AFLplusplus/afl-clang-fast++ LD=/home/fourth/fuzz/AFLplusplus/afl-clang-fast</span><br><span class="line"></span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i ./in -o ./out -m none -d -- ./xmlint_cov @@</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│        run time : 0 days, 0 hrs, 3 min, 47 sec      │  cycles done : 0     │</span><br><span class="line">│   last new path : 0 days, 0 hrs, 0 min, 1 sec       │  total paths : 1710  │</span><br><span class="line">│ last uniq crash : none seen yet                     │ uniq crashes : 0     │</span><br><span class="line">│  last uniq hang : none seen yet                     │   uniq hangs : 0     │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│  now processing : 1558.1 (91.1%)     │    map density : 1.00% / 4.98%      │</span><br><span class="line">│ paths timed out : 0 (0.00%)          │ count coverage : 3.23 bits/tuple    │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│  now trying : havoc                  │ favored paths : 330 (19.30%)        │</span><br><span class="line">│ stage execs : 25.4k/32.8k (77.41%)   │  new edges on : 509 (29.77%)        │</span><br><span class="line">│ total execs : 1.24M                  │ total crashes : 0 (0 unique)        │</span><br><span class="line">│  exec speed : 5649/sec               │  total tmouts : 1 (1 unique)        │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│   bit flips : disabled (default, enable with -D)   │    levels : 9         │</span><br><span class="line">│  byte flips : disabled (default, enable with -D)   │   pending : 1435      │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D)   │  pend fav : 109       │</span><br><span class="line">│  known ints : disabled (default, enable with -D)   │ own finds : 1707      │</span><br><span class="line">│  dictionary : n/a                                  │  imported : 0         │</span><br><span class="line">│havoc/splice : 1173/890k, 526/285k                  │ stability : 96.68%    │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused       ├───────────────────────┘</span><br><span class="line">│    trim/eff : 18.12%/6877, disabled                │          [cpu000:150%]</span><br><span class="line">└────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h2 id="persistent-mode"><a href="#persistent-mode" class="headerlink" title="persistent mode"></a>persistent mode</h2><p>使用AFL++ 的persistent mode来加速fuzz</p>
+<p>首先需要改写我们的主程序代码xmllint.c，其中带<code>+</code>的就是需要重新添加的。一般是循环10000次，是我自己少写了一个0，并且一般就是只需要修改的是main函数，然后把原来的main函数改一个名字即可。</p>
+<p><code>__AFL_LOOP</code>就是告诉AFL，我们需要用到的是persistent mode。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">$ diff -u a/xmllint.c b/xmllint.c &gt; ./b/diff.patch</span><br><span class="line"></span><br><span class="line">***@ubuntu:~/fuzz/libxml2$ <span class="built_in">cat</span> ./b/diff.patch</span><br><span class="line">--- a/xmllint.c	2021-11-08 18:20:14.461467630 -0800</span><br><span class="line">+++ b/xmllint.c	2021-11-08 19:01:45.680069687 -0800</span><br><span class="line">@@ -3131,7 +3131,13 @@</span><br><span class="line">     int files = 0;</span><br><span class="line">     int version = 0;</span><br><span class="line">     const char* indent;</span><br><span class="line">-</span><br><span class="line">+    </span><br><span class="line">+    <span class="keyword">if</span>(argc&lt;2)</span><br><span class="line">+    	<span class="built_in">return</span> 1;</span><br><span class="line">+    <span class="keyword">while</span>(__AFL_LOOP(1000))</span><br><span class="line">+    	parseAndPrintFile(argv[1],NULL);</span><br><span class="line">+    <span class="built_in">return</span> 0;</span><br><span class="line">+    </span><br><span class="line">     <span class="keyword">if</span> (argc &lt;= 1) &#123;</span><br><span class="line"> 	usage(stderr, argv[0]);</span><br><span class="line"> 	<span class="built_in">return</span>(1);</span><br><span class="line"> 一般是需要改成下面的这个样子的 	</span><br><span class="line">+int main(int argc, char** argv) &#123;</span><br><span class="line">+</span><br><span class="line">+  <span class="keyword">if</span> (argc &lt; 2) <span class="built_in">return</span> 1;</span><br><span class="line">+</span><br><span class="line">+  <span class="keyword">while</span> (__AFL_LOOP(10000))</span><br><span class="line">+    parseAndPrintFile(argv[1], NULL);</span><br><span class="line">+</span><br><span class="line">+  <span class="built_in">return</span> 0;</span><br><span class="line">+</span><br><span class="line">+&#125;</span><br><span class="line">+</span><br><span class="line"> int</span><br><span class="line">-main(int argc, char **argv) &#123;</span><br><span class="line">+old_main(int argc, char **argv) &#123;</span><br><span class="line">     int i, acount;</span><br><span class="line">     int files = 0;</span><br><span class="line">     int version = 0;</span><br></pre></td></tr></table></figure>
+
+<p>记住，在编译之前一定要先 <code>make clean</code> 否则会报错。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ../fuzz</span><br><span class="line">$ <span class="built_in">rm</span> xmllint</span><br><span class="line">$ make CC=~/AFLplusplus/afl-clang-fast CXX=~/AFLplusplus/afl-clang-fast++ LD=~/AFLplusplus/afl-clang-fast</span><br><span class="line">$ <span class="built_in">cp</span> xmllint ../fuzz/xmllint_persistent</span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i <span class="keyword">in</span>/ -o out -m none -d -- ./xmllint_persistent @@</span><br></pre></td></tr></table></figure>
+
+<p>可以看到模糊测试的速度大致提升了200倍。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">               american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│        run time : 0 days, 3 hrs, 22 min, 41 sec     │  cycles done : 3     │</span><br><span class="line">│   last new path : 0 days, 0 hrs, 0 min, 48 sec      │  total paths : 4212  │</span><br><span class="line">│ last uniq crash : none seen yet                     │ uniq crashes : 0     │</span><br><span class="line">│  last uniq hang : none seen yet                     │   uniq hangs : 0     │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│  now processing : 2166.3 (51.4%)     │    map density : 1.34% / 6.66%      │</span><br><span class="line">│ paths timed out : 0 (0.00%)          │ count coverage : 4.38 bits/tuple    │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│  now trying : havoc                  │ favored paths : 508 (12.06%)        │</span><br><span class="line">│ stage execs : 1212/5299 (22.87%)     │  new edges on : 863 (20.49%)        │</span><br><span class="line">│ total execs : 35.7M                  │ total crashes : 0 (0 unique)        │</span><br><span class="line">│  exec speed : 4039/sec               │  total tmouts : 2711 (233 unique)   │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│   bit flips : disabled (default, enable with -D)   │    levels : 24        │</span><br><span class="line">│  byte flips : disabled (default, enable with -D)   │   pending : 2707      │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D)   │  pend fav : 0         │</span><br><span class="line">│  known ints : disabled (default, enable with -D)   │ own finds : 4209      │</span><br><span class="line">│  dictionary : n/a                                  │  imported : 0         │</span><br><span class="line">│havoc/splice : 2467/16.6M, 1742/18.9M               │ stability : 97.27%    │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused       ├───────────────────────┘</span><br><span class="line">│    trim/eff : 13.36%/188k, disabled                │          [cpu000:150%]</span><br><span class="line">└────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h2 id="QEMU-mode"><a href="#QEMU-mode" class="headerlink" title="QEMU mode"></a>QEMU mode</h2><p>假设我们没有源代码，所以就不能对源代码进行打补丁，所以我们就只能使用QEMU模式来对二进制文件来进行插桩。</p>
+<p>首先需要的是编译程序（需要恢复对之前源代码的操作）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ../libxml2</span><br><span class="line">$ make clean</span><br><span class="line">$ make</span><br><span class="line">$ <span class="built_in">cp</span> xmllint ../fuzz/</span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i <span class="keyword">in</span>/ -o out -m none -d -Q -- ./xmllint @@</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">           american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│ run time : 0 days, 19 hrs, 48 min, 42 sec │ cycles done : 0 │</span><br><span class="line">│ last new path : 0 days, 0 hrs, 0 min, 35 sec │ total paths : 3332 │</span><br><span class="line">│ last uniq crash : none seen yet │ uniq crashes : 0 │</span><br><span class="line">│ last uniq hang : 0 days, 0 hrs, 41 min, 25 sec │ uniq hangs : 2 │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│ now processing : 2335.9 (70.1%) │ map density : 3.47% / 11.94% │</span><br><span class="line">│ paths timed out : 0 (0.00%) │ count coverage : 3.53 bits/tuple │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│ now trying : splice 8 │ favored paths : 445 (13.36%) │</span><br><span class="line">│ stage execs : 51/110 (46.36%) │ new edges on : 807 (24.22%) │</span><br><span class="line">│ total execs : 10.5M │ total crashes : 0 (0 unique) │</span><br><span class="line">│ exec speed : 244.3/sec │ total tmouts : 4802 (272 unique) │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│ bit flips : disabled (default, enable with -D) │ levels : 24 │</span><br><span class="line">│ byte flips : disabled (default, enable with -D) │ pending : 2401 │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D) │ pend fav : 0 │</span><br><span class="line">│ known ints : disabled (default, enable with -D) │ own finds : 3329 │</span><br><span class="line">│ dictionary : n/a │ imported : 0 │</span><br><span class="line">│havoc/splice : 2147/5.38M, 1182/5.04M │ stability : 98.82% │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused ├───────────────────────┘</span><br><span class="line">│ trim/eff : 12.08%/53.4k, disabled │ [cpu000:750%]</span><br><span class="line">└────────────────────────────────────────────────────┘^C</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>git clone 不行就是因为终端没有走代理，设置一些即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config –global http.proxy “192.168.1.238:1080”</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="https://aflplus.plus/docs/tutorials/libxml2_tutorial/">https://aflplus.plus/docs/tutorials/libxml2_tutorial/</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AFL/" rel="tag"># AFL</a>
+              <a href="/tags/Fuzzing/" rel="tag"># Fuzzing</a>
+              <a href="/tags/%E5%A4%8D%E7%8E%B0/" rel="tag"># 复现</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/10/28/xiaodiPenetration/" rel="prev" title="xiaodiPenetration">
+                  <i class="fa fa-chevron-left"></i> xiaodiPenetration
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/11/08/AFL-fuzz-whitepaper/" rel="next" title="AFL fuzz whitepaper">
+                  AFL fuzz whitepaper <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

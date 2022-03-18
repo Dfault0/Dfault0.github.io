@@ -1,37 +1,350 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
 
 
-{% block title %}{{ page.title }} | {{ config.title }}{% endblock %}
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-{% block page_class %}page-post-detail{% endblock %}
+<link rel="stylesheet" href="/css/main.css">
 
 
-{% block content %}
 
-  <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-    <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% elseif theme.duoshuo_shortname and theme.duoshuo_share %}
-        {% include '_partials/share/duoshuo_share.swig' %}
-      {% endif %}
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Technical “whitepaper” for afl-fuzzDesign statement该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。 原则：速度、可靠性、易使用 Coverage measurements这个插桩注入到编译好的程序来获取分支覆盖率 注入点： 123cur_location &#x3D; &lt;COMPILE_TIME_RANDOM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AFL fuzz whitepaper">
+<meta property="og:url" content="http://dfault0.github.io/2021/11/08/AFL-fuzz-whitepaper/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="Technical “whitepaper” for afl-fuzzDesign statement该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。 原则：速度、可靠性、易使用 Coverage measurements这个插桩注入到编译好的程序来获取分支覆盖率 注入点： 123cur_location &#x3D; &lt;COMPILE_TIME_RANDOM">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-11-08T02:45:10.000Z">
+<meta property="article:modified_time" content="2022-03-18T04:11:44.091Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="AFL">
+<meta property="article:tag" content="whitepaper">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2021/11/08/AFL-fuzz-whitepaper/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2021/11/08/AFL-fuzz-whitepaper/","path":"2021/11/08/AFL-fuzz-whitepaper/","title":"AFL fuzz whitepaper"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>AFL fuzz whitepaper | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
     </div>
   </div>
 
-{% endblock %}
+  <div class="site-meta">
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Technical-%E2%80%9Cwhitepaper%E2%80%9D-for-afl-fuzz"><span class="nav-number">1.</span> <span class="nav-text">Technical “whitepaper” for afl-fuzz</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Design-statement"><span class="nav-number">1.1.</span> <span class="nav-text">Design statement</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Coverage-measurements"><span class="nav-number">1.2.</span> <span class="nav-text">Coverage measurements</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Detecting-new-behaviors"><span class="nav-number">1.3.</span> <span class="nav-text">Detecting new behaviors</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Evolving-the-input-queue"><span class="nav-number">1.4.</span> <span class="nav-text">Evolving the input queue</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Culling-the-corpus"><span class="nav-number">1.5.</span> <span class="nav-text">Culling the corpus</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Trimming-input-files"><span class="nav-number">1.6.</span> <span class="nav-text">Trimming input files</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/11/08/AFL-fuzz-whitepaper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="AFL fuzz whitepaper | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AFL fuzz whitepaper
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-11-08 10:45:10" itemprop="dateCreated datePublished" datetime="2021-11-08T10:45:10+08:00">2021-11-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-03-18 12:11:44" itemprop="dateModified" datetime="2022-03-18T12:11:44+08:00">2022-03-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/category/Fuzzing/" itemprop="url" rel="index"><span itemprop="name">Fuzzing</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="Technical-“whitepaper”-for-afl-fuzz"><a href="#Technical-“whitepaper”-for-afl-fuzz" class="headerlink" title="Technical “whitepaper” for afl-fuzz"></a>Technical “whitepaper” for afl-fuzz</h1><h2 id="Design-statement"><a href="#Design-statement" class="headerlink" title="Design statement"></a>Design statement</h2><p>该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。</p>
+<p>原则：速度、可靠性、易使用</p>
+<h2 id="Coverage-measurements"><a href="#Coverage-measurements" class="headerlink" title="Coverage measurements"></a>Coverage measurements</h2><p>这个插桩注入到编译好的程序来获取分支覆盖率</p>
+<p>注入点：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cur_location = &lt;COMPILE_TIME_RANDOM&gt;;</span><br><span class="line">shared_mem[cur_location ^ prev_location]++; </span><br><span class="line">prev_location = cur_location &gt;&gt; 1;</span><br></pre></td></tr></table></figure>
+
+<p>cur_location是随机生成来简化链接复杂项目的并且保持XOR输出均匀分布。</p>
+<p>shared_mem[]是64KB的一个共享内存区域，被调用者传递给插桩二进制</p>
+<p>输出映射中设置的每个字节都可以看作是插入指令的代码中特定（branch_src，branch_dst）元组的命中</p>
+<p>coverage的形式：元组</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A -&gt; B -&gt; C -&gt; D -&gt; E (tuples: AB, BC, CD, DE)</span><br><span class="line">A -&gt; B -&gt; D -&gt; C -&gt; E (tuples: AB, BD, DC, CE)</span><br></pre></td></tr></table></figure>
+
+<p>这有助于发现底层代码中的细微故障条件，因为安全漏洞通常与意外或不正确的状态转换相关，而不仅仅是与到达新的基本块相关。</p>
+<h2 id="Detecting-new-behaviors"><a href="#Detecting-new-behaviors" class="headerlink" title="Detecting new behaviors"></a>Detecting new behaviors</h2><p>fuzzer维护在以前的执行中看到的元组的全局映射，可以与单路径进行快速比较，并且使用简单的循环和几条简单的之类就可以进行更新。</p>
+<p>当一个变异之后的输入的执行路径包含新的元组的时候，该输入便会被保留下来。否则将会被丢弃，即使他们的控制流图是唯一的。</p>
+<p>这种方法允许对程序状态进行非常细粒度和长期的探索，而不必对复杂的执行跟踪执行任何计算密集和脆弱的全局比较，同时避免了路径爆炸。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#1: A -&gt; B -&gt; C -&gt; D -&gt; E</span><br><span class="line">#2: A -&gt; B -&gt; C -&gt; A -&gt; E</span><br><span class="line">#2包含了新的元组（CA, AE），所以他是新的</span><br><span class="line">#3: A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; D -&gt; E</span><br><span class="line">但是#3不是unique的</span><br></pre></td></tr></table></figure>
+
+<p>此外除了考虑新的元组外，AFL还粗略统计了到达的元组数目，他们被分到下面的几个区间bucket：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1, 2, 3, 4-7, 8-15, 16-31, 32-127, 128+</span><br></pre></td></tr></table></figure>
+
+<p>bucket的数量是一个实现工件：它允许将插装生成的8位计数器就地映射到fuzzer可执行文件依赖的8位位图，以跟踪每个元组已经看到的执行计数。bucket之内的变化会被忽略。</p>
+<h2 id="Evolving-the-input-queue"><a href="#Evolving-the-input-queue" class="headerlink" title="Evolving the input queue"></a>Evolving the input queue</h2><p>已经变异了的测试用例，如果产生一个新的状态，就会被添加到输入队列中，并且作为将来的fuzzing的一个开始点。</p>
+<p>这个方法主要是为了让AFL探索分散的和尽可能多不可比的数据格式特点。</p>
+<h2 id="Culling-the-corpus"><a href="#Culling-the-corpus" class="headerlink" title="Culling the corpus"></a>Culling the corpus</h2><p>AFL为了保证效率，AFL会定期重新评估输入队列，选出测试用例的一个子集，同时可以保证任然可以覆盖每个元组。</p>
+<p>算法原理：为每个队列分配一个于其执行文件大小成比例的分数，然后为每个元组选择得分最低的候选项。</p>
+<p>元组的处理流程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1) Find next tuple not yet in the temporary working set,</span><br><span class="line"></span><br><span class="line">2) Locate the winning queue entry for this tuple,</span><br><span class="line"></span><br><span class="line">3) Register *all* tuples present in that entry&#x27;s trace in the working set,</span><br><span class="line"></span><br><span class="line">4) Go to #1 if there are any missing tuples in the set.</span><br></pre></td></tr></table></figure>
+
+<p>被判断成favored的实体，通常比原始数据集小5-10倍。被判断成non-favored的实体不会被丢弃，只是当遇见的时候会有一定的概率跳过：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- If there are new, yet-to-be-fuzzed favorites present in the queue, 99% of non-favored entries will be skipped to get to the favored ones.</span><br><span class="line"></span><br><span class="line">- If there are no new favorites:</span><br><span class="line"></span><br><span class="line">  - If the current non-favored entry was fuzzed before, it will be skipped 95% of the time.</span><br><span class="line"></span><br><span class="line">  - If it hasn&#x27;t gone through any fuzzing rounds yet, the odds of skipping drop down to 75%.</span><br></pre></td></tr></table></figure>
+
+<p>this provides a reasonable balance between queue cycling speed and test case diversity.</p>
+<p>afl-cmin: 稍微有点复杂，但是更慢的一个缩减方法。</p>
+<h2 id="Trimming-input-files"><a href="#Trimming-input-files" class="headerlink" title="Trimming input files"></a>Trimming input files</h2><p>有些类型的变异策略可能会迭代增加生成文件的大小。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trimmer </span><br></pre></td></tr></table></figure>
+
+<p>afl-tmin：是独立运行的，使用更详尽的迭代算法，还尝试对修剪过的文件执行字母表规范化。</p>
+<p>他的操作如下：</p>
+<ul>
+<li>首先，这个工具自动选择工作模式。如果初始化输入让目标二进制文件崩溃，afl-min将会使用未插桩的模式，并且简单对输入进行调整（产生更加简单的文件，但是任然是可以产生crash）；如果目标没有崩溃，他就会使用插桩的模式，并且保持调整（产生同样的执行路径）。</li>
+</ul>
+<p>实际的算法是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">1) Attempt to zero large blocks of data with large stepovers. Empirically, this is shown to reduce the number of execs by preempting finer-grained efforts later on.</span><br><span class="line"></span><br><span class="line">2) Perform a block deletion pass with decreasing block sizes and stepovers, binary-search-style. </span><br><span class="line"></span><br><span class="line">3) Perform alphabet normalization by counting unique characters and trying to bulk-replace each with a zero value.</span><br><span class="line"></span><br><span class="line">4) As a last result, perform byte-by-byte normalization on non-zero bytes.</span><br><span class="line">- Sequential bit flips with varying lengths and stepovers,</span><br><span class="line"></span><br><span class="line">- Sequential addition and subtraction of small integers,</span><br><span class="line"></span><br><span class="line">- Sequential insertion of known interesting integers (0, 1, INT_MAX, etc),</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AFL/" rel="tag"># AFL</a>
+              <a href="/tags/whitepaper/" rel="tag"># whitepaper</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/11/05/afl-fuzz-libxml2/" rel="prev" title="afl fuzz libxml2">
+                  <i class="fa fa-chevron-left"></i> afl fuzz libxml2
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/11/14/heartbleed-CVE-2014-0160/" rel="next" title="heartbleed(CVE-2014-0160)">
+                  heartbleed(CVE-2014-0160) <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
