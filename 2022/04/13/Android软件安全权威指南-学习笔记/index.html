@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="逆向一个app的常规步骤 使用apktool反编译apk Apktool_2.6.1.jar d app-release.apk -o outputdir   查看资源文件中的string.xml 寻找相关的字符串对应的id号 搜索整个反编译文件内容 id号 继续分析 找到smali文件，然后查看逻辑，并破解apk 回编译apk、签名 验证  dex文件结构dex文件是Android系统的可执行文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android软件安全权威指南-学习笔记">
+<meta property="og:url" content="http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="逆向一个app的常规步骤 使用apktool反编译apk Apktool_2.6.1.jar d app-release.apk -o outputdir   查看资源文件中的string.xml 寻找相关的字符串对应的id号 搜索整个反编译文件内容 id号 继续分析 找到smali文件，然后查看逻辑，并破解apk 回编译apk、签名 验证  dex文件结构dex文件是Android系统的可执行文">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220413185118.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220413185509.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220414154101.png">
+<meta property="article:published_time" content="2022-04-13T09:15:46.000Z">
+<meta property="article:modified_time" content="2022-04-16T09:17:00.496Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="Android安全">
+<meta property="article:tag" content="notes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220413185118.png">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/","path":"2022/04/13/Android软件安全权威指南-学习笔记/","title":"Android软件安全权威指南-学习笔记"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Android软件安全权威指南-学习笔记 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%86%E5%90%91%E4%B8%80%E4%B8%AAapp%E7%9A%84%E5%B8%B8%E8%A7%84%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.</span> <span class="nav-text">逆向一个app的常规步骤</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dex%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">dex文件结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Dalvik"><span class="nav-number">3.</span> <span class="nav-text">Dalvik</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#dex2jar%E4%BD%BF%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">dex2jar使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Android软件安全权威指南-学习笔记 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android软件安全权威指南-学习笔记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-04-13 17:15:46" itemprop="dateCreated datePublished" datetime="2022-04-13T17:15:46+08:00">2022-04-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-16 17:17:00" itemprop="dateModified" datetime="2022-04-16T17:17:00+08:00">2022-04-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/notes/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="逆向一个app的常规步骤"><a href="#逆向一个app的常规步骤" class="headerlink" title="逆向一个app的常规步骤"></a>逆向一个app的常规步骤</h1><ol>
+<li>使用apktool反编译apk<ul>
+<li>Apktool_2.6.1.jar d app-release.apk -o outputdir</li>
+</ul>
+</li>
+<li>查看资源文件中的string.xml</li>
+<li>寻找相关的字符串对应的id号</li>
+<li>搜索整个反编译文件内容 id号</li>
+<li>继续分析</li>
+<li>找到smali文件，然后查看逻辑，并破解apk</li>
+<li>回编译apk、签名</li>
+<li>验证</li>
+</ol>
+<h1 id="dex文件结构"><a href="#dex文件结构" class="headerlink" title="dex文件结构"></a>dex文件结构</h1><p>dex文件是Android系统的可执行文件，默认小端字节序（Little-Endian：低位字节再内存的低地址）</p>
+<table>
+<thead>
+<tr>
+<th>字段名</th>
+<th align="center">信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>header</td>
+<td align="center">dex文件头部，记录整个dex文件的相关属性（magic固定：64 65 78 0a 30 33 35 00）   总长：0x70</td>
+</tr>
+<tr>
+<td>string_ids</td>
+<td align="center">字符串数据索引，记录了每个字符串在数据区的偏移量</td>
+</tr>
+<tr>
+<td>type_ids</td>
+<td align="center">类似数据索引，记录了每个类型的字符串索引</td>
+</tr>
+<tr>
+<td>proto_ids</td>
+<td align="center">原型数据索引，记录了方法声明的字符串，返回类型字符串，参数列表</td>
+</tr>
+<tr>
+<td>field_ids</td>
+<td align="center">字段数据索引，记录了所属类，类型以及方法名</td>
+</tr>
+<tr>
+<td>method_ids</td>
+<td align="center">类方法索引，记录方法所属类名，方法声明以及方法名等信息</td>
+</tr>
+<tr>
+<td>class_defs</td>
+<td align="center">类定义数据索引，记录指定类各类信息，包括接口，超类，类数据偏移量</td>
+</tr>
+<tr>
+<td>data</td>
+<td align="center">数据区，保存了各个类的真是数据</td>
+</tr>
+</tbody></table>
+<p>dex文件分析示例：</p>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413185118.png" alt="图片分析示例"></p>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413185509.png"></p>
+<p>jar文件转成dex文件</p>
+<img src="https://raw.githubusercontent.com/Dfault0/images/main/20220414154101.png" style="zoom:40%;" />
+
+
+
+<p><strong>java虚拟机基于栈，Dalvik是基于寄存器</strong></p>
+<h1 id="Dalvik"><a href="#Dalvik" class="headerlink" title="Dalvik"></a>Dalvik</h1><p>zygote是Android系统中所有进程的孵化器进程。</p>
+<ul>
+<li>zygote启动后，会先初始化Dalvik虚拟机，</li>
+<li>再启动system_server进程并进入zygote模式，通过socket等候命令下达。</li>
+<li>在执行一个Android应用程序的时候，system_server进程通过binder IPC方式将命令发送给zygote。</li>
+<li>zygote收到命令之后通过fork其自身创建一个dalvik虚拟机实例来执行应用程序的入口函数，从而完成应用程序的启动过程。</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904116561379341">https://juejin.cn/post/6844904116561379341</a></p>
+<ul>
+<li>fp是arm的栈帧寄存器</li>
+<li>dalvik寄存器命令方式：<ul>
+<li>v命名法：一个函数使用了m个寄存器（每个寄存器32位），且有n个参数， 参数使用最后的n个寄存器，vm-n - this，v0-vm-n-1表示的是局部变量使用的</li>
+<li>p命名法：函数中传入的参数从p0开始增加，其他的和v命名法一样</li>
+</ul>
+</li>
+</ul>
+<p><strong>dalvik字节码类型描述符</strong></p>
+<table>
+<thead>
+<tr>
+<th>语法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>v</td>
+<td>void</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>bool</td>
+</tr>
+<tr>
+<td>B</td>
+<td>BYTE</td>
+</tr>
+<tr>
+<td>S</td>
+<td>SHORT</td>
+</tr>
+<tr>
+<td>C</td>
+<td>CHAR</td>
+</tr>
+<tr>
+<td>I</td>
+<td>INT</td>
+</tr>
+<tr>
+<td>J</td>
+<td>LONG</td>
+</tr>
+<tr>
+<td>F</td>
+<td>FLOAT</td>
+</tr>
+<tr>
+<td>D</td>
+<td>DOUBLE</td>
+</tr>
+<tr>
+<td>L</td>
+<td>JAVA类类型 可以表示Java中的任何类   Lpackage&#x2F;name.ObjectName; (package.name.ObjectName)</td>
+</tr>
+<tr>
+<td>[</td>
+<td>数组</td>
+</tr>
+</tbody></table>
+<p>跳转指令：</p>
+<ul>
+<li>goto</li>
+<li>switch</li>
+<li>if</li>
+</ul>
+<p><u>dex文件的验证与校验：</u></p>
+<ul>
+<li><p>checksum：调用adler32()来完成计算，跳过了DexHeader的magic与checksum字段，将后面到文件的结果作为计算数据的总长度。</p>
+</li>
+<li><p>签名验证：跳过magic、checksum、signature字段，调用dexComputeSHA1Digest()，将计算结果与signature中保存的值进行比较，如果相等就通过</p>
+</li>
+</ul>
+<h2 id="dex2jar使用"><a href="#dex2jar使用" class="headerlink" title="dex2jar使用"></a>dex2jar使用</h2><ul>
+<li>下载 <a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=https://github.com/pxb1988/dex2jar">dex2jar</a>，并解压</li>
+<li>下载class反编译工具 <a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://jd.benow.ca/">jd-gui</a>，并解压</li>
+<li>将测试的安装包xxx.apk后缀改为.zip，解压后拷贝<code>classes.dex</code>文件到dex2jar文件目录下，cmd进入改目录，执行<code>d2j-dex2jar.bat classes.dex</code>命令，会生成classes-dex2jar.jar文件；</li>
+<li>打开jd-gui工具，然后将生成的classes-dex2jar.jar文件拖进去，即可看见反编译的文件</li>
+</ul>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ol>
+<li><p>Android安全面经：<a target="_blank" rel="noopener" href="https://blog.xhyeax.com/2021/12/01/2022-autumn-mobile-security-interview-experience/">https://blog.xhyeax.com/2021/12/01/2022-autumn-mobile-security-interview-experience/</a></p>
+</li>
+<li><p>dex文件结构详解：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f7f0a712ddfe">https://www.jianshu.com/p/f7f0a712ddfe</a></p>
+</li>
+<li><p>dex文件结构图解：<a target="_blank" rel="noopener" href="https://github.com/cckenny/2020_autumn_mobile_security_interview/blob/main/pics/DEX.png">https://github.com/cckenny/2020_autumn_mobile_security_interview/blob/main/pics/DEX.png</a></p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android%E5%AE%89%E5%85%A8/" rel="tag"># Android安全</a>
+              <a href="/tags/notes/" rel="tag"># notes</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/04/11/APP%E5%8A%A0%E5%A3%B3%E8%84%B1%E5%A3%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="prev" title="APP加壳脱壳学习笔记">
+                  <i class="fa fa-chevron-left"></i> APP加壳脱壳学习笔记
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/04/13/Android%E5%9F%BA%E7%A1%80/" rel="next" title="Android基础">
+                  Android基础 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

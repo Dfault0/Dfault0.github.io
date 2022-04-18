@@ -133,18 +133,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -182,6 +182,462 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/04/16/%E7%A0%B4%E8%A7%A3%E7%AC%AC%E4%B8%80%E4%B8%AAAndroid%E7%A8%8B%E5%BA%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/04/16/%E7%A0%B4%E8%A7%A3%E7%AC%AC%E4%B8%80%E4%B8%AAAndroid%E7%A8%8B%E5%BA%8F/" class="post-title-link" itemprop="url">破解第一个Android程序</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-04-16 14:24:50 / Modified: 14:48:11" itemprop="dateCreated datePublished" datetime="2022-04-16T14:24:50+08:00">2022-04-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="使用IDA进行破解分析"><a href="#使用IDA进行破解分析" class="headerlink" title="使用IDA进行破解分析"></a>使用IDA进行破解分析</h1><ul>
+<li>查找分析点<ol>
+<li>使用apktool反编译apk<ul>
+<li><code>Apktool_2.6.1.jar d app-release.apk -o outputdir</code></li>
+</ul>
+</li>
+<li>查看资源文件中的string.xml</li>
+<li>寻找相关的字符串对应的id号 比如 “unsuccessed”</li>
+</ol>
+</li>
+<li>使用7z直接解压缩目标APK</li>
+<li>提取其中的dex文件</li>
+<li>载入ida</li>
+<li>使用关键字搜索 ALT T 来搜索上面找到的id号</li>
+<li>简单分析程序，然后修改dex文件<ul>
+<li>edit - patch program -&gt; change byte -&gt; apply patches to input file</li>
+</ul>
+</li>
+</ul>
+<h1 id="使用dex2jar工具对dex文件进行修复"><a href="#使用dex2jar工具对dex文件进行修复" class="headerlink" title="使用dex2jar工具对dex文件进行修复"></a>使用dex2jar工具对dex文件进行修复</h1><p>主要是修复dex文件中的这两个字段：（checksum、signature）。也可以使用dexfixter工具</p>
+<ul>
+<li><code>d2j-dex-recompute-checksum.bat classes.dex</code></li>
+</ul>
+<p>替换apk里面的dex文件为修复之后的文件</p>
+<ul>
+<li>删除文件：<ul>
+<li><code>.\aapt r D:\tools\android\apks\crackme02.apk classes.dex</code></li>
+</ul>
+</li>
+<li>替换文件：<ul>
+<li><code>.\aapt a D:\tools\android\apks\crackme02.apk d:\tools\android\apks\classes.dex</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h1><blockquote>
+<p>签名之前需要将之前的apk文件里面原来的签名文件删除 </p>
+<p>即删除 META-INF文件夹</p>
+</blockquote>
+<ul>
+<li><code>jarsigner -keystore d:\android\android.jks -signedjar crackme02signed.apk crackme02.apk android</code></li>
+<li>其中Android.jks是由AS自动生成的签名文件，android是证书名称</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/04/13/Android%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/04/13/Android%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">Android基础</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-04-13 19:04:30" itemprop="dateCreated datePublished" datetime="2022-04-13T19:04:30+08:00">2022-04-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-14 15:35:49" itemprop="dateModified" datetime="2022-04-14T15:35:49+08:00">2022-04-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Activity生命周期"><a href="#Activity生命周期" class="headerlink" title="Activity生命周期"></a>Activity生命周期</h1><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413191810.png" style="zoom:40%;" />
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">Android软件安全权威指南-学习笔记</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-04-13 17:15:46" itemprop="dateCreated datePublished" datetime="2022-04-13T17:15:46+08:00">2022-04-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-16 17:17:00" itemprop="dateModified" datetime="2022-04-16T17:17:00+08:00">2022-04-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/notes/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="逆向一个app的常规步骤"><a href="#逆向一个app的常规步骤" class="headerlink" title="逆向一个app的常规步骤"></a>逆向一个app的常规步骤</h1><ol>
+<li>使用apktool反编译apk<ul>
+<li>Apktool_2.6.1.jar d app-release.apk -o outputdir</li>
+</ul>
+</li>
+<li>查看资源文件中的string.xml</li>
+<li>寻找相关的字符串对应的id号</li>
+<li>搜索整个反编译文件内容 id号</li>
+<li>继续分析</li>
+<li>找到smali文件，然后查看逻辑，并破解apk</li>
+<li>回编译apk、签名</li>
+<li>验证</li>
+</ol>
+<h1 id="dex文件结构"><a href="#dex文件结构" class="headerlink" title="dex文件结构"></a>dex文件结构</h1><p>dex文件是Android系统的可执行文件，默认小端字节序（Little-Endian：低位字节再内存的低地址）</p>
+<table>
+<thead>
+<tr>
+<th>字段名</th>
+<th align="center">信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>header</td>
+<td align="center">dex文件头部，记录整个dex文件的相关属性（magic固定：64 65 78 0a 30 33 35 00）   总长：0x70</td>
+</tr>
+<tr>
+<td>string_ids</td>
+<td align="center">字符串数据索引，记录了每个字符串在数据区的偏移量</td>
+</tr>
+<tr>
+<td>type_ids</td>
+<td align="center">类似数据索引，记录了每个类型的字符串索引</td>
+</tr>
+<tr>
+<td>proto_ids</td>
+<td align="center">原型数据索引，记录了方法声明的字符串，返回类型字符串，参数列表</td>
+</tr>
+<tr>
+<td>field_ids</td>
+<td align="center">字段数据索引，记录了所属类，类型以及方法名</td>
+</tr>
+<tr>
+<td>method_ids</td>
+<td align="center">类方法索引，记录方法所属类名，方法声明以及方法名等信息</td>
+</tr>
+<tr>
+<td>class_defs</td>
+<td align="center">类定义数据索引，记录指定类各类信息，包括接口，超类，类数据偏移量</td>
+</tr>
+<tr>
+<td>data</td>
+<td align="center">数据区，保存了各个类的真是数据</td>
+</tr>
+</tbody></table>
+<p>dex文件分析示例：</p>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413185118.png" alt="图片分析示例"></p>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413185509.png"></p>
+<p>jar文件转成dex文件</p>
+<img src="https://raw.githubusercontent.com/Dfault0/images/main/20220414154101.png" style="zoom:40%;" />
+
+
+
+<p><strong>java虚拟机基于栈，Dalvik是基于寄存器</strong></p>
+<h1 id="Dalvik"><a href="#Dalvik" class="headerlink" title="Dalvik"></a>Dalvik</h1><p>zygote是Android系统中所有进程的孵化器进程。</p>
+<ul>
+<li>zygote启动后，会先初始化Dalvik虚拟机，</li>
+<li>再启动system_server进程并进入zygote模式，通过socket等候命令下达。</li>
+<li>在执行一个Android应用程序的时候，system_server进程通过binder IPC方式将命令发送给zygote。</li>
+<li>zygote收到命令之后通过fork其自身创建一个dalvik虚拟机实例来执行应用程序的入口函数，从而完成应用程序的启动过程。</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904116561379341">https://juejin.cn/post/6844904116561379341</a></p>
+<ul>
+<li>fp是arm的栈帧寄存器</li>
+<li>dalvik寄存器命令方式：<ul>
+<li>v命名法：一个函数使用了m个寄存器（每个寄存器32位），且有n个参数， 参数使用最后的n个寄存器，vm-n - this，v0-vm-n-1表示的是局部变量使用的</li>
+<li>p命名法：函数中传入的参数从p0开始增加，其他的和v命名法一样</li>
+</ul>
+</li>
+</ul>
+<p><strong>dalvik字节码类型描述符</strong></p>
+<table>
+<thead>
+<tr>
+<th>语法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>v</td>
+<td>void</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>bool</td>
+</tr>
+<tr>
+<td>B</td>
+<td>BYTE</td>
+</tr>
+<tr>
+<td>S</td>
+<td>SHORT</td>
+</tr>
+<tr>
+<td>C</td>
+<td>CHAR</td>
+</tr>
+<tr>
+<td>I</td>
+<td>INT</td>
+</tr>
+<tr>
+<td>J</td>
+<td>LONG</td>
+</tr>
+<tr>
+<td>F</td>
+<td>FLOAT</td>
+</tr>
+<tr>
+<td>D</td>
+<td>DOUBLE</td>
+</tr>
+<tr>
+<td>L</td>
+<td>JAVA类类型 可以表示Java中的任何类   Lpackage&#x2F;name.ObjectName; (package.name.ObjectName)</td>
+</tr>
+<tr>
+<td>[</td>
+<td>数组</td>
+</tr>
+</tbody></table>
+<p>跳转指令：</p>
+<ul>
+<li>goto</li>
+<li>switch</li>
+<li>if</li>
+</ul>
+<p><u>dex文件的验证与校验：</u></p>
+<ul>
+<li><p>checksum：调用adler32()来完成计算，跳过了DexHeader的magic与checksum字段，将后面到文件的结果作为计算数据的总长度。</p>
+</li>
+<li><p>签名验证：跳过magic、checksum、signature字段，调用dexComputeSHA1Digest()，将计算结果与signature中保存的值进行比较，如果相等就通过</p>
+</li>
+</ul>
+<h2 id="dex2jar使用"><a href="#dex2jar使用" class="headerlink" title="dex2jar使用"></a>dex2jar使用</h2><ul>
+<li>下载 <a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=https://github.com/pxb1988/dex2jar">dex2jar</a>，并解压</li>
+<li>下载class反编译工具 <a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://jd.benow.ca/">jd-gui</a>，并解压</li>
+<li>将测试的安装包xxx.apk后缀改为.zip，解压后拷贝<code>classes.dex</code>文件到dex2jar文件目录下，cmd进入改目录，执行<code>d2j-dex2jar.bat classes.dex</code>命令，会生成classes-dex2jar.jar文件；</li>
+<li>打开jd-gui工具，然后将生成的classes-dex2jar.jar文件拖进去，即可看见反编译的文件</li>
+</ul>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ol>
+<li><p>Android安全面经：<a target="_blank" rel="noopener" href="https://blog.xhyeax.com/2021/12/01/2022-autumn-mobile-security-interview-experience/">https://blog.xhyeax.com/2021/12/01/2022-autumn-mobile-security-interview-experience/</a></p>
+</li>
+<li><p>dex文件结构详解：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f7f0a712ddfe">https://www.jianshu.com/p/f7f0a712ddfe</a></p>
+</li>
+<li><p>dex文件结构图解：<a target="_blank" rel="noopener" href="https://github.com/cckenny/2020_autumn_mobile_security_interview/blob/main/pics/DEX.png">https://github.com/cckenny/2020_autumn_mobile_security_interview/blob/main/pics/DEX.png</a></p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/04/11/APP%E5%8A%A0%E5%A3%B3%E8%84%B1%E5%A3%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -210,8 +666,22 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
+      
 
-      <time title="Created: 2022-04-11 14:22:54" itemprop="dateCreated datePublished" datetime="2022-04-11T14:22:54+08:00">2022-04-11</time>
+      <time title="Created: 2022-04-11 14:22:54 / Modified: 15:53:38" itemprop="dateCreated datePublished" datetime="2022-04-11T14:22:54+08:00">2022-04-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
+        </span>
     </span>
 
   
@@ -224,7 +694,37 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          
+          <h1 id="APP壳相关知识"><a href="#APP壳相关知识" class="headerlink" title="APP壳相关知识"></a>APP壳相关知识</h1><p>app运行流程：</p>
+<ol>
+<li>BootClassLoader加载系统核心库</li>
+<li>PathClassLoader加载 APP自身dex</li>
+<li>进入APP自身组件开始执行</li>
+<li>调用声明Application的 attachBaseContext</li>
+<li>调用声明Application的onCreate</li>
+</ol>
+<p>app最先获得执行权限的是app中声明的Application类中的attachBaseContext和onCreate函数，所以壳对代码进行解密一般都在这两个函数上进行。</p>
+<p><strong>加壳程序的运行流程：</strong></p>
+<ol>
+<li>app启动</li>
+<li>自定义Application中 attachBaseContext的实现<ul>
+<li>解密源程序</li>
+<li>初始化自定义加载器类</li>
+<li>反射设置LoadedApk中加载器对象为自定义加载器</li>
+</ul>
+</li>
+<li>自定义Application中的onCreate方法实现、<ul>
+<li>获取源程序中的Application名称</li>
+<li>反射生成正确的Application对象</li>
+<li>反射设置ActivityThread中的Application信息</li>
+</ul>
+</li>
+<li>Activity加载流程：源程序正常运行</li>
+</ol>
+<p>当壳在函数attachBaseContext和onCreate中执行完加密的dex文件的解密后，通过自定义的Classloader在内存中加载解密后的dex文件</p>
+<p>只要获取到加固应用最终通过反射设置后的Classloader，我们就可以通过一系列反射最终获取到当前应用所加载的解密后的内存中的Dex文件。</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-252630.htm">https://bbs.pediy.com/thread-252630.htm</a></p>
+<p>Android源码：<a target="_blank" rel="noopener" href="http://aospxref.com/">http://aospxref.com/</a></p>
+
       
     </div>
 
@@ -700,7 +1200,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-10 19:33:01" itemprop="dateModified" datetime="2022-04-10T19:33:01+08:00">2022-04-10</time>
+      <time title="Modified: 2022-04-13 13:55:43" itemprop="dateModified" datetime="2022-04-13T13:55:43+08:00">2022-04-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -722,12 +1222,14 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>写代码：<font color=red>先在草稿上面分清楚类别</font>，分析好了各个情况才开始敲代码，不然一直调试会很不方便，效率较低。</p>
+          <h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>写代码：<font color=red>先在草稿上面分清楚类别</font>，分析好了各个情况才开始敲代码，不然一直调试会很不方便，效率较低。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> Integer.parseInt(string) ;<span class="comment">//可以将string直接转换成int(按照十进制)</span></span><br><span class="line"><span class="type">String</span> <span class="variable">b</span> <span class="operator">=</span> String.valueOf(<span class="type">int</span>) ;<span class="comment">//可以将int直接转换成字符串 比如 1 = &quot;1&quot;</span></span><br></pre></td></tr></table></figure>
 
-
-
-<p>&lt;— more — &gt;</p>
+<ul>
+<li>很多数组填充类的问题，都可以先预先给数组扩容带填充后的大小，然后在从后向前进行操作。</li>
+<li>如果需要判断某个数据是否再一个数据结构中是否存在，则一般建议可以用哈希表</li>
+<li>哈希表和数组再同等情况下建议用数组（时间更快）</li>
+</ul>
 <h1 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h1><p>头插法：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//递归</span></span><br><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">ReverseList</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span>(head==<span class="literal">null</span>||head.next==<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">p</span> <span class="operator">=</span> ReverseList(head.next);</span><br><span class="line">    <span class="comment">//走到了尾节点</span></span><br><span class="line">    head.next.next = head;</span><br><span class="line">    head.next = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//循环</span></span><br><span class="line">    <span class="keyword">public</span> ListNode <span class="title function_">ReverseList</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line">         </span><br><span class="line">        <span class="type">ListNode</span> <span class="variable">p</span> <span class="operator">=</span> <span class="literal">null</span>,next;</span><br><span class="line">        <span class="keyword">while</span>(head!=<span class="literal">null</span>)&#123;</span><br><span class="line">            next = head.next;</span><br><span class="line">            head.next = p;</span><br><span class="line">            p = head;</span><br><span class="line">            head = next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> p;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
@@ -749,7 +1251,7 @@
 
 
 <h2 id="遍历"><a href="#遍历" class="headerlink" title="遍历"></a>遍历</h2><h2 id="中序遍历："><a href="#中序遍历：" class="headerlink" title="中序遍历："></a>中序遍历：</h2><p>递归：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">KthNode</span> <span class="params">(TreeNode proot, <span class="type">int</span> k)</span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">    <span class="keyword">if</span>(proot==<span class="literal">null</span> || k&lt;=<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    KthNode(proot.left,k);</span><br><span class="line">    i++;</span><br><span class="line">    <span class="keyword">if</span>(i == k)&#123;</span><br><span class="line">        <span class="type">return</span> <span class="variable">result</span> <span class="operator">=</span> proot.val;</span><br><span class="line">    &#125;</span><br><span class="line">    KthNode(proot.right,k);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">KthNode</span> <span class="params">(TreeNode proot, <span class="type">int</span> k)</span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">    <span class="keyword">if</span>(proot==<span class="literal">null</span> || k&lt;=<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    KthNode(proot.left,k);</span><br><span class="line">    i++;</span><br><span class="line">    <span class="keyword">if</span>(i == k)&#123;</span><br><span class="line">        <span class="type">return</span> <span class="variable">result</span> <span class="operator">=</span> proot.val;</span><br><span class="line">    &#125;</span><br><span class="line">    KthNode(proot.right,k);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="层次遍历"><a href="#层次遍历" class="headerlink" title="层次遍历"></a>层次遍历</h2><p>循环，并且</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//需要知道当前层次</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">KthNode</span> <span class="params">(TreeNode proot, <span class="type">int</span> k)</span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">    <span class="keyword">if</span>(proot==<span class="literal">null</span>||k&lt;=<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    Stack&lt;TreeNode&gt; stack = <span class="keyword">new</span> <span class="title class_">Stack</span>&lt;&gt;();</span><br><span class="line">    stack.push(proot);</span><br><span class="line">    <span class="type">TreeNode</span> <span class="variable">node</span> <span class="operator">=</span> proot;</span><br><span class="line">    <span class="keyword">while</span>(!stack.isEmpty())&#123;</span><br><span class="line">        <span class="keyword">while</span>(node.left!=<span class="literal">null</span>)&#123;</span><br><span class="line">            stack.push(node.left);</span><br><span class="line">            node = node.left; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果，这里写成 node = stack.pop()是会出错的。因为，左子树遍历结束之后需要遍历右子树，只有右子树不为空，node才会变，否则便是一直为空，便会一直会进入上面的循环里面（node.left!=null）</span></span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">temp</span> <span class="operator">=</span> stack.pop();</span><br><span class="line">        count++;</span><br><span class="line">        <span class="keyword">if</span>(count == k)&#123;</span><br><span class="line">            <span class="keyword">return</span> temp.val;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(temp.right!=<span class="literal">null</span>)&#123;</span><br><span class="line">            stack.push(temp.right);</span><br><span class="line">            node = temp.right;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -846,7 +1348,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/03/18/%E9%85%8D%E7%BD%AE%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%20github%20+%20hexo/">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/03/18/%E5%88%B7%E9%A2%98-%E7%AE%97%E6%B3%95%E7%AF%87/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -864,7 +1366,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/03/18/%E9%85%8D%E7%BD%AE%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%20github%20+%20hexo/" class="post-title-link" itemprop="url">配置自己的个人博客 github + hexo</a>
+          <a href="/2022/03/18/%E5%88%B7%E9%A2%98-%E7%AE%97%E6%B3%95%E7%AF%87/" class="post-title-link" itemprop="url">刷题-算法篇</a>
         </h2>
 
         <div class="post-meta-container">
@@ -875,14 +1377,14 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2022-03-18 10:46:02" itemprop="dateCreated datePublished" datetime="2022-03-18T10:46:02+08:00">2022-03-18</time>
+      <time title="Created: 2022-03-18 16:33:52" itemprop="dateCreated datePublished" datetime="2022-03-18T16:33:52+08:00">2022-03-18</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-03-23 15:25:24" itemprop="dateModified" datetime="2022-03-23T15:25:24+08:00">2022-03-23</time>
+      <time title="Modified: 2022-04-18 09:45:44" itemprop="dateModified" datetime="2022-04-18T09:45:44+08:00">2022-04-18</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -890,11 +1392,11 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Fuzzing/" itemprop="url" rel="index"><span itemprop="name">Fuzzing</span></a>
+          <a href="/categories/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Fuzzing/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
+          <a href="/categories/notes/%E5%88%B7%E9%A2%98/" itemprop="url" rel="index"><span itemprop="name">刷题</span></a>
         </span>
     </span>
 
@@ -908,348 +1410,72 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h1 id="配置自己的个人博客-github-hexo"><a href="#配置自己的个人博客-github-hexo" class="headerlink" title="配置自己的个人博客 github + hexo"></a>配置自己的个人博客 github + hexo</h1><p>基本教程：</p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26625249">https://zhuanlan.zhihu.com/p/26625249</a></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/11/15/the-fuzzing-book-study-notes/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Dfault0">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dfault0's blog">
-      <meta itemprop="description" content="I CAN">
-    </span>
-    
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Dfault0's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/11/15/the-fuzzing-book-study-notes/" class="post-title-link" itemprop="url">the fuzzing book study notes</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2021-11-15 10:46:02" itemprop="dateCreated datePublished" datetime="2021-11-15T10:46:02+08:00">2021-11-15</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-03-18 16:40:51" itemprop="dateModified" datetime="2022-03-18T16:40:51+08:00">2022-03-18</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Fuzzing/" itemprop="url" rel="index"><span itemprop="name">Fuzzing</span></a>
-        </span>
-          , 
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Fuzzing/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="The-Researcher-Tour"><a href="#The-Researcher-Tour" class="headerlink" title="The Researcher Tour"></a>The Researcher Tour</h1><p><a target="_blank" rel="noopener" href="https://www.fuzzingbook.org/">https://www.fuzzingbook.org</a></p>
-<p>Fuzzing: Breaking Things with Random Inputs</p>
-<p><em>Create random inputs, and see if they break things.</em> Just let it run long enough and you’ll see.</p>
-<h2 id="Mining-Function-Specifications"><a href="#Mining-Function-Specifications" class="headerlink" title="Mining Function Specifications"></a>Mining Function Specifications</h2><p>当我们测试一个程序的时候，不仅仅需要覆盖所有的行为，也还需要检查他的结果是否符合预期。</p>
-<p><em>dynamic invariants</em>的作用：</p>
+          <h1 id="动态规划-dynamic-programming-DP"><a href="#动态规划-dynamic-programming-DP" class="headerlink" title="动态规划 dynamic programming DP"></a>动态规划 dynamic programming DP</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u013309870/article/details/75193592">https://blog.csdn.net/u013309870/article/details/75193592</a></p>
+<p>适用于有重叠子问题和最优子结构性质的问题。</p>
+<blockquote>
+<p>最优子结构：如果问题的最优解所包含的子问题的解也是最优的。</p>
+<p>无后效性：子问题的解一旦确定就不再更改。</p>
+<p>子问题重叠性质：旨在使用递归算法自顶向下对问题进行求解的时候，每次产生的子问题并不总是新问题，有些子问题需要被重复计算多次。</p>
+</blockquote>
+<p>其思想：先计算子问题，然后根据子问题得出原问题的解，所以需要存储子问题</p>
+<p>思考动态规划的解题思路的时候一般用的是：**<u>从结果推出上一个子问题的答案，以此来推断出状态转移方程</u>**</p>
+<p>动态规划算法有两种形式：</p>
 <ul>
-<li>Dynamic invariants provide important information for symbolic fuzzing, such as types and ranges of function arguments.</li>
-<li>Dynamic invariants provide pre- and postconditions for formal program proofs and verification.</li>
-<li>Dynamic invariants provide a large number of assertions that can check whether function behavior has changed.</li>
-<li>Checks provided by dynamic invariants can be very useful as oracles for checking the effects of generated tests</li>
+<li>自顶向下的备忘录法</li>
+<li>自底向上</li>
 </ul>
-<h3 id="code-coverage"><a href="#code-coverage" class="headerlink" title="code coverage"></a>code coverage</h3>
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
+<p>动态规划经典案例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//动态规划节约空间，自第向上   </span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">jumpFloor</span><span class="params">(<span class="type">int</span> target)</span> &#123;</span><br><span class="line">        <span class="comment">//分步骤完成 ，用乘法</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">temp_1</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">temp_2</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">2</span>;i&lt;=target;i++)&#123;</span><br><span class="line">            result = temp_1+temp_2;</span><br><span class="line">            temp_2 = temp_1;</span><br><span class="line">            temp_1 = result;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result ;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//自底向上</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">jumpFloor</span><span class="params">(<span class="type">int</span> target)</span> &#123;</span><br><span class="line">        <span class="comment">//分步骤完成 ，用乘法</span></span><br><span class="line">        <span class="type">int</span> dp[] = <span class="keyword">new</span> <span class="title class_">int</span>[target+<span class="number">1</span>];</span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">        dp[<span class="number">1</span>] = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">2</span>;i&lt;=target;i++)&#123;</span><br><span class="line">            dp[i] = dp[i-<span class="number">1</span>]+dp[i-<span class="number">2</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[target] ;      </span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//递归，存储中间值</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;    </span><br><span class="line">    <span class="type">int</span> dp[] = <span class="keyword">new</span> <span class="title class_">int</span>[<span class="number">50</span>];    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">jumpFloor</span><span class="params">(<span class="type">int</span> target)</span> &#123;</span><br><span class="line">        <span class="comment">//分步骤完成 ，用乘法        </span></span><br><span class="line">        <span class="keyword">if</span>(target&lt;=<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(dp[target]&gt;<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> dp[target];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[target] = jumpFloor(target-<span class="number">1</span>)+jumpFloor(target-<span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//递归</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">jumpFloor</span><span class="params">(<span class="type">int</span> target)</span> &#123;      </span><br><span class="line">        <span class="keyword">if</span>(target&lt;=<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> jumpFloor(target-<span class="number">1</span>)+jumpFloor(target-<span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
 
-    
 
+<p>利用<code>Brian Kernighan</code>算法，可以在一定程度上进一步提升计算速度。Brian Kernighan 算法的原理是：对于任意整数 x，令 x&#x3D;x&amp;(x-1)x，该运算将 xx 的二进制表示的最后一个 1 变成 0。因此，对 x 重复该操作，直到 x 变成 0，则操作次数即为 x 的「一比特数」<br><font color = red>正整数 y 是 2 的整数次幂，当且仅当 y&amp;(y-1)&#x3D;0</font></p>
+<p>得到0-n的所有数据的bit的1的个数:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] countBits(<span class="type">int</span> n) &#123;</span><br><span class="line">        <span class="type">int</span>[] bits = <span class="keyword">new</span> <span class="title class_">int</span>[n + <span class="number">1</span>];</span><br><span class="line">        <span class="type">int</span> <span class="variable">highBit</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((i &amp; (i - <span class="number">1</span>)) == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">//i是2的整数次幂，只有最高位为1，其余为0，在这里highbit表示的是bit[i]的最高有效位</span></span><br><span class="line">                highBit = i;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//bit[i]&gt;bit[j],i&gt;j&gt;0,并且i比j的二进制1多一个，</span></span><br><span class="line">            bits[i] = bits[i - highBit] + <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> bits;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<div class="post-block">
-  
-  
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] countBits(<span class="type">int</span> n) &#123;</span><br><span class="line">        <span class="type">int</span>[] bits = <span class="keyword">new</span> <span class="title class_">int</span>[n + <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">            <span class="comment">//i &amp; (i - 1):其结果是将最低位的1变为0</span></span><br><span class="line">            bits[i] = bits[i &amp; (i - <span class="number">1</span>)] + <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> bits;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/11/15/libFuzzer-workshop-study/">
+<h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><p>数组进行反转或者是字符串进行反转：<strong>先整体反转再局部反转</strong></p>
+<p><strong>其实很多数组填充类的问题，都可以先预先给数组扩容带填充后的大小，然后在从后向前进行操作。</strong></p>
+<h2 id="双指针"><a href="#双指针" class="headerlink" title="双指针"></a>双指针</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] twoSum(<span class="type">int</span>[] numbers, <span class="type">int</span> target) &#123;</span><br><span class="line">        <span class="type">int</span>[] result = &#123;<span class="number">0</span>,<span class="number">0</span>&#125;;</span><br><span class="line">        <span class="type">int</span> <span class="variable">endJ</span> <span class="operator">=</span> numbers.length-<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span><span class="number">0</span>,right = numbers.length-<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>(left&lt;right)&#123;</span><br><span class="line">            <span class="keyword">if</span>(numbers[left]+numbers[right]==target)&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">int</span>[]&#123;left,right&#125;;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(numbers[left]+numbers[right]&gt;target)&#123;</span><br><span class="line">                right--;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                left++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">		</span><br></pre></td></tr></table></figure>
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Dfault0">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dfault0's blog">
-      <meta itemprop="description" content="I CAN">
-    </span>
-    
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Dfault0's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/11/15/libFuzzer-workshop-study/" class="post-title-link" itemprop="url">libFuzzer workshop study</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2021-11-15 10:44:19" itemprop="dateCreated datePublished" datetime="2021-11-15T10:44:19+08:00">2021-11-15</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-03-18 16:45:44" itemprop="dateModified" datetime="2022-03-18T16:45:44+08:00">2022-03-18</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Fuzzing/" itemprop="url" rel="index"><span itemprop="name">Fuzzing</span></a>
-        </span>
-          , 
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Fuzzing/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="libFuzzer-workshop-study"><a href="#libFuzzer-workshop-study" class="headerlink" title="libFuzzer workshop study"></a>libFuzzer workshop study</h1><h2 id="libfuzzer-基本使用方法（官方）"><a href="#libfuzzer-基本使用方法（官方）" class="headerlink" title="libfuzzer 基本使用方法（官方）"></a>libfuzzer 基本使用方法（官方）</h2><p>The first step in using libFuzzer on a library is to implement a <em>fuzz target</em> – a function that accepts an array of bytes and does something interesting with these bytes using the API under test. Like this:</p>
-<p>fuzzer target的主要写法如下:</p>
-<figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// fuzz_target.cc</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *Data, <span class="type">size_t</span> Size)</span> </span>&#123;</span><br><span class="line">  <span class="comment">//DoSomethingInterestingWithMyAPI待测试函数</span></span><br><span class="line">  <span class="built_in">DoSomethingInterestingWithMyAPI</span>(Data, Size);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// Non-zero return values are reserved for future use.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>编译目标</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -fsanitize=fuzzer,address mytarget.c</span><br></pre></td></tr></table></figure>
-
-<p>最后需要链接libfuzzer.a</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -fsanitize-coverage=trace-pc-guard -fsanitize=address your_lib.cc fuzz_target.cc libFuzzer.a -o my_fuzzer</span><br></pre></td></tr></table></figure>
-
-<p>运行fuzzer,当然也是可以使用相关语法对语料库进行操作，</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#减小语料库的大小</span></span><br><span class="line"><span class="built_in">mkdir</span> NEW_CORPUS_DIR  <span class="comment"># Store minimized corpus here.</span></span><br><span class="line">./my_fuzzer -merge=1 NEW_CORPUS_DIR FULL_CORPUS_DIR</span><br><span class="line"></span><br><span class="line"><span class="comment">#interesting test 会被加入到语料库中</span></span><br><span class="line">./my_fuzzer -merge=1 CURRENT_CORPUS_DIR NEW_POTENTIALLY_INTERESTING_INPUTS_DIR</span><br><span class="line"></span><br><span class="line"><span class="comment">#开始模糊测试，当然语料库也是可以为空的</span></span><br><span class="line">./my_fuzzer CORPUS_DIR </span><br></pre></td></tr></table></figure>
-
-<h2 id="lesson-02"><a href="#lesson-02" class="headerlink" title="lesson 02"></a>lesson 02</h2><p>待测试的库vulnerable_functions.h：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//vulnerable_functions.h</span></span><br><span class="line"><span class="comment">// Copyright 2016 Google Inc. All Rights Reserved.</span></span><br><span class="line"><span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> LESSONS_04_VULNERABLE_FUNCTIONS_H_</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LESSONS_04_VULNERABLE_FUNCTIONS_H_</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stddef.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;array&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">VulnerableFunction1</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span>* data, <span class="type">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="type">bool</span> result = <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">if</span> (size &gt;= <span class="number">3</span>) &#123;</span><br><span class="line">    result = data[<span class="number">0</span>] == <span class="string">&#x27;F&#x27;</span> &amp;&amp;</span><br><span class="line">             data[<span class="number">1</span>] == <span class="string">&#x27;U&#x27;</span> &amp;&amp;</span><br><span class="line">             data[<span class="number">2</span>] == <span class="string">&#x27;Z&#x27;</span> &amp;&amp;</span><br><span class="line">             data[<span class="number">3</span>] == <span class="string">&#x27;Z&#x27;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;</span></span><br><span class="line"><span class="function"><span class="keyword">typename</span> T::value_type <span class="title">DummyHash</span><span class="params">(<span class="type">const</span> T&amp; buffer)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">typename</span> T::value_type hash = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">auto</span> value : buffer)</span><br><span class="line">    hash ^= value;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> hash;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">constexpr</span> <span class="keyword">auto</span> kMagicHeader = <span class="string">&quot;ZN_2016&quot;</span>;</span><br><span class="line"><span class="keyword">constexpr</span> std::<span class="type">size_t</span> kMaxPacketLen = <span class="number">1024</span>;</span><br><span class="line"><span class="keyword">constexpr</span> std::<span class="type">size_t</span> kMaxBodyLength = <span class="number">1024</span> - <span class="built_in">sizeof</span>(kMagicHeader);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">VulnerableFunction2</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span>* data, <span class="type">size_t</span> size, <span class="type">bool</span> verify_hash)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (size &lt; <span class="built_in">sizeof</span>(kMagicHeader))</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="function">std::string <span class="title">header</span><span class="params">(<span class="keyword">reinterpret_cast</span>&lt;<span class="type">const</span> <span class="type">char</span>*&gt;(data), <span class="keyword">sizeof</span>(kMagicHeader))</span></span>;</span><br><span class="line"></span><br><span class="line">  std::array&lt;<span class="type">uint8_t</span>, kMaxBodyLength&gt; body;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">strcmp</span>(kMagicHeader, header.<span class="built_in">c_str</span>()))</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">auto</span> target_hash = data[--size];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (size &gt; kMaxPacketLen)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!verify_hash)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  std::<span class="built_in">copy</span>(data, data + size, body.<span class="built_in">data</span>());</span><br><span class="line">  <span class="keyword">auto</span> real_hash = <span class="built_in">DummyHash</span>(body);</span><br><span class="line">  <span class="keyword">return</span> real_hash == target_hash;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">constexpr</span> std::<span class="type">size_t</span> kZn2016VerifyHashFlag = <span class="number">0x0001000</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">VulnerableFunction3</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span>* data, <span class="type">size_t</span> size, std::<span class="type">size_t</span> flags)</span> </span>&#123;</span><br><span class="line">  <span class="type">bool</span> verify_hash = flags &amp; kZn2016VerifyHashFlag;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">VulnerableFunction2</span>(data, size, verify_hash);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">// LESSONS_04_VULNERABLE_FUNCTIONS_H_</span></span></span><br></pre></td></tr></table></figure>
-
-<p>入口点代码</p>
-<figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//first_fuzzer.cc</span></span><br><span class="line"><span class="comment">// Copyright 2016 Google Inc. All Rights Reserved.</span></span><br><span class="line"><span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stddef.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;vulnerable_functions.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *data, <span class="type">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">VulnerableFunction1</span>(data, size);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>编译我们的入口点程序</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">clang++ -g -std=c++11 -fsanitize=fuzzer,address first_fuzzer.cc ../../libFuzzer/libFuzzer.a -o first_fuzzer</span><br><span class="line"></span><br><span class="line">clang++ -g -std=c++11 -fsanitize=fuzzer,address second_fuzzer.cc ../../libFuzzer/libFuzzer.a -o second_fuzzer</span><br><span class="line"></span><br><span class="line">clang++ -g -std=c++11 -fsanitize=fuzzer,address third_fuzzer.cc ../../libFuzzer/libFuzzer.a -o third_fuzzer</span><br><span class="line"></span><br><span class="line"><span class="comment">#然后执行程序</span></span><br><span class="line">./first_fuzzer ./corpus1</span><br></pre></td></tr></table></figure>
-
-<p>执行结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">=================================================================</span><br><span class="line">==2781==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x602000049473 at pc 0x000000550501 bp 0x7fff8d6b39c0 sp 0x7fff8d6b39b8</span><br><span class="line">READ of size 1 at 0x602000049473 thread T0</span><br><span class="line">    #0 0x550500 in VulnerableFunction1(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/lessons/04/./vulnerable_functions.h:22:14</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">0x602000049473 is located 0 bytes to the right of 3-byte region [0x602000049470,0x602000049473)</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">SUMMARY: AddressSanitizer: heap-buffer-overflow /home/fourth/fuzz/libfuzzer-workshop-master/lessons/04/./vulnerable_functions.h:22:14 in VulnerableFunction1(unsigned char const*, unsigned long)</span><br><span class="line">Shadow bytes around the buggy address:</span><br><span class="line">  0x0c0480001230: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa</span><br><span class="line">  0x0c0480001240: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa</span><br><span class="line">  0x0c0480001250: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fd</span><br><span class="line">  0x0c0480001260: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa</span><br><span class="line">  0x0c0480001270: fa fa fd fa fa fa fd fa fa fa fd fa fa fa fd fa</span><br><span class="line">=&gt;0x0c0480001280: fa fa fd fa fa fa fd fa fa fa fd fa fa fa[03]fa</span><br><span class="line">  0x0c0480001290: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c04800012a0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c04800012b0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c04800012c0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c04800012d0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">Shadow byte legend (one shadow byte represents 8 application bytes):</span><br><span class="line">  Addressable:           00</span><br><span class="line">  Partially addressable: 01 02 03 04 05 06 07 </span><br><span class="line">  Heap left redzone:       fa</span><br><span class="line">  Freed heap region:       fd</span><br><span class="line">  Stack left redzone:      f1</span><br><span class="line">  Stack mid redzone:       f2</span><br><span class="line">  Stack right redzone:     f3</span><br><span class="line">  Stack after return:      f5</span><br><span class="line">  Stack use after scope:   f8</span><br><span class="line">  Global redzone:          f9</span><br><span class="line">  Global init order:       f6</span><br><span class="line">  Poisoned by user:        f7</span><br><span class="line">  Container overflow:      fc</span><br><span class="line">  Array cookie:            ac</span><br><span class="line">  Intra object redzone:    bb</span><br><span class="line">  ASan internal:           fe</span><br><span class="line">  Left alloca redzone:     ca</span><br><span class="line">  Right alloca redzone:    cb</span><br><span class="line">  Shadow gap:              cc</span><br><span class="line">==2781==ABORTING</span><br><span class="line">MS: 1 ChangeBinInt-; base unit: 9d447627131a2fa79c753457599a7adc3ef03146</span><br><span class="line">0x46,0x55,0x5a,</span><br><span class="line">FUZ</span><br><span class="line">artifact_prefix=&#x27;./&#x27;; Test unit written to ./crash-0eb8e4ed029b774d80f2b66408203801cb982a60</span><br><span class="line">Base64: RlVa</span><br></pre></td></tr></table></figure>
-
-<p>可以清楚的看到我们程序报错的具体函数位置 VulnerableFunction1(unsigned char const*, unsigned long)，也可以看到是内存溢出了，这与实际的情况是符合的。</p>
-<p>复现crash</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./first_fuzzer ./crash-0eb8e4ed029b774d80f2b66408203801cb982a60</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm">https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/Dor1s/libfuzzer-workshop">https://github.com/Dor1s/libfuzzer-workshop</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/224823">https://www.anquanke.com/post/id/224823</a></p>
-<p><a target="_blank" rel="noopener" href="https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/">https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/</a></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
+<p>三数之和</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; <span class="title function_">threeSum</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        List&lt;List&lt;Integer&gt;&gt; result = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        Arrays.sort(nums);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[i] &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i &gt; <span class="number">0</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>]) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> i + <span class="number">1</span>;</span><br><span class="line">            <span class="type">int</span> <span class="variable">right</span> <span class="operator">=</span> nums.length - <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">while</span> (right &gt; left) &#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> nums[i] + nums[left] + nums[right];</span><br><span class="line">                <span class="keyword">if</span> (sum &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                    right--;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sum &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                    left++;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    result.add(Arrays.asList(nums[i], nums[left], nums[right]));</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">while</span> (right &gt; left &amp;&amp; nums[right] == nums[right - <span class="number">1</span>]) right--;</span><br><span class="line">                    <span class="keyword">while</span> (right &gt; left &amp;&amp; nums[left] == nums[left + <span class="number">1</span>]) left++;</span><br><span class="line">                    </span><br><span class="line">                    right--; </span><br><span class="line">                    left++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
+<h2 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">minSubArrayLen</span><span class="params">(<span class="type">int</span> s, <span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> <span class="variable">ans</span> <span class="operator">=</span> Integer.MAX_VALUE;</span><br><span class="line">        <span class="type">int</span> <span class="variable">start</span> <span class="operator">=</span> <span class="number">0</span>, end = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (end &lt; n) &#123;</span><br><span class="line">            sum += nums[end];</span><br><span class="line">            <span class="keyword">while</span> (sum &gt;= s) &#123;</span><br><span class="line">                ans = Math.min(ans, end - start + <span class="number">1</span>);</span><br><span class="line">                sum -= nums[start];</span><br><span class="line">                start++;</span><br><span class="line">            &#125;</span><br><span class="line">            end++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">return</span> <span class="variable">ans</span> <span class="operator">=</span>= Integer.MAX_VALUE ? <span class="number">0</span> : ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-    
+<p>最长不重复字串</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 代码中的类名、方法名、参数名已经指定，请勿修改，直接返回方法规定的值即可</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> s string字符串 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int整型</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">lengthOfLongestSubstring</span> <span class="params">(String s)</span> &#123;</span><br><span class="line">        <span class="comment">// write code here</span></span><br><span class="line">        <span class="comment">//使用双指针来进行相关操作</span></span><br><span class="line">        <span class="keyword">if</span>(s.length()==<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        HashMap&lt;Character,Integer&gt; hashset = <span class="keyword">new</span> <span class="title class_">LinkedHashMap</span>&lt;&gt;();</span><br><span class="line">        <span class="type">int</span> left=<span class="number">0</span>,right=<span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> result=<span class="number">1</span>,temp = <span class="number">0</span>;</span><br><span class="line">        </span><br><span class="line">        hashset.put(s.charAt(<span class="number">0</span>),<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;s.length();i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(!hashset.containsKey(s.charAt(i)))&#123;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">//找到重复的字符的位置</span></span><br><span class="line">                <span class="comment">//删除从前到重复字符串的所有字符</span></span><br><span class="line"><span class="comment">//                 left = hashset.get(s.charAt(i))+1;</span></span><br><span class="line">                left = Math.max(hashset.get(s.charAt(i))+<span class="number">1</span>,left);</span><br><span class="line">            &#125;</span><br><span class="line">            result = Math.max(i-left+<span class="number">1</span>,result);</span><br><span class="line">            hashset.put(s.charAt(i),i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前缀和：一般需要和hashmap进行组合，注意键值对分别代表甚意思。</p>
+<p>统计最长的相同0，1，的子数组的大小：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">findMaxLength</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//前缀和，最长的长度</span></span><br><span class="line">        HashMap&lt;Integer,Integer&gt; hashmap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//如果nums[i]=0，将其转换为-1，</span></span><br><span class="line">        <span class="comment">//所以就可以将整个问题直接转换成，前缀和为0的最长连续子数组的大小。</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">preSum</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">ans</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        hashmap.put(<span class="number">0</span>,-<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line">            <span class="comment">//只需要在遍历的时候遇到0就-1即可。不需要单独遍历整个数组</span></span><br><span class="line">            preSum = nums[i]==<span class="number">0</span>?preSum-<span class="number">1</span>:preSum+<span class="number">1</span>;            </span><br><span class="line">            <span class="keyword">if</span>(hashmap.containsKey(preSum))&#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> hashmap.get(preSum);</span><br><span class="line">                ans = Math.max(ans,i-index);</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">//因为需要的是最长的子数组，所以并不需要覆盖，</span></span><br><span class="line">                hashmap.put(preSum,i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="KMP（字符串匹配）"><a href="#KMP（字符串匹配）" class="headerlink" title="KMP（字符串匹配）"></a>KMP（字符串匹配）</h1><p><strong>强烈建议大家把next数组打印出来，看看next数组里的规律，有助于理解KMP算法</strong></p>
+<p><font color = red>字符串匹配要优先想到KMP算法</font></p>
+<p>思想：当字符串出现不匹配的时候，可以根据已经匹配的内容来进行下一次匹配位置的计算。找到最长相等前后缀之后匹配失败的位置就是后缀子串的后面</p>
+<blockquote>
+<ul>
+<li><p><strong>前缀是指不包含最后一个字符的所有以第一个字符开头的连续子串</strong></p>
+</li>
+<li><p><strong>后缀是指不包含第一个字符的所有以最后一个字符结尾的连续子串</strong>。</p>
+</li>
+<li><p>next数组（前缀表）：它记录了模式串与主串(文本串)不匹配的时候，模式串应该从哪里开始重新匹配。<strong>记录下标i之前（包括i）的字符串中，有多大长度的相同<u>前缀后缀</u>。</strong></p>
+</li>
+<li><p>next数组实现的时候通常是将整个数组值-1（计算出了整个模式的最长匹配表之后，将其向右移动一个位置）.</p>
+</li>
+</ul>
+</blockquote>
+<p><u>目标串永不回退，就只是需要移动模式串的起始位置。</u> 移动的位置是 j &#x3D; next[j] next[0]&#x3D;-1的时候</p>
+<p>aabaa的最长相等前后缀是2</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">strStr</span><span class="params">(String haystack, String needle)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span>[]next = getNext(needle);</span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt;haystack.length();i++)&#123;</span><br><span class="line">            <span class="keyword">while</span>(j&gt;=<span class="number">0</span>&amp;&amp;haystack.charAt(i)!=needle.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                <span class="comment">//模式子串进行回退</span></span><br><span class="line">                j = next[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(haystack.charAt(i)==needle.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(j == next.length-<span class="number">1</span>)&#123;</span><br><span class="line">                <span class="keyword">return</span> i-j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span>[] getNext(String s)&#123;</span><br><span class="line">        <span class="type">int</span> j=-<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> [] next = <span class="keyword">new</span> <span class="title class_">int</span>[s.length()];</span><br><span class="line">        next[<span class="number">0</span>] = j;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;s.length();i++)&#123;</span><br><span class="line">            <span class="comment">//进行回退</span></span><br><span class="line">            <span class="keyword">while</span>(j&gt;=<span class="number">0</span> &amp;&amp; s.charAt(i)!=s.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                j = next[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s.charAt(i)==s.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            next[i] = j;</span><br><span class="line">            System.out.println(j);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
-<div class="post-block">
-  
-  
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/11/14/heartbleed-CVE-2014-0160/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Dfault0">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dfault0's blog">
-      <meta itemprop="description" content="I CAN">
-    </span>
-    
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Dfault0's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2021/11/14/heartbleed-CVE-2014-0160/" class="post-title-link" itemprop="url">heartbleed(CVE-2014-0160)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2021-11-14 10:44:50" itemprop="dateCreated datePublished" datetime="2021-11-14T10:44:50+08:00">2021-11-14</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-03-18 16:40:24" itemprop="dateModified" datetime="2022-03-18T16:40:24+08:00">2022-03-18</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Fuzzing/" itemprop="url" rel="index"><span itemprop="name">Fuzzing</span></a>
-        </span>
-          , 
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Fuzzing/%E5%A4%8D%E7%8E%B0/" itemprop="url" rel="index"><span itemprop="name">复现</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="心脏滴血漏洞复现（CVE-2014-0160）"><a href="#心脏滴血漏洞复现（CVE-2014-0160）" class="headerlink" title="心脏滴血漏洞复现（CVE 2014-0160）"></a>心脏滴血漏洞复现（CVE 2014-0160）</h1><p>基本信息</p>
-<p>OpenSSL版本：1.0.1</p>
-<p>fuzzer：libfuzzer</p>
-<h2 id="编译OpenSSL"><a href="#编译OpenSSL" class="headerlink" title="编译OpenSSL"></a>编译OpenSSL</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tar xzf openssl1.0.1f.tgz</span><br><span class="line"><span class="built_in">cd</span> openssl1.0.1f/</span><br><span class="line"></span><br><span class="line">./config</span><br><span class="line">make clean</span><br><span class="line">make CC=<span class="string">&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize=address,fuzzer -fsanitize-coverage=trace-pc-guard,trace-cmp,trace-gep,trace-div&quot;</span> -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
-
-<p>首先是按照教程，但是后面会报错，因为高版本的libfuzzer并不支持了：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-fsanitize-coverage=trace-pc-guard is no longer supported by libFuzzer.</span><br></pre></td></tr></table></figure>
-
-<p>本来想的是修改libfuzzer的版本，但是，并不能成功，所以就参考libfuzzer官方的使用方法，在编译目标程序的时候命令修改成下面的形式（直接删除就好了）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make CC=<span class="string">&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize=fuzzer -fsanitize-coverage=trace-cmp,trace-gep,trace-div&quot;</span> -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="编译fuzzer-target"><a href="#编译fuzzer-target" class="headerlink" title="编译fuzzer target"></a>编译fuzzer target</h2><p>The first step in using libFuzzer on a library is to implement a <em>fuzz target</em> – a function that accepts an array of bytes and does something interesting with these bytes using the API under test. like this:</p>
-<figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// fuzz_target.cc</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *Data, <span class="type">size_t</span> Size)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">DoSomethingInterestingWithMyAPI</span>(Data, Size);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// Non-zero return values are reserved for future use.</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//openssl_fuzzer.cc</span></span><br><span class="line"><span class="comment">// Copyright 2016 Google Inc. All Rights Reserved.</span></span><br><span class="line"><span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/ssl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/err.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stddef.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> CERT_PATH</span></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> CERT_PATH</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">SSL_CTX *<span class="title">Init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">SSL_library_init</span>();</span><br><span class="line">  <span class="built_in">SSL_load_error_strings</span>();</span><br><span class="line">  <span class="built_in">ERR_load_BIO_strings</span>();</span><br><span class="line">  <span class="built_in">OpenSSL_add_all_algorithms</span>();</span><br><span class="line">  SSL_CTX *sctx;</span><br><span class="line">  <span class="built_in">assert</span> (sctx = <span class="built_in">SSL_CTX_new</span>(<span class="built_in">TLSv1_method</span>()));</span><br><span class="line">  <span class="comment">/* These two file were created with this command:</span></span><br><span class="line"><span class="comment">      openssl req -x509 -newkey rsa:512 -keyout server.key \</span></span><br><span class="line"><span class="comment">     -out server.pem -days 9999 -nodes -subj /CN=a/</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="built_in">assert</span>(<span class="built_in">SSL_CTX_use_certificate_file</span>(sctx, CERT_PATH <span class="string">&quot;server.pem&quot;</span>,</span><br><span class="line">                                      SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="built_in">assert</span>(<span class="built_in">SSL_CTX_use_PrivateKey_file</span>(sctx, CERT_PATH <span class="string">&quot;server.key&quot;</span>,</span><br><span class="line">                                     SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="keyword">return</span> sctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *data, <span class="type">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="type">static</span> SSL_CTX *sctx = <span class="built_in">Init</span>();</span><br><span class="line">  SSL *server = <span class="built_in">SSL_new</span>(sctx);</span><br><span class="line">  BIO *sinbio = <span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_mem</span>());</span><br><span class="line">  BIO *soutbio = <span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_mem</span>());</span><br><span class="line">  <span class="built_in">SSL_set_bio</span>(server, sinbio, soutbio);</span><br><span class="line">  <span class="built_in">SSL_set_accept_state</span>(server);</span><br><span class="line">  <span class="built_in">BIO_write</span>(sinbio, data, size);</span><br><span class="line">  <span class="built_in">SSL_do_handshake</span>(server);</span><br><span class="line">  <span class="built_in">SSL_free</span>(server);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>编译：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">clang++ -g openssl_fuzzer.cc -O2 -fno-omit-frame-pointer -fsanitize=address,fuzzer \</span><br><span class="line">    -fsanitize-coverage=trace-cmp,trace-gep,trace-div \</span><br><span class="line">    -Iopenssl1.0.1f/include openssl1.0.1f/libssl.a openssl1.0.1f/libcrypto.a \</span><br><span class="line">    ../../libFuzzer/libFuzzer.a -o openssl_fuzzer</span><br></pre></td></tr></table></figure>
-
-<p>然后创建一个文件夹，使用生成的<code>openssl_fuzzer</code>来测试：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> corpus1</span><br><span class="line">./openssl_fuzzer ./corpus1/</span><br></pre></td></tr></table></figure>
-
-<p>然后就可以看到程序报错了。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">=================================================================</span><br><span class="line">==4447==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x629000009748 at pc 0x000000435777 bp 0x7ffcbf76d0a0 sp 0x7ffcbf76c860</span><br><span class="line">READ of size 48384 at 0x629000009748 thread T0</span><br><span class="line">    #0 0x435776 in memcpy (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x435776)</span><br><span class="line">    #1 0x4ce5cf in tls1_process_heartbeat /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/t1_lib.c:2586:3</span><br><span class="line">    #2 0x503b43 in ssl3_read_bytes /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_pkt.c:1092:4</span><br><span class="line">    #3 0x50559b in ssl3_get_message /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:457:7</span><br><span class="line">    #4 0x4ed420 in ssl3_get_client_hello /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:941:4</span><br><span class="line">    #5 0x4eb8fe in ssl3_accept /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:357:9</span><br><span class="line">    #6 0x4c92e2 in LLVMFuzzerTestOneInput /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer.cc:39:3</span><br><span class="line">    #7 0x67f862 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:556:15</span><br><span class="line">    #8 0x67eea5 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool*) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:470:3</span><br><span class="line">    #9 0x6804b7 in fuzzer::Fuzzer::MutateAndTestOne() /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:698:19</span><br><span class="line">    #10 0x681005 in fuzzer::Fuzzer::Loop(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:830:5</span><br><span class="line">    #11 0x670076 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerDriver.cpp:824:6</span><br><span class="line">    #12 0x66b1a0 in main /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerMain.cpp:19:10</span><br><span class="line">    #13 0x7f7f3f2010b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:308:16</span><br><span class="line">    #14 0x41ea1d in _start (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x41ea1d)</span><br><span class="line"></span><br><span class="line">0x629000009748 is located 0 bytes to the right of 17736-byte region [0x629000005200,0x629000009748)</span><br><span class="line">allocated by thread T0 here:</span><br><span class="line">    #0 0x49715d in malloc (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x49715d)</span><br><span class="line">    #1 0x519b0b in CRYPTO_malloc /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/crypto/mem.c:308:8</span><br><span class="line">    #2 0x505f7b in freelist_extract /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:708:12</span><br><span class="line">    #3 0x505f7b in ssl3_setup_read_buffer /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:770:10</span><br><span class="line">    #4 0x5062ec in ssl3_setup_buffers /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:827:7</span><br><span class="line">    #5 0x4eb807 in ssl3_accept /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:292:9</span><br><span class="line">    #6 0x4c92e2 in LLVMFuzzerTestOneInput /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer.cc:39:3</span><br><span class="line">    #7 0x67f862 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:556:15</span><br><span class="line">    #8 0x6808b8 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:743:3</span><br><span class="line">    #9 0x680dd9 in fuzzer::Fuzzer::Loop(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:792:3</span><br><span class="line">    #10 0x670076 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerDriver.cpp:824:6</span><br><span class="line">    #11 0x66b1a0 in main /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerMain.cpp:19:10</span><br><span class="line">    #12 0x7f7f3f2010b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:308:16</span><br><span class="line"></span><br><span class="line">SUMMARY: AddressSanitizer: heap-buffer-overflow (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x435776) in memcpy</span><br><span class="line">Shadow bytes around the buggy address:</span><br><span class="line">  0x0c527fff9290: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">=&gt;0x0c527fff92e0: 00 00 00 00 00 00 00 00 00[fa]fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff92f0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9300: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9310: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9320: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9330: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">Shadow byte legend (one shadow byte represents 8 application bytes):</span><br><span class="line">  Addressable:           00</span><br><span class="line">  Partially addressable: 01 02 03 04 05 06 07 </span><br><span class="line">  Heap left redzone:       fa</span><br><span class="line">  Freed heap region:       fd</span><br><span class="line">  Stack left redzone:      f1</span><br><span class="line">  Stack mid redzone:       f2</span><br><span class="line">  Stack right redzone:     f3</span><br><span class="line">  Stack after return:      f5</span><br><span class="line">  Stack use after scope:   f8</span><br><span class="line">  Global redzone:          f9</span><br><span class="line">  Global init order:       f6</span><br><span class="line">  Poisoned by user:        f7</span><br><span class="line">  Container overflow:      fc</span><br><span class="line">  Array cookie:            ac</span><br><span class="line">  Intra object redzone:    bb</span><br><span class="line">  ASan internal:           fe</span><br><span class="line">  Left alloca redzone:     ca</span><br><span class="line">  Right alloca redzone:    cb</span><br><span class="line">  Shadow gap:              cc</span><br><span class="line">==4447==ABORTING</span><br><span class="line">MS: 2 InsertByte-InsertByte-; base unit: 6409fc1658e8c93af3744d90dd4f7eb4dbc6e488</span><br><span class="line">0x18,0x3,0xff,0x0,0xd,0x1,0xbd,0x0,0x0,0xb3,0x0,0x0,0x0,0x0,0x0,0xd,0xd,0xd,0xd,0xd,0xd,0x0,0x0,0x0,</span><br><span class="line">\x18\x03\xff\x00\x0d\x01\xbd\x00\x00\xb3\x00\x00\x00\x00\x00\x0d\x0d\x0d\x0d\x0d\x0d\x00\x00\x00</span><br><span class="line">artifact_prefix=&#x27;./&#x27;; Test unit written to ./crash-052a0bf2b9eddd783de293aa5452c3212975c9c1</span><br><span class="line">Base64: GAP/AA0BvQAAswAAAAAADQ0NDQ0NAAAA</span><br></pre></td></tr></table></figure>
-
-<p>SUMMARY: AddressSanitizer: heap-buffer-overflow (&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;libfuzzer-workshop-master&#x2F;lessons&#x2F;05&#x2F;openssl_fuzzer+0x435776) in memcpy</p>
-<p>可以看到就是tls1_process_heartbeat这里出错了。</p>
-<h2 id="crash分析"><a href="#crash分析" class="headerlink" title="crash分析"></a>crash分析</h2><p>在gdb中使用GEF来复现</p>
-<p>注意，需要使用代理才可以使用该工具（或者你换一种使用方法也是可以的），使用的文件是上面fuzzing出来的crash文件（以id开头的文件）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">proxychains gdb -Q target</span><br><span class="line"></span><br><span class="line">(gdb)pi import urllib.request as u, tempfile as t; g=t.NamedTemporaryFile(suffix=<span class="string">&#x27;-gef.py&#x27;</span>); open(g.name, <span class="string">&#x27;wb+&#x27;</span>).write(u.urlopen(<span class="string">&#x27;https://tinyurl.com/gef-master&#x27;</span>).<span class="built_in">read</span>()); gdb.execute(<span class="string">&#x27;source %s&#x27;</span> % g.name)</span><br><span class="line"></span><br><span class="line">gef&gt; r &gt; <span class="built_in">id</span>:000000,sig:06,src:000004+000003,time:27696,op:splice,rep:4</span><br><span class="line"></span><br><span class="line">exploitable</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm">https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm</a></p>
-<p><a target="_blank" rel="noopener" href="https://github.com/Dor1s/libfuzzer-workshop">https://github.com/Dor1s/libfuzzer-workshop</a></p>
-<p><a target="_blank" rel="noopener" href="https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/">https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/</a></p>
 
       
     </div>

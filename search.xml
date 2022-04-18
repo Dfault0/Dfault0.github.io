@@ -59,7 +59,231 @@
   <entry>
     <title>APP加壳脱壳学习笔记</title>
     <url>/2022/04/11/APP%E5%8A%A0%E5%A3%B3%E8%84%B1%E5%A3%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[]]></content>
+    <content><![CDATA[<h1 id="APP壳相关知识"><a href="#APP壳相关知识" class="headerlink" title="APP壳相关知识"></a>APP壳相关知识</h1><p>app运行流程：</p>
+<ol>
+<li>BootClassLoader加载系统核心库</li>
+<li>PathClassLoader加载 APP自身dex</li>
+<li>进入APP自身组件开始执行</li>
+<li>调用声明Application的 attachBaseContext</li>
+<li>调用声明Application的onCreate</li>
+</ol>
+<p>app最先获得执行权限的是app中声明的Application类中的attachBaseContext和onCreate函数，所以壳对代码进行解密一般都在这两个函数上进行。</p>
+<p><strong>加壳程序的运行流程：</strong></p>
+<ol>
+<li>app启动</li>
+<li>自定义Application中 attachBaseContext的实现<ul>
+<li>解密源程序</li>
+<li>初始化自定义加载器类</li>
+<li>反射设置LoadedApk中加载器对象为自定义加载器</li>
+</ul>
+</li>
+<li>自定义Application中的onCreate方法实现、<ul>
+<li>获取源程序中的Application名称</li>
+<li>反射生成正确的Application对象</li>
+<li>反射设置ActivityThread中的Application信息</li>
+</ul>
+</li>
+<li>Activity加载流程：源程序正常运行</li>
+</ol>
+<p>当壳在函数attachBaseContext和onCreate中执行完加密的dex文件的解密后，通过自定义的Classloader在内存中加载解密后的dex文件</p>
+<p>只要获取到加固应用最终通过反射设置后的Classloader，我们就可以通过一系列反射最终获取到当前应用所加载的解密后的内存中的Dex文件。</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://bbs.pediy.com/thread-252630.htm">https://bbs.pediy.com/thread-252630.htm</a></p>
+<p>Android源码：<a href="http://aospxref.com/">http://aospxref.com/</a></p>
+]]></content>
+      <categories>
+        <category>Android安全</category>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>Android安全</tag>
+        <tag>加壳脱壳</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Android基础</title>
+    <url>/2022/04/13/Android%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<h1 id="Activity生命周期"><a href="#Activity生命周期" class="headerlink" title="Activity生命周期"></a>Activity生命周期</h1><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413191810.png" style="zoom:40%;" />
+]]></content>
+      <categories>
+        <category>Android</category>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
+        <tag>基础知识</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Android软件安全权威指南-学习笔记</title>
+    <url>/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h1 id="逆向一个app的常规步骤"><a href="#逆向一个app的常规步骤" class="headerlink" title="逆向一个app的常规步骤"></a>逆向一个app的常规步骤</h1><ol>
+<li>使用apktool反编译apk<ul>
+<li>Apktool_2.6.1.jar d app-release.apk -o outputdir</li>
+</ul>
+</li>
+<li>查看资源文件中的string.xml</li>
+<li>寻找相关的字符串对应的id号</li>
+<li>搜索整个反编译文件内容 id号</li>
+<li>继续分析</li>
+<li>找到smali文件，然后查看逻辑，并破解apk</li>
+<li>回编译apk、签名</li>
+<li>验证</li>
+</ol>
+<h1 id="dex文件结构"><a href="#dex文件结构" class="headerlink" title="dex文件结构"></a>dex文件结构</h1><p>dex文件是Android系统的可执行文件，默认小端字节序（Little-Endian：低位字节再内存的低地址）</p>
+<table>
+<thead>
+<tr>
+<th>字段名</th>
+<th align="center">信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>header</td>
+<td align="center">dex文件头部，记录整个dex文件的相关属性（magic固定：64 65 78 0a 30 33 35 00）   总长：0x70</td>
+</tr>
+<tr>
+<td>string_ids</td>
+<td align="center">字符串数据索引，记录了每个字符串在数据区的偏移量</td>
+</tr>
+<tr>
+<td>type_ids</td>
+<td align="center">类似数据索引，记录了每个类型的字符串索引</td>
+</tr>
+<tr>
+<td>proto_ids</td>
+<td align="center">原型数据索引，记录了方法声明的字符串，返回类型字符串，参数列表</td>
+</tr>
+<tr>
+<td>field_ids</td>
+<td align="center">字段数据索引，记录了所属类，类型以及方法名</td>
+</tr>
+<tr>
+<td>method_ids</td>
+<td align="center">类方法索引，记录方法所属类名，方法声明以及方法名等信息</td>
+</tr>
+<tr>
+<td>class_defs</td>
+<td align="center">类定义数据索引，记录指定类各类信息，包括接口，超类，类数据偏移量</td>
+</tr>
+<tr>
+<td>data</td>
+<td align="center">数据区，保存了各个类的真是数据</td>
+</tr>
+</tbody></table>
+<p>dex文件分析示例：</p>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413185118.png" alt="图片分析示例"></p>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413185509.png"></p>
+<p>jar文件转成dex文件</p>
+<img src="https://raw.githubusercontent.com/Dfault0/images/main/20220414154101.png" style="zoom:40%;" />
+
+
+
+<p><strong>java虚拟机基于栈，Dalvik是基于寄存器</strong></p>
+<h1 id="Dalvik"><a href="#Dalvik" class="headerlink" title="Dalvik"></a>Dalvik</h1><p>zygote是Android系统中所有进程的孵化器进程。</p>
+<ul>
+<li>zygote启动后，会先初始化Dalvik虚拟机，</li>
+<li>再启动system_server进程并进入zygote模式，通过socket等候命令下达。</li>
+<li>在执行一个Android应用程序的时候，system_server进程通过binder IPC方式将命令发送给zygote。</li>
+<li>zygote收到命令之后通过fork其自身创建一个dalvik虚拟机实例来执行应用程序的入口函数，从而完成应用程序的启动过程。</li>
+</ul>
+<p><a href="https://juejin.cn/post/6844904116561379341">https://juejin.cn/post/6844904116561379341</a></p>
+<ul>
+<li>fp是arm的栈帧寄存器</li>
+<li>dalvik寄存器命令方式：<ul>
+<li>v命名法：一个函数使用了m个寄存器（每个寄存器32位），且有n个参数， 参数使用最后的n个寄存器，vm-n - this，v0-vm-n-1表示的是局部变量使用的</li>
+<li>p命名法：函数中传入的参数从p0开始增加，其他的和v命名法一样</li>
+</ul>
+</li>
+</ul>
+<p><strong>dalvik字节码类型描述符</strong></p>
+<table>
+<thead>
+<tr>
+<th>语法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>v</td>
+<td>void</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>bool</td>
+</tr>
+<tr>
+<td>B</td>
+<td>BYTE</td>
+</tr>
+<tr>
+<td>S</td>
+<td>SHORT</td>
+</tr>
+<tr>
+<td>C</td>
+<td>CHAR</td>
+</tr>
+<tr>
+<td>I</td>
+<td>INT</td>
+</tr>
+<tr>
+<td>J</td>
+<td>LONG</td>
+</tr>
+<tr>
+<td>F</td>
+<td>FLOAT</td>
+</tr>
+<tr>
+<td>D</td>
+<td>DOUBLE</td>
+</tr>
+<tr>
+<td>L</td>
+<td>JAVA类类型 可以表示Java中的任何类   Lpackage&#x2F;name.ObjectName; (package.name.ObjectName)</td>
+</tr>
+<tr>
+<td>[</td>
+<td>数组</td>
+</tr>
+</tbody></table>
+<p>跳转指令：</p>
+<ul>
+<li>goto</li>
+<li>switch</li>
+<li>if</li>
+</ul>
+<p><u>dex文件的验证与校验：</u></p>
+<ul>
+<li><p>checksum：调用adler32()来完成计算，跳过了DexHeader的magic与checksum字段，将后面到文件的结果作为计算数据的总长度。</p>
+</li>
+<li><p>签名验证：跳过magic、checksum、signature字段，调用dexComputeSHA1Digest()，将计算结果与signature中保存的值进行比较，如果相等就通过</p>
+</li>
+</ul>
+<h2 id="dex2jar使用"><a href="#dex2jar使用" class="headerlink" title="dex2jar使用"></a>dex2jar使用</h2><ul>
+<li>下载 <a href="https://link.jianshu.com/?t=https://github.com/pxb1988/dex2jar">dex2jar</a>，并解压</li>
+<li>下载class反编译工具 <a href="https://link.jianshu.com/?t=http://jd.benow.ca/">jd-gui</a>，并解压</li>
+<li>将测试的安装包xxx.apk后缀改为.zip，解压后拷贝<code>classes.dex</code>文件到dex2jar文件目录下，cmd进入改目录，执行<code>d2j-dex2jar.bat classes.dex</code>命令，会生成classes-dex2jar.jar文件；</li>
+<li>打开jd-gui工具，然后将生成的classes-dex2jar.jar文件拖进去，即可看见反编译的文件</li>
+</ul>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ol>
+<li><p>Android安全面经：<a href="https://blog.xhyeax.com/2021/12/01/2022-autumn-mobile-security-interview-experience/">https://blog.xhyeax.com/2021/12/01/2022-autumn-mobile-security-interview-experience/</a></p>
+</li>
+<li><p>dex文件结构详解：<a href="https://www.jianshu.com/p/f7f0a712ddfe">https://www.jianshu.com/p/f7f0a712ddfe</a></p>
+</li>
+<li><p>dex文件结构图解：<a href="https://github.com/cckenny/2020_autumn_mobile_security_interview/blob/main/pics/DEX.png">https://github.com/cckenny/2020_autumn_mobile_security_interview/blob/main/pics/DEX.png</a></p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>notes</category>
+        <category>Android安全</category>
+      </categories>
+      <tags>
+        <tag>Android安全</tag>
+        <tag>notes</tag>
+      </tags>
   </entry>
   <entry>
     <title>Android 存储相关信息</title>
@@ -190,46 +414,6 @@
       </tags>
   </entry>
   <entry>
-    <title>java collection</title>
-    <url>/2018/01/27/java-collection/</url>
-    <content><![CDATA[<h2 id="集合框架collection"><a href="#集合框架collection" class="headerlink" title="集合框架collection"></a>集合框架collection</h2><p>  是集合的顶层接口，他的子体系有重复的，有唯一的，有有序的，也有无序的。</p>
-<h4 id="1-collection-功能"><a href="#1-collection-功能" class="headerlink" title="1.collection 功能"></a>1.collection 功能</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">添加：boolean add(E e)</span><br><span class="line">删除：boolean remove(Object o)</span><br><span class="line">判断：boolean isEmpty();boolean contains(Object o)</span><br><span class="line">获取：Iterator&lt;E&gt; iterator()</span><br><span class="line">长度：int size()</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-分类"><a href="#2-分类" class="headerlink" title="2.分类"></a>2.分类</h4><p> a. List: (interface)</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">ArrayList</span><br><span class="line">Vector</span><br><span class="line">LinkedList</span><br></pre></td></tr></table></figure>
-
-<p> b.Set: (interface)</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">HashSet</span><br><span class="line">TreeSet</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-遍历"><a href="#3-遍历" class="headerlink" title="3.遍历"></a>3.遍历</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line">A:将集合转换成数组</span><br><span class="line">B：迭代器</span><br><span class="line"><span class="type">Iterator</span> <span class="variable">iterator</span> <span class="operator">=</span> arrayList.iterator();</span><br><span class="line">		<span class="keyword">while</span>(iterator.hasNext()) &#123;</span><br><span class="line">			<span class="type">Student</span> <span class="variable">temp</span> <span class="operator">=</span> (Student) iterator.next();</span><br><span class="line">			System.out.println(temp.getName()+<span class="string">&#x27;,&#x27;</span>+temp.getAge());</span><br><span class="line">		&#125;</span><br><span class="line">C：增强 <span class="keyword">for</span>：</span><br><span class="line"><span class="keyword">for</span>(ArrayList&lt;Student&gt; arrayList:boss) &#123;</span><br><span class="line">			<span class="keyword">for</span>(Student temp:arrayList) &#123;</span><br><span class="line">				<span class="type">Student</span> <span class="variable">student</span> <span class="operator">=</span> temp;</span><br><span class="line">				System.out.println(student.getName()+student.getAge());</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="List"><a href="#List" class="headerlink" title="List"></a>List</h3><p>  有序，可重复</p>
-<h4 id="1-分类"><a href="#1-分类" class="headerlink" title="1.分类"></a>1.分类</h4><ul>
-<li><p>ArrayList<br>  底层数据结构是数组，查询快，增删慢。线程不安全，效率高。</p>
-</li>
-<li><p>Vector<br>  底层数据结构是数组，查询快，增删慢。线程安全，效率低。</p>
-</li>
-<li><p>LinkedList<br>  底层数据结构是链表，查询慢，增删快。线程不安全，效率高。<br>**特有功能：</p>
-<ul>
-<li>添加<br>  addFirst()<br>    addLast()</li>
-<li>删除<br>  removeFirst()<br>    removeLast()</li>
-<li>获取<br>  getFirst()<br>    getLast()</li>
-</ul>
-</li>
-</ul>
-<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>  set集合的特点：无序，且唯一（equals() 和 hashcode()）<br>注意：如果集合的元素是自定义对象，则需要重写equals() 和 hashcode()方法。（在eclipse中可以自动生成）</p>
-<h4 id="1-分类-1"><a href="#1-分类-1" class="headerlink" title="1.分类"></a>1.分类</h4><h5 id="HashSet"><a href="#HashSet" class="headerlink" title="HashSet"></a>HashSet</h5><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A:底层数据结构是哈希表(是一个元素为链表的数组)</span><br><span class="line">B:哈希表底层依赖两个方法：hashCode()和equals()</span><br><span class="line"> 执行顺序：</span><br><span class="line">	首先比较哈希值是否相同</span><br><span class="line">		相同：继续执行equals()方法</span><br><span class="line">			返回true：元素重复了，不添加</span><br><span class="line">			返回false：直接把元素添加到集合</span><br><span class="line">		不同：就直接把元素添加到集合</span><br></pre></td></tr></table></figure>
-
-<h5 id="TreeSet"><a href="#TreeSet" class="headerlink" title="TreeSet"></a>TreeSet</h5><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A:底层数据结构是红黑树(是一个自平衡的二叉树)</span><br><span class="line">B:保证元素的排序方式</span><br><span class="line">	a:自然排序(元素具备比较性)</span><br><span class="line">		让元素所属的类实现Comparable接口</span><br><span class="line">	b:比较器排序(集合具备比较性)		                                </span><br><span class="line">		让集合构造方法接收Comparator的实现类对象</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>code</category>
-      </categories>
-      <tags>
-        <tag>java</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>heartbleed(CVE-2014-0160)</title>
     <url>/2021/11/14/heartbleed-CVE-2014-0160/</url>
     <content><![CDATA[<h1 id="心脏滴血漏洞复现（CVE-2014-0160）"><a href="#心脏滴血漏洞复现（CVE-2014-0160）" class="headerlink" title="心脏滴血漏洞复现（CVE 2014-0160）"></a>心脏滴血漏洞复现（CVE 2014-0160）</h1><p>基本信息</p>
@@ -270,8 +454,292 @@
         <category>复现</category>
       </categories>
       <tags>
-        <tag>libfuzzer</tag>
         <tag>notes</tag>
+        <tag>libfuzzer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>java collection</title>
+    <url>/2018/01/27/java-collection/</url>
+    <content><![CDATA[<h1 id="集合框架collection"><a href="#集合框架collection" class="headerlink" title="集合框架collection"></a>集合框架collection</h1><p>  是集合的顶层接口，他的子体系有重复的，有唯一的，有有序的，也有无序的。</p>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220415125923.png"></p>
+<h2 id="collection-基本函数"><a href="#collection-基本函数" class="headerlink" title="collection 基本函数"></a>collection 基本函数</h2><ul>
+<li>添加：boolean add(E e)</li>
+<li>删除：boolean remove(Object o)</li>
+<li>判断：boolean isEmpty();boolean contains(Object o)</li>
+<li>获取：Iterator<E> iterator()</li>
+<li>长度：int size()</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Modifier and Type</th>
+<th>Method and Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>boolean</code></td>
+<td><code>add(E e)</code>  确保此集合包含指定的元素（可选操作）。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>addAll(Collection&lt;? extends E&gt; c)</code>  将指定集合中的所有元素添加到此集合（可选操作）。</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>clear()</code>  从此集合中删除所有元素（可选操作）。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>contains(Object o)</code>  如果此集合包含指定的元素，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>containsAll(Collection&lt;?&gt; c)</code>  如果此集合包含指定 <code>集合</code>中的所有元素，则返回true。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>equals(Object o)</code>  将指定的对象与此集合进行比较以获得相等性。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>hashCode()</code>  返回此集合的哈希码值。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>isEmpty()</code>  如果此集合不包含元素，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>Iterator&lt;E&gt;</code></td>
+<td><code>iterator()</code>  返回此集合中的元素的迭代器。</td>
+</tr>
+<tr>
+<td><code>default Stream&lt;E&gt;</code></td>
+<td><code>parallelStream()</code>  返回可能并行的 <code>Stream</code>与此集合作为其来源。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>remove(Object o)</code>  从该集合中删除指定元素的单个实例（如果存在）（可选操作）。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>removeAll(Collection&lt;?&gt; c)</code>  删除指定集合中包含的所有此集合的元素（可选操作）。</td>
+</tr>
+<tr>
+<td><code>default boolean</code></td>
+<td><code>removeIf(Predicate&lt;? super E&gt; filter)</code>  删除满足给定谓词的此集合的所有元素。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>retainAll(Collection&lt;?&gt; c)</code>  仅保留此集合中包含在指定集合中的元素（可选操作）。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>size()</code>  返回此集合中的元素数。</td>
+</tr>
+<tr>
+<td><code>default Spliterator&lt;E&gt;</code></td>
+<td><code>spliterator()</code>  创建一个<a href="../../java/util/Spliterator.html"><code>Spliterator</code></a>在这个集合中的元素。</td>
+</tr>
+<tr>
+<td><code>default Stream&lt;E&gt;</code></td>
+<td><code>stream()</code>  返回以此集合作为源的顺序 <code>Stream</code> 。</td>
+</tr>
+<tr>
+<td><code>Object[]</code></td>
+<td><code>toArray()</code>  返回一个包含此集合中所有元素的数组。</td>
+</tr>
+<tr>
+<td><code>&lt;T&gt; T[]</code></td>
+<td><code>toArray(T[] a)</code>  返回包含此集合中所有元素的数组;  返回的数组的运行时类型是指定数组的运行时类型。</td>
+</tr>
+</tbody></table>
+<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><ul>
+<li><p>List: (interface)</p>
+<ul>
+<li>ArrayList</li>
+<li>Vector</li>
+<li>LinkedList</li>
+</ul>
+</li>
+<li><p>Set: (interface)</p>
+<ul>
+<li>HashSet</li>
+<li>TreeSet</li>
+</ul>
+</li>
+</ul>
+<h2 id="遍历"><a href="#遍历" class="headerlink" title="遍历"></a>遍历</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//A:将集合转换成数组</span></span><br><span class="line"><span class="comment">//B：迭代器</span></span><br><span class="line"><span class="type">Iterator</span> <span class="variable">iterator</span> <span class="operator">=</span> arrayList.iterator();</span><br><span class="line"><span class="keyword">while</span>(iterator.hasNext()) &#123;</span><br><span class="line">	<span class="type">Student</span> <span class="variable">temp</span> <span class="operator">=</span> (Student) iterator.next();</span><br><span class="line">	System.out.println(temp.getName()+<span class="string">&#x27;,&#x27;</span>+temp.getAge());</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//C：增强 for：</span></span><br><span class="line"><span class="keyword">for</span>(ArrayList&lt;Student&gt; arrayList:boss) &#123;</span><br><span class="line">	<span class="keyword">for</span>(Student temp:arrayList) &#123;</span><br><span class="line">		<span class="type">Student</span> <span class="variable">student</span> <span class="operator">=</span> temp;</span><br><span class="line">		System.out.println(student.getName()+student.getAge());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="List"><a href="#List" class="headerlink" title="List"></a>List</h3><p>  有序，可重复</p>
+<h4 id="分类-1"><a href="#分类-1" class="headerlink" title="分类"></a>分类</h4><ul>
+<li><p>ArrayList：底层数据结构是数组，查询快，增删慢。线程不安全，效率高。</p>
+</li>
+<li><p>Vector：底层数据结构是数组，查询快，增删慢。线程安全，效率低。</p>
+</li>
+<li><p>LinkedList：底层数据结构是链表，查询慢，增删快。线程不安全，效率高。
+  </p>
+<ul>
+<li><p>添加</p>
+<ul>
+<li>addFirst()    addLast()</li>
+</ul>
+</li>
+<li><p>删除</p>
+<ul>
+<li>removeFirst()  removeLast()</li>
+</ul>
+</li>
+<li><p>获取</p>
+<ul>
+<li>getFirst()  getLast()</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>set集合的特点：无序，且唯一（equals() 和 hashcode()）<br>注意：如果集合的元素是自定义对象，则需要重写equals() 和 hashcode()方法。（在eclipse中可以自动生成）</p>
+<h4 id="分类-2"><a href="#分类-2" class="headerlink" title="分类"></a>分类</h4><ul>
+<li><p>HashSet</p>
+<ul>
+<li>底层数据结构是哈希表(是一个元素为链表的数组)</li>
+<li>哈希表底层依赖两个方法：hashCode()和equals()</li>
+<li>添加元素执行顺序：</li>
+<li>首先比较哈希值是否相同？<br>    相同：继续执行equals()方法<br>          返回true：元素重复了，不添加<br>          返回false：直接把元素添加到集合<br>      不同：就直接把元素添加到集合</li>
+</ul>
+</li>
+<li><p>TreeSet</p>
+<ul>
+<li>底层数据结构是红黑树(是一个自平衡的二叉树)</li>
+<li>保证元素的排序方式<ul>
+<li>a:自然排序(元素具备比较性)：让元素所属的类实现Comparable接口</li>
+<li>比较器排序(集合具备比较性)：让集合构造方法接收Comparator的实现类对象</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h1><p>基本函数</p>
+<table>
+<thead>
+<tr>
+<th>Modifier and Type</th>
+<th>Method and Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>void</code></td>
+<td><code>clear()</code>  从该地图中删除所有的映射（可选操作）。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>compute(K key, BiFunction&lt;? super K,? super V,? extends V&gt; remappingFunction)</code>  尝试计算指定键的映射及其当前映射的值（如果没有当前映射， <code>null</code> ）。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>computeIfAbsent(K key, Function&lt;? super K,? extends V&gt; mappingFunction)</code>  如果指定的键尚未与值相关联（或映射到 <code>null</code>  ），则尝试使用给定的映射函数计算其值，并将其输入到此映射中，除非 <code>null</code> 。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>computeIfPresent(K key, BiFunction&lt;? super K,? super V,? extends V&gt; remappingFunction)</code>  如果指定的密钥的值存在且非空，则尝试计算给定密钥及其当前映射值的新映射。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>containsKey(Object key)</code>  如果此映射包含指定键的映射，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>containsValue(Object value)</code>  如果此地图将一个或多个键映射到指定的值，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>Set&lt;Map.Entry&lt;K,V&gt;&gt;</code></td>
+<td><code>entrySet()</code>  返回此地图中包含的映射的<a href="../../java/util/Set.html"><code>Set</code></a>视图。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>equals(Object o)</code>  将指定的对象与此映射进行比较以获得相等性。</td>
+</tr>
+<tr>
+<td><code>default void</code></td>
+<td><code>forEach(BiConsumer&lt;? super K,? super V&gt; action)</code>  对此映射中的每个条目执行给定的操作，直到所有条目都被处理或操作引发异常。</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td><code>get(Object key)</code>  返回到指定键所映射的值，或 <code>null</code>如果此映射包含该键的映射。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>getOrDefault(Object key, V defaultValue)</code>  返回到指定键所映射的值，或 <code>defaultValue</code>如果此映射包含该键的映射。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>hashCode()</code>  返回此地图的哈希码值。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>isEmpty()</code>  如果此地图不包含键值映射，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>Set&lt;K&gt;</code></td>
+<td><code>keySet()</code>  返回此地图中包含的键的<a href="../../java/util/Set.html"><code>Set</code></a>视图。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>merge(K key, V value, BiFunction&lt;? super V,? super V,? extends V&gt; remappingFunction)</code>  如果指定的键尚未与值相关联或与null相关联，则将其与给定的非空值相关联。</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td><code>put(K key, V value)</code>  将指定的值与该映射中的指定键相关联（可选操作）。</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>putAll(Map&lt;?  extends K,?  extends V&gt; m)</code>  将指定地图的所有映射复制到此映射（可选操作）。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>putIfAbsent(K key, V value)</code>  如果指定的键尚未与某个值相关联（或映射到 <code>null</code> ）将其与给定值相关联并返回  <code>null</code> ，否则返回当前值。</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td><code>remove(Object key)</code>  如果存在（从可选的操作），从该地图中删除一个键的映射。</td>
+</tr>
+<tr>
+<td><code>default boolean</code></td>
+<td><code>remove(Object key, Object value)</code>  仅当指定的密钥当前映射到指定的值时删除该条目。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>replace(K key, V value)</code>  只有当目标映射到某个值时，才能替换指定键的条目。</td>
+</tr>
+<tr>
+<td><code>default boolean</code></td>
+<td><code>replace(K key, V oldValue, V newValue)</code>  仅当当前映射到指定的值时，才能替换指定键的条目。</td>
+</tr>
+<tr>
+<td><code>default void</code></td>
+<td><code>replaceAll(BiFunction&lt;? super K,? super V,? extends V&gt; function)</code>  将每个条目的值替换为对该条目调用给定函数的结果，直到所有条目都被处理或该函数抛出异常。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>size()</code>  返回此地图中键值映射的数量。</td>
+</tr>
+<tr>
+<td><code>Collection&lt;V&gt;</code></td>
+<td><code>values()</code>  返回此地图中包含的值的<a href="../../java/util/Collection.html"><code>Collection</code></a>视图。</td>
+</tr>
+</tbody></table>
+<h2 id="遍历-1"><a href="#遍历-1" class="headerlink" title="遍历"></a>遍历</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span>&#123;</span><br><span class="line">     <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">      Map&lt;String, String&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, String&gt;();</span><br><span class="line">      map.put(<span class="string">&quot;1&quot;</span>, <span class="string">&quot;value1&quot;</span>);</span><br><span class="line">      map.put(<span class="string">&quot;2&quot;</span>, <span class="string">&quot;value2&quot;</span>);</span><br><span class="line">      map.put(<span class="string">&quot;3&quot;</span>, <span class="string">&quot;value3&quot;</span>);</span><br><span class="line">      </span><br><span class="line">      <span class="comment">//第一种：普遍使用，二次取值</span></span><br><span class="line">      System.out.println(<span class="string">&quot;通过Map.keySet遍历key和value：&quot;</span>);</span><br><span class="line">      <span class="keyword">for</span> (String key : map.keySet()) &#123;</span><br><span class="line">       System.out.println(<span class="string">&quot;key= &quot;</span>+ key + <span class="string">&quot; and value= &quot;</span> + map.get(key));</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      <span class="comment">//第二种</span></span><br><span class="line">      System.out.println(<span class="string">&quot;通过Map.entrySet使用iterator遍历key和value：&quot;</span>);</span><br><span class="line">      Iterator&lt;Map.Entry&lt;String, String&gt;&gt; it = map.entrySet().iterator();</span><br><span class="line">      <span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">       Map.Entry&lt;String, String&gt; entry = it.next();</span><br><span class="line">       System.out.println(<span class="string">&quot;key= &quot;</span> + entry.getKey() + <span class="string">&quot; and value= &quot;</span> + entry.getValue());</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      <span class="comment">//第三种：推荐，尤其是容量大时</span></span><br><span class="line">      System.out.println(<span class="string">&quot;通过Map.entrySet遍历key和value&quot;</span>);</span><br><span class="line">      <span class="keyword">for</span> (Map.Entry&lt;String, String&gt; entry : map.entrySet()) &#123;</span><br><span class="line">       System.out.println(<span class="string">&quot;key= &quot;</span> + entry.getKey() + <span class="string">&quot; and value= &quot;</span> + entry.getValue());</span><br><span class="line">      &#125;</span><br><span class="line">    </span><br><span class="line">      <span class="comment">//第四种</span></span><br><span class="line">      System.out.println(<span class="string">&quot;通过Map.values()遍历所有的value，但不能遍历key&quot;</span>);</span><br><span class="line">      <span class="keyword">for</span> (String v : map.values()) &#123;</span><br><span class="line">       System.out.println(<span class="string">&quot;value= &quot;</span> + v);</span><br><span class="line">      &#125;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p>java官方文档</p>
+<p>菜鸟教程：<a href="https://www.runoob.com/java/java-collections.html">https://www.runoob.com/java/java-collections.html</a></p>
+]]></content>
+      <categories>
+        <category>code</category>
+        <category>java</category>
+      </categories>
+      <tags>
+        <tag>notes</tag>
+        <tag>java</tag>
       </tags>
   </entry>
   <entry>
@@ -409,30 +877,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>the fuzzing book study notes</title>
-    <url>/2021/11/15/the-fuzzing-book-study-notes/</url>
-    <content><![CDATA[<h1 id="The-Researcher-Tour"><a href="#The-Researcher-Tour" class="headerlink" title="The Researcher Tour"></a>The Researcher Tour</h1><p><a href="https://www.fuzzingbook.org/">https://www.fuzzingbook.org</a></p>
-<p>Fuzzing: Breaking Things with Random Inputs</p>
-<p><em>Create random inputs, and see if they break things.</em> Just let it run long enough and you’ll see.</p>
-<h2 id="Mining-Function-Specifications"><a href="#Mining-Function-Specifications" class="headerlink" title="Mining Function Specifications"></a>Mining Function Specifications</h2><p>当我们测试一个程序的时候，不仅仅需要覆盖所有的行为，也还需要检查他的结果是否符合预期。</p>
-<p><em>dynamic invariants</em>的作用：</p>
-<ul>
-<li>Dynamic invariants provide important information for symbolic fuzzing, such as types and ranges of function arguments.</li>
-<li>Dynamic invariants provide pre- and postconditions for formal program proofs and verification.</li>
-<li>Dynamic invariants provide a large number of assertions that can check whether function behavior has changed.</li>
-<li>Checks provided by dynamic invariants can be very useful as oracles for checking the effects of generated tests</li>
-</ul>
-<h3 id="code-coverage"><a href="#code-coverage" class="headerlink" title="code coverage"></a>code coverage</h3>]]></content>
-      <categories>
-        <category>Fuzzing</category>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>Fuzzing</tag>
-        <tag>notes</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>xiaodiPenetration</title>
     <url>/2021/10/28/xiaodiPenetration/</url>
     <content><![CDATA[<h1 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h1><p><img src="file:///C:/Users/fourth/AppData/Roaming/Typora/typora-user-images/image-20211004154745441.png" alt="image-20211004154745441"></p>
@@ -494,27 +938,40 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
-    <url>/2022/03/28/%E5%B7%A5%E4%BD%9C%E5%B2%97%E4%BD%8D/</url>
-    <content><![CDATA[<p>自己可以做的目前有意向的岗位：</p>
-<p>渗透测试工程师、Android安全工程师、测试开发工程师。</p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191227360.png" alt="image-20220328191227360"></p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191249768.png" alt="image-20220328191249768"></p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191311381.png" alt="image-20220328191311381"></p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191336271.png" alt="image-20220328191336271"></p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191433981.png" alt="image-20220328191433981"></p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191451671.png" alt="image-20220328191451671"></p>
-]]></content>
+    <title>the fuzzing book study notes</title>
+    <url>/2021/11/15/the-fuzzing-book-study-notes/</url>
+    <content><![CDATA[<h1 id="The-Researcher-Tour"><a href="#The-Researcher-Tour" class="headerlink" title="The Researcher Tour"></a>The Researcher Tour</h1><p><a href="https://www.fuzzingbook.org/">https://www.fuzzingbook.org</a></p>
+<p>Fuzzing: Breaking Things with Random Inputs</p>
+<p><em>Create random inputs, and see if they break things.</em> Just let it run long enough and you’ll see.</p>
+<h2 id="Mining-Function-Specifications"><a href="#Mining-Function-Specifications" class="headerlink" title="Mining Function Specifications"></a>Mining Function Specifications</h2><p>当我们测试一个程序的时候，不仅仅需要覆盖所有的行为，也还需要检查他的结果是否符合预期。</p>
+<p><em>dynamic invariants</em>的作用：</p>
+<ul>
+<li>Dynamic invariants provide important information for symbolic fuzzing, such as types and ranges of function arguments.</li>
+<li>Dynamic invariants provide pre- and postconditions for formal program proofs and verification.</li>
+<li>Dynamic invariants provide a large number of assertions that can check whether function behavior has changed.</li>
+<li>Checks provided by dynamic invariants can be very useful as oracles for checking the effects of generated tests</li>
+</ul>
+<h3 id="code-coverage"><a href="#code-coverage" class="headerlink" title="code coverage"></a>code coverage</h3>]]></content>
+      <categories>
+        <category>Fuzzing</category>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>notes</tag>
+        <tag>Fuzzing</tag>
+      </tags>
   </entry>
   <entry>
     <title>做题笔记</title>
     <url>/2022/03/18/%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<p>写代码：<font color=red>先在草稿上面分清楚类别</font>，分析好了各个情况才开始敲代码，不然一直调试会很不方便，效率较低。</p>
+    <content><![CDATA[<h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>写代码：<font color=red>先在草稿上面分清楚类别</font>，分析好了各个情况才开始敲代码，不然一直调试会很不方便，效率较低。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> Integer.parseInt(string) ;<span class="comment">//可以将string直接转换成int(按照十进制)</span></span><br><span class="line"><span class="type">String</span> <span class="variable">b</span> <span class="operator">=</span> String.valueOf(<span class="type">int</span>) ;<span class="comment">//可以将int直接转换成字符串 比如 1 = &quot;1&quot;</span></span><br></pre></td></tr></table></figure>
 
-
-
-<p>&lt;— more — &gt;</p>
+<ul>
+<li>很多数组填充类的问题，都可以先预先给数组扩容带填充后的大小，然后在从后向前进行操作。</li>
+<li>如果需要判断某个数据是否再一个数据结构中是否存在，则一般建议可以用哈希表</li>
+<li>哈希表和数组再同等情况下建议用数组（时间更快）</li>
+</ul>
 <h1 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h1><p>头插法：</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//递归</span></span><br><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">ReverseList</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span>(head==<span class="literal">null</span>||head.next==<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">p</span> <span class="operator">=</span> ReverseList(head.next);</span><br><span class="line">    <span class="comment">//走到了尾节点</span></span><br><span class="line">    head.next.next = head;</span><br><span class="line">    head.next = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//循环</span></span><br><span class="line">    <span class="keyword">public</span> ListNode <span class="title function_">ReverseList</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line">         </span><br><span class="line">        <span class="type">ListNode</span> <span class="variable">p</span> <span class="operator">=</span> <span class="literal">null</span>,next;</span><br><span class="line">        <span class="keyword">while</span>(head!=<span class="literal">null</span>)&#123;</span><br><span class="line">            next = head.next;</span><br><span class="line">            head.next = p;</span><br><span class="line">            p = head;</span><br><span class="line">            head = next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> p;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
@@ -536,7 +993,7 @@
 
 
 <h2 id="遍历"><a href="#遍历" class="headerlink" title="遍历"></a>遍历</h2><h2 id="中序遍历："><a href="#中序遍历：" class="headerlink" title="中序遍历："></a>中序遍历：</h2><p>递归：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">KthNode</span> <span class="params">(TreeNode proot, <span class="type">int</span> k)</span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">    <span class="keyword">if</span>(proot==<span class="literal">null</span> || k&lt;=<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    KthNode(proot.left,k);</span><br><span class="line">    i++;</span><br><span class="line">    <span class="keyword">if</span>(i == k)&#123;</span><br><span class="line">        <span class="type">return</span> <span class="variable">result</span> <span class="operator">=</span> proot.val;</span><br><span class="line">    &#125;</span><br><span class="line">    KthNode(proot.right,k);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">KthNode</span> <span class="params">(TreeNode proot, <span class="type">int</span> k)</span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">    <span class="keyword">if</span>(proot==<span class="literal">null</span> || k&lt;=<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    KthNode(proot.left,k);</span><br><span class="line">    i++;</span><br><span class="line">    <span class="keyword">if</span>(i == k)&#123;</span><br><span class="line">        <span class="type">return</span> <span class="variable">result</span> <span class="operator">=</span> proot.val;</span><br><span class="line">    &#125;</span><br><span class="line">    KthNode(proot.right,k);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="层次遍历"><a href="#层次遍历" class="headerlink" title="层次遍历"></a>层次遍历</h2><p>循环，并且</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//需要知道当前层次</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">KthNode</span> <span class="params">(TreeNode proot, <span class="type">int</span> k)</span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">    <span class="keyword">if</span>(proot==<span class="literal">null</span>||k&lt;=<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    Stack&lt;TreeNode&gt; stack = <span class="keyword">new</span> <span class="title class_">Stack</span>&lt;&gt;();</span><br><span class="line">    stack.push(proot);</span><br><span class="line">    <span class="type">TreeNode</span> <span class="variable">node</span> <span class="operator">=</span> proot;</span><br><span class="line">    <span class="keyword">while</span>(!stack.isEmpty())&#123;</span><br><span class="line">        <span class="keyword">while</span>(node.left!=<span class="literal">null</span>)&#123;</span><br><span class="line">            stack.push(node.left);</span><br><span class="line">            node = node.left; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果，这里写成 node = stack.pop()是会出错的。因为，左子树遍历结束之后需要遍历右子树，只有右子树不为空，node才会变，否则便是一直为空，便会一直会进入上面的循环里面（node.left!=null）</span></span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">temp</span> <span class="operator">=</span> stack.pop();</span><br><span class="line">        count++;</span><br><span class="line">        <span class="keyword">if</span>(count == k)&#123;</span><br><span class="line">            <span class="keyword">return</span> temp.val;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(temp.right!=<span class="literal">null</span>)&#123;</span><br><span class="line">            stack.push(temp.right);</span><br><span class="line">            node = temp.right;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -616,18 +1073,70 @@
       </tags>
   </entry>
   <entry>
-    <title>配置自己的个人博客 github + hexo</title>
-    <url>/2022/03/18/%E9%85%8D%E7%BD%AE%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%20github%20+%20hexo/</url>
-    <content><![CDATA[<h1 id="配置自己的个人博客-github-hexo"><a href="#配置自己的个人博客-github-hexo" class="headerlink" title="配置自己的个人博客 github + hexo"></a>配置自己的个人博客 github + hexo</h1><p>基本教程：</p>
-<p><a href="https://zhuanlan.zhihu.com/p/26625249">https://zhuanlan.zhihu.com/p/26625249</a></p>
+    <title></title>
+    <url>/2022/03/28/%E5%B7%A5%E4%BD%9C%E5%B2%97%E4%BD%8D/</url>
+    <content><![CDATA[<p>自己可以做的目前有意向的岗位：</p>
+<p>渗透测试工程师、Android安全工程师、测试开发工程师。</p>
+<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191227360.png" alt="image-20220328191227360"></p>
+<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191249768.png" alt="image-20220328191249768"></p>
+<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191311381.png" alt="image-20220328191311381"></p>
+<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191336271.png" alt="image-20220328191336271"></p>
+<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191433981.png" alt="image-20220328191433981"></p>
+<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191451671.png" alt="image-20220328191451671"></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>破解第一个Android程序</title>
+    <url>/2022/04/16/%E7%A0%B4%E8%A7%A3%E7%AC%AC%E4%B8%80%E4%B8%AAAndroid%E7%A8%8B%E5%BA%8F/</url>
+    <content><![CDATA[<h1 id="使用IDA进行破解分析"><a href="#使用IDA进行破解分析" class="headerlink" title="使用IDA进行破解分析"></a>使用IDA进行破解分析</h1><ul>
+<li>查找分析点<ol>
+<li>使用apktool反编译apk<ul>
+<li><code>Apktool_2.6.1.jar d app-release.apk -o outputdir</code></li>
+</ul>
+</li>
+<li>查看资源文件中的string.xml</li>
+<li>寻找相关的字符串对应的id号 比如 “unsuccessed”</li>
+</ol>
+</li>
+<li>使用7z直接解压缩目标APK</li>
+<li>提取其中的dex文件</li>
+<li>载入ida</li>
+<li>使用关键字搜索 ALT T 来搜索上面找到的id号</li>
+<li>简单分析程序，然后修改dex文件<ul>
+<li>edit - patch program -&gt; change byte -&gt; apply patches to input file</li>
+</ul>
+</li>
+</ul>
+<h1 id="使用dex2jar工具对dex文件进行修复"><a href="#使用dex2jar工具对dex文件进行修复" class="headerlink" title="使用dex2jar工具对dex文件进行修复"></a>使用dex2jar工具对dex文件进行修复</h1><p>主要是修复dex文件中的这两个字段：（checksum、signature）。也可以使用dexfixter工具</p>
+<ul>
+<li><code>d2j-dex-recompute-checksum.bat classes.dex</code></li>
+</ul>
+<p>替换apk里面的dex文件为修复之后的文件</p>
+<ul>
+<li>删除文件：<ul>
+<li><code>.\aapt r D:\tools\android\apks\crackme02.apk classes.dex</code></li>
+</ul>
+</li>
+<li>替换文件：<ul>
+<li><code>.\aapt a D:\tools\android\apks\crackme02.apk d:\tools\android\apks\classes.dex</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h1><blockquote>
+<p>签名之前需要将之前的apk文件里面原来的签名文件删除 </p>
+<p>即删除 META-INF文件夹</p>
+</blockquote>
+<ul>
+<li><code>jarsigner -keystore d:\android\android.jks -signedjar crackme02signed.apk crackme02.apk android</code></li>
+<li>其中Android.jks是由AS自动生成的签名文件，android是证书名称</li>
+</ul>
 ]]></content>
       <categories>
-        <category>Fuzzing</category>
-        <category>notes</category>
+        <category>Android安全</category>
       </categories>
       <tags>
-        <tag>Fuzzing</tag>
-        <tag>notes</tag>
+        <tag>Android安全</tag>
+        <tag>破解程序</tag>
       </tags>
   </entry>
   <entry>
@@ -717,6 +1226,100 @@
       <tags>
         <tag>fuzzing</tag>
         <tag>paper</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>配置自己的个人博客 github + hexo</title>
+    <url>/2022/03/18/%E9%85%8D%E7%BD%AE%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%20github%20+%20hexo/</url>
+    <content><![CDATA[<h1 id="配置自己的个人博客-github-hexo"><a href="#配置自己的个人博客-github-hexo" class="headerlink" title="配置自己的个人博客 github + hexo"></a>配置自己的个人博客 github + hexo</h1><p>基本教程：</p>
+<p><a href="https://zhuanlan.zhihu.com/p/26625249">https://zhuanlan.zhihu.com/p/26625249</a></p>
+]]></content>
+      <categories>
+        <category>Fuzzing</category>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>notes</tag>
+        <tag>Fuzzing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>刷题-算法篇</title>
+    <url>/2022/03/18/%E5%88%B7%E9%A2%98-%E7%AE%97%E6%B3%95%E7%AF%87/</url>
+    <content><![CDATA[<h1 id="动态规划-dynamic-programming-DP"><a href="#动态规划-dynamic-programming-DP" class="headerlink" title="动态规划 dynamic programming DP"></a>动态规划 dynamic programming DP</h1><p><a href="https://blog.csdn.net/u013309870/article/details/75193592">https://blog.csdn.net/u013309870/article/details/75193592</a></p>
+<p>适用于有重叠子问题和最优子结构性质的问题。</p>
+<blockquote>
+<p>最优子结构：如果问题的最优解所包含的子问题的解也是最优的。</p>
+<p>无后效性：子问题的解一旦确定就不再更改。</p>
+<p>子问题重叠性质：旨在使用递归算法自顶向下对问题进行求解的时候，每次产生的子问题并不总是新问题，有些子问题需要被重复计算多次。</p>
+</blockquote>
+<p>其思想：先计算子问题，然后根据子问题得出原问题的解，所以需要存储子问题</p>
+<p>思考动态规划的解题思路的时候一般用的是：**<u>从结果推出上一个子问题的答案，以此来推断出状态转移方程</u>**</p>
+<p>动态规划算法有两种形式：</p>
+<ul>
+<li>自顶向下的备忘录法</li>
+<li>自底向上</li>
+</ul>
+<p>动态规划经典案例：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//动态规划节约空间，自第向上   </span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">jumpFloor</span><span class="params">(<span class="type">int</span> target)</span> &#123;</span><br><span class="line">        <span class="comment">//分步骤完成 ，用乘法</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">temp_1</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">temp_2</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">2</span>;i&lt;=target;i++)&#123;</span><br><span class="line">            result = temp_1+temp_2;</span><br><span class="line">            temp_2 = temp_1;</span><br><span class="line">            temp_1 = result;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result ;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//自底向上</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">jumpFloor</span><span class="params">(<span class="type">int</span> target)</span> &#123;</span><br><span class="line">        <span class="comment">//分步骤完成 ，用乘法</span></span><br><span class="line">        <span class="type">int</span> dp[] = <span class="keyword">new</span> <span class="title class_">int</span>[target+<span class="number">1</span>];</span><br><span class="line">        dp[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">        dp[<span class="number">1</span>] = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">2</span>;i&lt;=target;i++)&#123;</span><br><span class="line">            dp[i] = dp[i-<span class="number">1</span>]+dp[i-<span class="number">2</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[target] ;      </span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//递归，存储中间值</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;    </span><br><span class="line">    <span class="type">int</span> dp[] = <span class="keyword">new</span> <span class="title class_">int</span>[<span class="number">50</span>];    </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">jumpFloor</span><span class="params">(<span class="type">int</span> target)</span> &#123;</span><br><span class="line">        <span class="comment">//分步骤完成 ，用乘法        </span></span><br><span class="line">        <span class="keyword">if</span>(target&lt;=<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(dp[target]&gt;<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> dp[target];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[target] = jumpFloor(target-<span class="number">1</span>)+jumpFloor(target-<span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//递归</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">jumpFloor</span><span class="params">(<span class="type">int</span> target)</span> &#123;      </span><br><span class="line">        <span class="keyword">if</span>(target&lt;=<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> jumpFloor(target-<span class="number">1</span>)+jumpFloor(target-<span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>利用<code>Brian Kernighan</code>算法，可以在一定程度上进一步提升计算速度。Brian Kernighan 算法的原理是：对于任意整数 x，令 x&#x3D;x&amp;(x-1)x，该运算将 xx 的二进制表示的最后一个 1 变成 0。因此，对 x 重复该操作，直到 x 变成 0，则操作次数即为 x 的「一比特数」<br><font color = red>正整数 y 是 2 的整数次幂，当且仅当 y&amp;(y-1)&#x3D;0</font></p>
+<p>得到0-n的所有数据的bit的1的个数:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] countBits(<span class="type">int</span> n) &#123;</span><br><span class="line">        <span class="type">int</span>[] bits = <span class="keyword">new</span> <span class="title class_">int</span>[n + <span class="number">1</span>];</span><br><span class="line">        <span class="type">int</span> <span class="variable">highBit</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> ((i &amp; (i - <span class="number">1</span>)) == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">//i是2的整数次幂，只有最高位为1，其余为0，在这里highbit表示的是bit[i]的最高有效位</span></span><br><span class="line">                highBit = i;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//bit[i]&gt;bit[j],i&gt;j&gt;0,并且i比j的二进制1多一个，</span></span><br><span class="line">            bits[i] = bits[i - highBit] + <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> bits;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] countBits(<span class="type">int</span> n) &#123;</span><br><span class="line">        <span class="type">int</span>[] bits = <span class="keyword">new</span> <span class="title class_">int</span>[n + <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">            <span class="comment">//i &amp; (i - 1):其结果是将最低位的1变为0</span></span><br><span class="line">            bits[i] = bits[i &amp; (i - <span class="number">1</span>)] + <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> bits;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><p>数组进行反转或者是字符串进行反转：<strong>先整体反转再局部反转</strong></p>
+<p><strong>其实很多数组填充类的问题，都可以先预先给数组扩容带填充后的大小，然后在从后向前进行操作。</strong></p>
+<h2 id="双指针"><a href="#双指针" class="headerlink" title="双指针"></a>双指针</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] twoSum(<span class="type">int</span>[] numbers, <span class="type">int</span> target) &#123;</span><br><span class="line">        <span class="type">int</span>[] result = &#123;<span class="number">0</span>,<span class="number">0</span>&#125;;</span><br><span class="line">        <span class="type">int</span> <span class="variable">endJ</span> <span class="operator">=</span> numbers.length-<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span><span class="number">0</span>,right = numbers.length-<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span>(left&lt;right)&#123;</span><br><span class="line">            <span class="keyword">if</span>(numbers[left]+numbers[right]==target)&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">int</span>[]&#123;left,right&#125;;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(numbers[left]+numbers[right]&gt;target)&#123;</span><br><span class="line">                right--;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                left++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">		</span><br></pre></td></tr></table></figure>
+
+<p>三数之和</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; <span class="title function_">threeSum</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        List&lt;List&lt;Integer&gt;&gt; result = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        Arrays.sort(nums);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[i] &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i &gt; <span class="number">0</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>]) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> i + <span class="number">1</span>;</span><br><span class="line">            <span class="type">int</span> <span class="variable">right</span> <span class="operator">=</span> nums.length - <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">while</span> (right &gt; left) &#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> nums[i] + nums[left] + nums[right];</span><br><span class="line">                <span class="keyword">if</span> (sum &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                    right--;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sum &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                    left++;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    result.add(Arrays.asList(nums[i], nums[left], nums[right]));</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">while</span> (right &gt; left &amp;&amp; nums[right] == nums[right - <span class="number">1</span>]) right--;</span><br><span class="line">                    <span class="keyword">while</span> (right &gt; left &amp;&amp; nums[left] == nums[left + <span class="number">1</span>]) left++;</span><br><span class="line">                    </span><br><span class="line">                    right--; </span><br><span class="line">                    left++;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">minSubArrayLen</span><span class="params">(<span class="type">int</span> s, <span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> <span class="variable">ans</span> <span class="operator">=</span> Integer.MAX_VALUE;</span><br><span class="line">        <span class="type">int</span> <span class="variable">start</span> <span class="operator">=</span> <span class="number">0</span>, end = <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (end &lt; n) &#123;</span><br><span class="line">            sum += nums[end];</span><br><span class="line">            <span class="keyword">while</span> (sum &gt;= s) &#123;</span><br><span class="line">                ans = Math.min(ans, end - start + <span class="number">1</span>);</span><br><span class="line">                sum -= nums[start];</span><br><span class="line">                start++;</span><br><span class="line">            &#125;</span><br><span class="line">            end++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">return</span> <span class="variable">ans</span> <span class="operator">=</span>= Integer.MAX_VALUE ? <span class="number">0</span> : ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最长不重复字串</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 代码中的类名、方法名、参数名已经指定，请勿修改，直接返回方法规定的值即可</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> s string字符串 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int整型</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">lengthOfLongestSubstring</span> <span class="params">(String s)</span> &#123;</span><br><span class="line">        <span class="comment">// write code here</span></span><br><span class="line">        <span class="comment">//使用双指针来进行相关操作</span></span><br><span class="line">        <span class="keyword">if</span>(s.length()==<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        HashMap&lt;Character,Integer&gt; hashset = <span class="keyword">new</span> <span class="title class_">LinkedHashMap</span>&lt;&gt;();</span><br><span class="line">        <span class="type">int</span> left=<span class="number">0</span>,right=<span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> result=<span class="number">1</span>,temp = <span class="number">0</span>;</span><br><span class="line">        </span><br><span class="line">        hashset.put(s.charAt(<span class="number">0</span>),<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;s.length();i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(!hashset.containsKey(s.charAt(i)))&#123;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">//找到重复的字符的位置</span></span><br><span class="line">                <span class="comment">//删除从前到重复字符串的所有字符</span></span><br><span class="line"><span class="comment">//                 left = hashset.get(s.charAt(i))+1;</span></span><br><span class="line">                left = Math.max(hashset.get(s.charAt(i))+<span class="number">1</span>,left);</span><br><span class="line">            &#125;</span><br><span class="line">            result = Math.max(i-left+<span class="number">1</span>,result);</span><br><span class="line">            hashset.put(s.charAt(i),i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前缀和：一般需要和hashmap进行组合，注意键值对分别代表甚意思。</p>
+<p>统计最长的相同0，1，的子数组的大小：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">findMaxLength</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//前缀和，最长的长度</span></span><br><span class="line">        HashMap&lt;Integer,Integer&gt; hashmap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//如果nums[i]=0，将其转换为-1，</span></span><br><span class="line">        <span class="comment">//所以就可以将整个问题直接转换成，前缀和为0的最长连续子数组的大小。</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">preSum</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">ans</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        hashmap.put(<span class="number">0</span>,-<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line">            <span class="comment">//只需要在遍历的时候遇到0就-1即可。不需要单独遍历整个数组</span></span><br><span class="line">            preSum = nums[i]==<span class="number">0</span>?preSum-<span class="number">1</span>:preSum+<span class="number">1</span>;            </span><br><span class="line">            <span class="keyword">if</span>(hashmap.containsKey(preSum))&#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> hashmap.get(preSum);</span><br><span class="line">                ans = Math.max(ans,i-index);</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">//因为需要的是最长的子数组，所以并不需要覆盖，</span></span><br><span class="line">                hashmap.put(preSum,i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="KMP（字符串匹配）"><a href="#KMP（字符串匹配）" class="headerlink" title="KMP（字符串匹配）"></a>KMP（字符串匹配）</h1><p><strong>强烈建议大家把next数组打印出来，看看next数组里的规律，有助于理解KMP算法</strong></p>
+<p><font color = red>字符串匹配要优先想到KMP算法</font></p>
+<p>思想：当字符串出现不匹配的时候，可以根据已经匹配的内容来进行下一次匹配位置的计算。找到最长相等前后缀之后匹配失败的位置就是后缀子串的后面</p>
+<blockquote>
+<ul>
+<li><p><strong>前缀是指不包含最后一个字符的所有以第一个字符开头的连续子串</strong></p>
+</li>
+<li><p><strong>后缀是指不包含第一个字符的所有以最后一个字符结尾的连续子串</strong>。</p>
+</li>
+<li><p>next数组（前缀表）：它记录了模式串与主串(文本串)不匹配的时候，模式串应该从哪里开始重新匹配。<strong>记录下标i之前（包括i）的字符串中，有多大长度的相同<u>前缀后缀</u>。</strong></p>
+</li>
+<li><p>next数组实现的时候通常是将整个数组值-1（计算出了整个模式的最长匹配表之后，将其向右移动一个位置）.</p>
+</li>
+</ul>
+</blockquote>
+<p><u>目标串永不回退，就只是需要移动模式串的起始位置。</u> 移动的位置是 j &#x3D; next[j] next[0]&#x3D;-1的时候</p>
+<p>aabaa的最长相等前后缀是2</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">strStr</span><span class="params">(String haystack, String needle)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span>[]next = getNext(needle);</span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt;haystack.length();i++)&#123;</span><br><span class="line">            <span class="keyword">while</span>(j&gt;=<span class="number">0</span>&amp;&amp;haystack.charAt(i)!=needle.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                <span class="comment">//模式子串进行回退</span></span><br><span class="line">                j = next[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(haystack.charAt(i)==needle.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(j == next.length-<span class="number">1</span>)&#123;</span><br><span class="line">                <span class="keyword">return</span> i-j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span>[] getNext(String s)&#123;</span><br><span class="line">        <span class="type">int</span> j=-<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> [] next = <span class="keyword">new</span> <span class="title class_">int</span>[s.length()];</span><br><span class="line">        next[<span class="number">0</span>] = j;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;s.length();i++)&#123;</span><br><span class="line">            <span class="comment">//进行回退</span></span><br><span class="line">            <span class="keyword">while</span>(j&gt;=<span class="number">0</span> &amp;&amp; s.charAt(i)!=s.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                j = next[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s.charAt(i)==s.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            next[i] = j;</span><br><span class="line">            System.out.println(j);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <categories>
+        <category>notes</category>
+        <category>刷题</category>
+      </categories>
+      <tags>
+        <tag>刷题</tag>
+        <tag>算法</tag>
       </tags>
   </entry>
 </search>

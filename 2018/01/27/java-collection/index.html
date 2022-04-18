@@ -20,18 +20,21 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="集合框架collection  是集合的顶层接口，他的子体系有重复的，有唯一的，有有序的，也有无序的。 1.collection 功能12345添加：boolean add(E e)删除：boolean remove(Object o)判断：boolean isEmpty();boolean contains(Object o)获取：Iterator&lt;E&gt; iterator()长度：i">
+    <meta name="description" content="集合框架collection  是集合的顶层接口，他的子体系有重复的，有唯一的，有有序的，也有无序的。  collection 基本函数 添加：boolean add(E e) 删除：boolean remove(Object o) 判断：boolean isEmpty();boolean contains(Object o) 获取：Iterator iterator() 长度：int size(">
 <meta property="og:type" content="article">
 <meta property="og:title" content="java collection">
 <meta property="og:url" content="http://dfault0.github.io/2018/01/27/java-collection/index.html">
 <meta property="og:site_name" content="Dfault0&#39;s blog">
-<meta property="og:description" content="集合框架collection  是集合的顶层接口，他的子体系有重复的，有唯一的，有有序的，也有无序的。 1.collection 功能12345添加：boolean add(E e)删除：boolean remove(Object o)判断：boolean isEmpty();boolean contains(Object o)获取：Iterator&lt;E&gt; iterator()长度：i">
+<meta property="og:description" content="集合框架collection  是集合的顶层接口，他的子体系有重复的，有唯一的，有有序的，也有无序的。  collection 基本函数 添加：boolean add(E e) 删除：boolean remove(Object o) 判断：boolean isEmpty();boolean contains(Object o) 获取：Iterator iterator() 长度：int size(">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220415125923.png">
 <meta property="article:published_time" content="2018-01-27T02:47:25.000Z">
-<meta property="article:modified_time" content="2022-03-18T08:40:31.360Z">
+<meta property="article:modified_time" content="2022-04-15T05:24:15.903Z">
 <meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="notes">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220415125923.png">
 
 
 <link rel="canonical" href="http://dfault0.github.io/2018/01/27/java-collection/">
@@ -124,7 +127,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6collection"><span class="nav-number">1.</span> <span class="nav-text">集合框架collection</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-collection-%E5%8A%9F%E8%83%BD"><span class="nav-number">1.0.1.</span> <span class="nav-text">1.collection 功能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%88%86%E7%B1%BB"><span class="nav-number">1.0.2.</span> <span class="nav-text">2.分类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E9%81%8D%E5%8E%86"><span class="nav-number">1.0.3.</span> <span class="nav-text">3.遍历</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#List"><span class="nav-number">1.1.</span> <span class="nav-text">List</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%86%E7%B1%BB"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.分类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Set"><span class="nav-number">1.2.</span> <span class="nav-text">Set</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%86%E7%B1%BB-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.分类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#HashSet"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">HashSet</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#TreeSet"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">TreeSet</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6collection"><span class="nav-number">1.</span> <span class="nav-text">集合框架collection</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#collection-%E5%9F%BA%E6%9C%AC%E5%87%BD%E6%95%B0"><span class="nav-number">1.1.</span> <span class="nav-text">collection 基本函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%B1%BB"><span class="nav-number">1.2.</span> <span class="nav-text">分类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%8D%E5%8E%86"><span class="nav-number">1.3.</span> <span class="nav-text">遍历</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#List"><span class="nav-number">1.3.1.</span> <span class="nav-text">List</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E7%B1%BB-1"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">分类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Set"><span class="nav-number">1.3.2.</span> <span class="nav-text">Set</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E7%B1%BB-2"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">分类</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Map"><span class="nav-number">2.</span> <span class="nav-text">Map</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%8D%E5%8E%86-1"><span class="nav-number">2.1.</span> <span class="nav-text">遍历</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -137,18 +140,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -223,7 +226,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-03-18 16:40:31" itemprop="dateModified" datetime="2022-03-18T16:40:31+08:00">2022-03-18</time>
+      <time title="Modified: 2022-04-15 13:24:15" itemprop="dateModified" datetime="2022-04-15T13:24:15+08:00">2022-04-15</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -232,6 +235,10 @@
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
           <a href="/categories/code/" itemprop="url" rel="index"><span itemprop="name">code</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/code/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
         </span>
     </span>
 
@@ -245,35 +252,277 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="集合框架collection"><a href="#集合框架collection" class="headerlink" title="集合框架collection"></a>集合框架collection</h2><p>  是集合的顶层接口，他的子体系有重复的，有唯一的，有有序的，也有无序的。</p>
-<h4 id="1-collection-功能"><a href="#1-collection-功能" class="headerlink" title="1.collection 功能"></a>1.collection 功能</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">添加：boolean add(E e)</span><br><span class="line">删除：boolean remove(Object o)</span><br><span class="line">判断：boolean isEmpty();boolean contains(Object o)</span><br><span class="line">获取：Iterator&lt;E&gt; iterator()</span><br><span class="line">长度：int size()</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-分类"><a href="#2-分类" class="headerlink" title="2.分类"></a>2.分类</h4><p> a. List: (interface)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ArrayList</span><br><span class="line">Vector</span><br><span class="line">LinkedList</span><br></pre></td></tr></table></figure>
-
-<p> b.Set: (interface)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HashSet</span><br><span class="line">TreeSet</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-遍历"><a href="#3-遍历" class="headerlink" title="3.遍历"></a>3.遍历</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">A:将集合转换成数组</span><br><span class="line">B：迭代器</span><br><span class="line"><span class="type">Iterator</span> <span class="variable">iterator</span> <span class="operator">=</span> arrayList.iterator();</span><br><span class="line">		<span class="keyword">while</span>(iterator.hasNext()) &#123;</span><br><span class="line">			<span class="type">Student</span> <span class="variable">temp</span> <span class="operator">=</span> (Student) iterator.next();</span><br><span class="line">			System.out.println(temp.getName()+<span class="string">&#x27;,&#x27;</span>+temp.getAge());</span><br><span class="line">		&#125;</span><br><span class="line">C：增强 <span class="keyword">for</span>：</span><br><span class="line"><span class="keyword">for</span>(ArrayList&lt;Student&gt; arrayList:boss) &#123;</span><br><span class="line">			<span class="keyword">for</span>(Student temp:arrayList) &#123;</span><br><span class="line">				<span class="type">Student</span> <span class="variable">student</span> <span class="operator">=</span> temp;</span><br><span class="line">				System.out.println(student.getName()+student.getAge());</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
+        <h1 id="集合框架collection"><a href="#集合框架collection" class="headerlink" title="集合框架collection"></a>集合框架collection</h1><p>  是集合的顶层接口，他的子体系有重复的，有唯一的，有有序的，也有无序的。</p>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220415125923.png"></p>
+<h2 id="collection-基本函数"><a href="#collection-基本函数" class="headerlink" title="collection 基本函数"></a>collection 基本函数</h2><ul>
+<li>添加：boolean add(E e)</li>
+<li>删除：boolean remove(Object o)</li>
+<li>判断：boolean isEmpty();boolean contains(Object o)</li>
+<li>获取：Iterator<E> iterator()</li>
+<li>长度：int size()</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Modifier and Type</th>
+<th>Method and Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>boolean</code></td>
+<td><code>add(E e)</code>  确保此集合包含指定的元素（可选操作）。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>addAll(Collection&lt;? extends E&gt; c)</code>  将指定集合中的所有元素添加到此集合（可选操作）。</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>clear()</code>  从此集合中删除所有元素（可选操作）。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>contains(Object o)</code>  如果此集合包含指定的元素，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>containsAll(Collection&lt;?&gt; c)</code>  如果此集合包含指定 <code>集合</code>中的所有元素，则返回true。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>equals(Object o)</code>  将指定的对象与此集合进行比较以获得相等性。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>hashCode()</code>  返回此集合的哈希码值。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>isEmpty()</code>  如果此集合不包含元素，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>Iterator&lt;E&gt;</code></td>
+<td><code>iterator()</code>  返回此集合中的元素的迭代器。</td>
+</tr>
+<tr>
+<td><code>default Stream&lt;E&gt;</code></td>
+<td><code>parallelStream()</code>  返回可能并行的 <code>Stream</code>与此集合作为其来源。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>remove(Object o)</code>  从该集合中删除指定元素的单个实例（如果存在）（可选操作）。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>removeAll(Collection&lt;?&gt; c)</code>  删除指定集合中包含的所有此集合的元素（可选操作）。</td>
+</tr>
+<tr>
+<td><code>default boolean</code></td>
+<td><code>removeIf(Predicate&lt;? super E&gt; filter)</code>  删除满足给定谓词的此集合的所有元素。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>retainAll(Collection&lt;?&gt; c)</code>  仅保留此集合中包含在指定集合中的元素（可选操作）。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>size()</code>  返回此集合中的元素数。</td>
+</tr>
+<tr>
+<td><code>default Spliterator&lt;E&gt;</code></td>
+<td><code>spliterator()</code>  创建一个<a href="../../java/util/Spliterator.html"><code>Spliterator</code></a>在这个集合中的元素。</td>
+</tr>
+<tr>
+<td><code>default Stream&lt;E&gt;</code></td>
+<td><code>stream()</code>  返回以此集合作为源的顺序 <code>Stream</code> 。</td>
+</tr>
+<tr>
+<td><code>Object[]</code></td>
+<td><code>toArray()</code>  返回一个包含此集合中所有元素的数组。</td>
+</tr>
+<tr>
+<td><code>&lt;T&gt; T[]</code></td>
+<td><code>toArray(T[] a)</code>  返回包含此集合中所有元素的数组;  返回的数组的运行时类型是指定数组的运行时类型。</td>
+</tr>
+</tbody></table>
+<h2 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h2><ul>
+<li><p>List: (interface)</p>
+<ul>
+<li>ArrayList</li>
+<li>Vector</li>
+<li>LinkedList</li>
+</ul>
+</li>
+<li><p>Set: (interface)</p>
+<ul>
+<li>HashSet</li>
+<li>TreeSet</li>
+</ul>
+</li>
+</ul>
+<h2 id="遍历"><a href="#遍历" class="headerlink" title="遍历"></a>遍历</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//A:将集合转换成数组</span></span><br><span class="line"><span class="comment">//B：迭代器</span></span><br><span class="line"><span class="type">Iterator</span> <span class="variable">iterator</span> <span class="operator">=</span> arrayList.iterator();</span><br><span class="line"><span class="keyword">while</span>(iterator.hasNext()) &#123;</span><br><span class="line">	<span class="type">Student</span> <span class="variable">temp</span> <span class="operator">=</span> (Student) iterator.next();</span><br><span class="line">	System.out.println(temp.getName()+<span class="string">&#x27;,&#x27;</span>+temp.getAge());</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//C：增强 for：</span></span><br><span class="line"><span class="keyword">for</span>(ArrayList&lt;Student&gt; arrayList:boss) &#123;</span><br><span class="line">	<span class="keyword">for</span>(Student temp:arrayList) &#123;</span><br><span class="line">		<span class="type">Student</span> <span class="variable">student</span> <span class="operator">=</span> temp;</span><br><span class="line">		System.out.println(student.getName()+student.getAge());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="List"><a href="#List" class="headerlink" title="List"></a>List</h3><p>  有序，可重复</p>
-<h4 id="1-分类"><a href="#1-分类" class="headerlink" title="1.分类"></a>1.分类</h4><ul>
-<li><p>ArrayList<br>  底层数据结构是数组，查询快，增删慢。线程不安全，效率高。</p>
+<h4 id="分类-1"><a href="#分类-1" class="headerlink" title="分类"></a>分类</h4><ul>
+<li><p>ArrayList：底层数据结构是数组，查询快，增删慢。线程不安全，效率高。</p>
 </li>
-<li><p>Vector<br>  底层数据结构是数组，查询快，增删慢。线程安全，效率低。</p>
+<li><p>Vector：底层数据结构是数组，查询快，增删慢。线程安全，效率低。</p>
 </li>
-<li><p>LinkedList<br>  底层数据结构是链表，查询慢，增删快。线程不安全，效率高。<br>**特有功能：</p>
+<li><p>LinkedList：底层数据结构是链表，查询慢，增删快。线程不安全，效率高。
+  </p>
 <ul>
-<li>添加<br>  addFirst()<br>    addLast()</li>
-<li>删除<br>  removeFirst()<br>    removeLast()</li>
-<li>获取<br>  getFirst()<br>    getLast()</li>
+<li><p>添加</p>
+<ul>
+<li>addFirst()    addLast()</li>
+</ul>
+</li>
+<li><p>删除</p>
+<ul>
+<li>removeFirst()  removeLast()</li>
+</ul>
+</li>
+<li><p>获取</p>
+<ul>
+<li>getFirst()  getLast()</li>
 </ul>
 </li>
 </ul>
-<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>  set集合的特点：无序，且唯一（equals() 和 hashcode()）<br>注意：如果集合的元素是自定义对象，则需要重写equals() 和 hashcode()方法。（在eclipse中可以自动生成）</p>
-<h4 id="1-分类-1"><a href="#1-分类-1" class="headerlink" title="1.分类"></a>1.分类</h4><h5 id="HashSet"><a href="#HashSet" class="headerlink" title="HashSet"></a>HashSet</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">A:底层数据结构是哈希表(是一个元素为链表的数组)</span><br><span class="line">B:哈希表底层依赖两个方法：hashCode()和equals()</span><br><span class="line"> 执行顺序：</span><br><span class="line">	首先比较哈希值是否相同</span><br><span class="line">		相同：继续执行equals()方法</span><br><span class="line">			返回true：元素重复了，不添加</span><br><span class="line">			返回false：直接把元素添加到集合</span><br><span class="line">		不同：就直接把元素添加到集合</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><p>set集合的特点：无序，且唯一（equals() 和 hashcode()）<br>注意：如果集合的元素是自定义对象，则需要重写equals() 和 hashcode()方法。（在eclipse中可以自动生成）</p>
+<h4 id="分类-2"><a href="#分类-2" class="headerlink" title="分类"></a>分类</h4><ul>
+<li><p>HashSet</p>
+<ul>
+<li>底层数据结构是哈希表(是一个元素为链表的数组)</li>
+<li>哈希表底层依赖两个方法：hashCode()和equals()</li>
+<li>添加元素执行顺序：</li>
+<li>首先比较哈希值是否相同？<br>    相同：继续执行equals()方法<br>          返回true：元素重复了，不添加<br>          返回false：直接把元素添加到集合<br>      不同：就直接把元素添加到集合</li>
+</ul>
+</li>
+<li><p>TreeSet</p>
+<ul>
+<li>底层数据结构是红黑树(是一个自平衡的二叉树)</li>
+<li>保证元素的排序方式<ul>
+<li>a:自然排序(元素具备比较性)：让元素所属的类实现Comparable接口</li>
+<li>比较器排序(集合具备比较性)：让集合构造方法接收Comparator的实现类对象</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h1><p>基本函数</p>
+<table>
+<thead>
+<tr>
+<th>Modifier and Type</th>
+<th>Method and Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>void</code></td>
+<td><code>clear()</code>  从该地图中删除所有的映射（可选操作）。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>compute(K key, BiFunction&lt;? super K,? super V,? extends V&gt; remappingFunction)</code>  尝试计算指定键的映射及其当前映射的值（如果没有当前映射， <code>null</code> ）。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>computeIfAbsent(K key, Function&lt;? super K,? extends V&gt; mappingFunction)</code>  如果指定的键尚未与值相关联（或映射到 <code>null</code>  ），则尝试使用给定的映射函数计算其值，并将其输入到此映射中，除非 <code>null</code> 。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>computeIfPresent(K key, BiFunction&lt;? super K,? super V,? extends V&gt; remappingFunction)</code>  如果指定的密钥的值存在且非空，则尝试计算给定密钥及其当前映射值的新映射。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>containsKey(Object key)</code>  如果此映射包含指定键的映射，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>containsValue(Object value)</code>  如果此地图将一个或多个键映射到指定的值，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>Set&lt;Map.Entry&lt;K,V&gt;&gt;</code></td>
+<td><code>entrySet()</code>  返回此地图中包含的映射的<a href="../../java/util/Set.html"><code>Set</code></a>视图。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>equals(Object o)</code>  将指定的对象与此映射进行比较以获得相等性。</td>
+</tr>
+<tr>
+<td><code>default void</code></td>
+<td><code>forEach(BiConsumer&lt;? super K,? super V&gt; action)</code>  对此映射中的每个条目执行给定的操作，直到所有条目都被处理或操作引发异常。</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td><code>get(Object key)</code>  返回到指定键所映射的值，或 <code>null</code>如果此映射包含该键的映射。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>getOrDefault(Object key, V defaultValue)</code>  返回到指定键所映射的值，或 <code>defaultValue</code>如果此映射包含该键的映射。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>hashCode()</code>  返回此地图的哈希码值。</td>
+</tr>
+<tr>
+<td><code>boolean</code></td>
+<td><code>isEmpty()</code>  如果此地图不包含键值映射，则返回 <code>true</code> 。</td>
+</tr>
+<tr>
+<td><code>Set&lt;K&gt;</code></td>
+<td><code>keySet()</code>  返回此地图中包含的键的<a href="../../java/util/Set.html"><code>Set</code></a>视图。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>merge(K key, V value, BiFunction&lt;? super V,? super V,? extends V&gt; remappingFunction)</code>  如果指定的键尚未与值相关联或与null相关联，则将其与给定的非空值相关联。</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td><code>put(K key, V value)</code>  将指定的值与该映射中的指定键相关联（可选操作）。</td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td><code>putAll(Map&lt;?  extends K,?  extends V&gt; m)</code>  将指定地图的所有映射复制到此映射（可选操作）。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>putIfAbsent(K key, V value)</code>  如果指定的键尚未与某个值相关联（或映射到 <code>null</code> ）将其与给定值相关联并返回  <code>null</code> ，否则返回当前值。</td>
+</tr>
+<tr>
+<td><code>V</code></td>
+<td><code>remove(Object key)</code>  如果存在（从可选的操作），从该地图中删除一个键的映射。</td>
+</tr>
+<tr>
+<td><code>default boolean</code></td>
+<td><code>remove(Object key, Object value)</code>  仅当指定的密钥当前映射到指定的值时删除该条目。</td>
+</tr>
+<tr>
+<td><code>default V</code></td>
+<td><code>replace(K key, V value)</code>  只有当目标映射到某个值时，才能替换指定键的条目。</td>
+</tr>
+<tr>
+<td><code>default boolean</code></td>
+<td><code>replace(K key, V oldValue, V newValue)</code>  仅当当前映射到指定的值时，才能替换指定键的条目。</td>
+</tr>
+<tr>
+<td><code>default void</code></td>
+<td><code>replaceAll(BiFunction&lt;? super K,? super V,? extends V&gt; function)</code>  将每个条目的值替换为对该条目调用给定函数的结果，直到所有条目都被处理或该函数抛出异常。</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td><code>size()</code>  返回此地图中键值映射的数量。</td>
+</tr>
+<tr>
+<td><code>Collection&lt;V&gt;</code></td>
+<td><code>values()</code>  返回此地图中包含的值的<a href="../../java/util/Collection.html"><code>Collection</code></a>视图。</td>
+</tr>
+</tbody></table>
+<h2 id="遍历-1"><a href="#遍历-1" class="headerlink" title="遍历"></a>遍历</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span>&#123;</span><br><span class="line">     <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">      Map&lt;String, String&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, String&gt;();</span><br><span class="line">      map.put(<span class="string">&quot;1&quot;</span>, <span class="string">&quot;value1&quot;</span>);</span><br><span class="line">      map.put(<span class="string">&quot;2&quot;</span>, <span class="string">&quot;value2&quot;</span>);</span><br><span class="line">      map.put(<span class="string">&quot;3&quot;</span>, <span class="string">&quot;value3&quot;</span>);</span><br><span class="line">      </span><br><span class="line">      <span class="comment">//第一种：普遍使用，二次取值</span></span><br><span class="line">      System.out.println(<span class="string">&quot;通过Map.keySet遍历key和value：&quot;</span>);</span><br><span class="line">      <span class="keyword">for</span> (String key : map.keySet()) &#123;</span><br><span class="line">       System.out.println(<span class="string">&quot;key= &quot;</span>+ key + <span class="string">&quot; and value= &quot;</span> + map.get(key));</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      <span class="comment">//第二种</span></span><br><span class="line">      System.out.println(<span class="string">&quot;通过Map.entrySet使用iterator遍历key和value：&quot;</span>);</span><br><span class="line">      Iterator&lt;Map.Entry&lt;String, String&gt;&gt; it = map.entrySet().iterator();</span><br><span class="line">      <span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">       Map.Entry&lt;String, String&gt; entry = it.next();</span><br><span class="line">       System.out.println(<span class="string">&quot;key= &quot;</span> + entry.getKey() + <span class="string">&quot; and value= &quot;</span> + entry.getValue());</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      <span class="comment">//第三种：推荐，尤其是容量大时</span></span><br><span class="line">      System.out.println(<span class="string">&quot;通过Map.entrySet遍历key和value&quot;</span>);</span><br><span class="line">      <span class="keyword">for</span> (Map.Entry&lt;String, String&gt; entry : map.entrySet()) &#123;</span><br><span class="line">       System.out.println(<span class="string">&quot;key= &quot;</span> + entry.getKey() + <span class="string">&quot; and value= &quot;</span> + entry.getValue());</span><br><span class="line">      &#125;</span><br><span class="line">    </span><br><span class="line">      <span class="comment">//第四种</span></span><br><span class="line">      System.out.println(<span class="string">&quot;通过Map.values()遍历所有的value，但不能遍历key&quot;</span>);</span><br><span class="line">      <span class="keyword">for</span> (String v : map.values()) &#123;</span><br><span class="line">       System.out.println(<span class="string">&quot;value= &quot;</span> + v);</span><br><span class="line">      &#125;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h5 id="TreeSet"><a href="#TreeSet" class="headerlink" title="TreeSet"></a>TreeSet</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">A:底层数据结构是红黑树(是一个自平衡的二叉树)</span><br><span class="line">B:保证元素的排序方式</span><br><span class="line">	a:自然排序(元素具备比较性)</span><br><span class="line">		让元素所属的类实现Comparable接口</span><br><span class="line">	b:比较器排序(集合具备比较性)		                                </span><br><span class="line">		让集合构造方法接收Comparator的实现类对象</span><br></pre></td></tr></table></figure>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p>java官方文档</p>
+<p>菜鸟教程：<a target="_blank" rel="noopener" href="https://www.runoob.com/java/java-collections.html">https://www.runoob.com/java/java-collections.html</a></p>
 
     </div>
 
@@ -283,6 +532,7 @@
 
     <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/notes/" rel="tag"># notes</a>
               <a href="/tags/java/" rel="tag"># java</a>
           </div>
 
