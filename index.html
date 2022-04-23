@@ -139,12 +139,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -210,9 +210,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-04-16 14:24:50 / Modified: 14:48:11" itemprop="dateCreated datePublished" datetime="2022-04-16T14:24:50+08:00">2022-04-16</time>
+      <time title="Created: 2022-04-16 14:24:50" itemprop="dateCreated datePublished" datetime="2022-04-16T14:24:50+08:00">2022-04-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-23 13:24:28" itemprop="dateModified" datetime="2022-04-23T13:24:28+08:00">2022-04-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -220,7 +226,7 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+          <a href="/categories/Android-security/" itemprop="url" rel="index"><span itemprop="name">Android security</span></a>
         </span>
     </span>
 
@@ -253,30 +259,14 @@
 </ul>
 </li>
 </ul>
-<h1 id="使用dex2jar工具对dex文件进行修复"><a href="#使用dex2jar工具对dex文件进行修复" class="headerlink" title="使用dex2jar工具对dex文件进行修复"></a>使用dex2jar工具对dex文件进行修复</h1><p>主要是修复dex文件中的这两个字段：（checksum、signature）。也可以使用dexfixter工具</p>
-<ul>
-<li><code>d2j-dex-recompute-checksum.bat classes.dex</code></li>
-</ul>
-<p>替换apk里面的dex文件为修复之后的文件</p>
-<ul>
-<li>删除文件：<ul>
-<li><code>.\aapt r D:\tools\android\apks\crackme02.apk classes.dex</code></li>
-</ul>
-</li>
-<li>替换文件：<ul>
-<li><code>.\aapt a D:\tools\android\apks\crackme02.apk d:\tools\android\apks\classes.dex</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h1><blockquote>
-<p>签名之前需要将之前的apk文件里面原来的签名文件删除 </p>
-<p>即删除 META-INF文件夹</p>
-</blockquote>
-<ul>
-<li><code>jarsigner -keystore d:\android\android.jks -signedjar crackme02signed.apk crackme02.apk android</code></li>
-<li>其中Android.jks是由AS自动生成的签名文件，android是证书名称</li>
-</ul>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/04/16/%E7%A0%B4%E8%A7%A3%E7%AC%AC%E4%B8%80%E4%B8%AAAndroid%E7%A8%8B%E5%BA%8F/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -338,7 +328,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-14 15:35:49" itemprop="dateModified" datetime="2022-04-14T15:35:49+08:00">2022-04-14</time>
+      <time title="Modified: 2022-04-23 13:20:31" itemprop="dateModified" datetime="2022-04-23T13:20:31+08:00">2022-04-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -365,7 +355,14 @@
     
     <div class="post-body" itemprop="articleBody">
           <h1 id="Activity生命周期"><a href="#Activity生命周期" class="headerlink" title="Activity生命周期"></a>Activity生命周期</h1><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413191810.png" style="zoom:40%;" />
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/04/13/Android%E5%9F%BA%E7%A1%80/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -427,7 +424,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-16 17:17:00" itemprop="dateModified" datetime="2022-04-16T17:17:00+08:00">2022-04-16</time>
+      <time title="Modified: 2022-04-23 13:23:42" itemprop="dateModified" datetime="2022-04-23T13:23:42+08:00">2022-04-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -439,7 +436,7 @@
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/notes/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+          <a href="/categories/notes/Android-security/" itemprop="url" rel="index"><span itemprop="name">Android security</span></a>
         </span>
     </span>
 
@@ -454,165 +451,32 @@
     
     <div class="post-body" itemprop="articleBody">
           <h1 id="逆向一个app的常规步骤"><a href="#逆向一个app的常规步骤" class="headerlink" title="逆向一个app的常规步骤"></a>逆向一个app的常规步骤</h1><ol>
-<li>使用apktool反编译apk<ul>
+<li><p>使用apktool反编译apk</p>
+<ul>
 <li>Apktool_2.6.1.jar d app-release.apk -o outputdir</li>
 </ul>
 </li>
-<li>查看资源文件中的string.xml</li>
-<li>寻找相关的字符串对应的id号</li>
-<li>搜索整个反编译文件内容 id号</li>
-<li>继续分析</li>
-<li>找到smali文件，然后查看逻辑，并破解apk</li>
-<li>回编译apk、签名</li>
-<li>验证</li>
-</ol>
-<h1 id="dex文件结构"><a href="#dex文件结构" class="headerlink" title="dex文件结构"></a>dex文件结构</h1><p>dex文件是Android系统的可执行文件，默认小端字节序（Little-Endian：低位字节再内存的低地址）</p>
-<table>
-<thead>
-<tr>
-<th>字段名</th>
-<th align="center">信息</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>header</td>
-<td align="center">dex文件头部，记录整个dex文件的相关属性（magic固定：64 65 78 0a 30 33 35 00）   总长：0x70</td>
-</tr>
-<tr>
-<td>string_ids</td>
-<td align="center">字符串数据索引，记录了每个字符串在数据区的偏移量</td>
-</tr>
-<tr>
-<td>type_ids</td>
-<td align="center">类似数据索引，记录了每个类型的字符串索引</td>
-</tr>
-<tr>
-<td>proto_ids</td>
-<td align="center">原型数据索引，记录了方法声明的字符串，返回类型字符串，参数列表</td>
-</tr>
-<tr>
-<td>field_ids</td>
-<td align="center">字段数据索引，记录了所属类，类型以及方法名</td>
-</tr>
-<tr>
-<td>method_ids</td>
-<td align="center">类方法索引，记录方法所属类名，方法声明以及方法名等信息</td>
-</tr>
-<tr>
-<td>class_defs</td>
-<td align="center">类定义数据索引，记录指定类各类信息，包括接口，超类，类数据偏移量</td>
-</tr>
-<tr>
-<td>data</td>
-<td align="center">数据区，保存了各个类的真是数据</td>
-</tr>
-</tbody></table>
-<p>dex文件分析示例：</p>
-<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413185118.png" alt="图片分析示例"></p>
-<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413185509.png"></p>
-<p>jar文件转成dex文件</p>
-<img src="https://raw.githubusercontent.com/Dfault0/images/main/20220414154101.png" style="zoom:40%;" />
-
-
-
-<p><strong>java虚拟机基于栈，Dalvik是基于寄存器</strong></p>
-<h1 id="Dalvik"><a href="#Dalvik" class="headerlink" title="Dalvik"></a>Dalvik</h1><p>zygote是Android系统中所有进程的孵化器进程。</p>
-<ul>
-<li>zygote启动后，会先初始化Dalvik虚拟机，</li>
-<li>再启动system_server进程并进入zygote模式，通过socket等候命令下达。</li>
-<li>在执行一个Android应用程序的时候，system_server进程通过binder IPC方式将命令发送给zygote。</li>
-<li>zygote收到命令之后通过fork其自身创建一个dalvik虚拟机实例来执行应用程序的入口函数，从而完成应用程序的启动过程。</li>
-</ul>
-<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904116561379341">https://juejin.cn/post/6844904116561379341</a></p>
-<ul>
-<li>fp是arm的栈帧寄存器</li>
-<li>dalvik寄存器命令方式：<ul>
-<li>v命名法：一个函数使用了m个寄存器（每个寄存器32位），且有n个参数， 参数使用最后的n个寄存器，vm-n - this，v0-vm-n-1表示的是局部变量使用的</li>
-<li>p命名法：函数中传入的参数从p0开始增加，其他的和v命名法一样</li>
-</ul>
+<li><p>查看资源文件中的string.xml</p>
 </li>
-</ul>
-<p><strong>dalvik字节码类型描述符</strong></p>
-<table>
-<thead>
-<tr>
-<th>语法</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>v</td>
-<td>void</td>
-</tr>
-<tr>
-<td>Z</td>
-<td>bool</td>
-</tr>
-<tr>
-<td>B</td>
-<td>BYTE</td>
-</tr>
-<tr>
-<td>S</td>
-<td>SHORT</td>
-</tr>
-<tr>
-<td>C</td>
-<td>CHAR</td>
-</tr>
-<tr>
-<td>I</td>
-<td>INT</td>
-</tr>
-<tr>
-<td>J</td>
-<td>LONG</td>
-</tr>
-<tr>
-<td>F</td>
-<td>FLOAT</td>
-</tr>
-<tr>
-<td>D</td>
-<td>DOUBLE</td>
-</tr>
-<tr>
-<td>L</td>
-<td>JAVA类类型 可以表示Java中的任何类   Lpackage&#x2F;name.ObjectName; (package.name.ObjectName)</td>
-</tr>
-<tr>
-<td>[</td>
-<td>数组</td>
-</tr>
-</tbody></table>
-<p>跳转指令：</p>
-<ul>
-<li>goto</li>
-<li>switch</li>
-<li>if</li>
-</ul>
-<p><u>dex文件的验证与校验：</u></p>
-<ul>
-<li><p>checksum：调用adler32()来完成计算，跳过了DexHeader的magic与checksum字段，将后面到文件的结果作为计算数据的总长度。</p>
+<li><p>寻找相关的字符串对应的id号</p>
 </li>
-<li><p>签名验证：跳过magic、checksum、signature字段，调用dexComputeSHA1Digest()，将计算结果与signature中保存的值进行比较，如果相等就通过</p>
+<li><p>搜索整个反编译文件内容 id号</p>
 </li>
-</ul>
-<h2 id="dex2jar使用"><a href="#dex2jar使用" class="headerlink" title="dex2jar使用"></a>dex2jar使用</h2><ul>
-<li>下载 <a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=https://github.com/pxb1988/dex2jar">dex2jar</a>，并解压</li>
-<li>下载class反编译工具 <a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://jd.benow.ca/">jd-gui</a>，并解压</li>
-<li>将测试的安装包xxx.apk后缀改为.zip，解压后拷贝<code>classes.dex</code>文件到dex2jar文件目录下，cmd进入改目录，执行<code>d2j-dex2jar.bat classes.dex</code>命令，会生成classes-dex2jar.jar文件；</li>
-<li>打开jd-gui工具，然后将生成的classes-dex2jar.jar文件拖进去，即可看见反编译的文件</li>
-</ul>
-<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ol>
-<li><p>Android安全面经：<a target="_blank" rel="noopener" href="https://blog.xhyeax.com/2021/12/01/2022-autumn-mobile-security-interview-experience/">https://blog.xhyeax.com/2021/12/01/2022-autumn-mobile-security-interview-experience/</a></p>
+<li><p>继续分析</p>
 </li>
-<li><p>dex文件结构详解：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f7f0a712ddfe">https://www.jianshu.com/p/f7f0a712ddfe</a></p>
+<li><p>找到smali文件，然后查看逻辑，并破解apk</p>
 </li>
-<li><p>dex文件结构图解：<a target="_blank" rel="noopener" href="https://github.com/cckenny/2020_autumn_mobile_security_interview/blob/main/pics/DEX.png">https://github.com/cckenny/2020_autumn_mobile_security_interview/blob/main/pics/DEX.png</a></p>
+<li><p>回编译apk、签名</p>
 </li>
-</ol>
-
+<li><p>验证</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -666,9 +530,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-04-11 14:22:54 / Modified: 15:53:38" itemprop="dateCreated datePublished" datetime="2022-04-11T14:22:54+08:00">2022-04-11</time>
+      <time title="Created: 2022-04-11 14:22:54" itemprop="dateCreated datePublished" datetime="2022-04-11T14:22:54+08:00">2022-04-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-23 13:23:32" itemprop="dateModified" datetime="2022-04-23T13:23:32+08:00">2022-04-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -676,11 +546,11 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+          <a href="/categories/Android-security/" itemprop="url" rel="index"><span itemprop="name">Android security</span></a>
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android%E5%AE%89%E5%85%A8/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
+          <a href="/categories/Android-security/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
         </span>
     </span>
 
@@ -703,28 +573,14 @@
 <li>调用声明Application的onCreate</li>
 </ol>
 <p>app最先获得执行权限的是app中声明的Application类中的attachBaseContext和onCreate函数，所以壳对代码进行解密一般都在这两个函数上进行。</p>
-<p><strong>加壳程序的运行流程：</strong></p>
-<ol>
-<li>app启动</li>
-<li>自定义Application中 attachBaseContext的实现<ul>
-<li>解密源程序</li>
-<li>初始化自定义加载器类</li>
-<li>反射设置LoadedApk中加载器对象为自定义加载器</li>
-</ul>
-</li>
-<li>自定义Application中的onCreate方法实现、<ul>
-<li>获取源程序中的Application名称</li>
-<li>反射生成正确的Application对象</li>
-<li>反射设置ActivityThread中的Application信息</li>
-</ul>
-</li>
-<li>Activity加载流程：源程序正常运行</li>
-</ol>
-<p>当壳在函数attachBaseContext和onCreate中执行完加密的dex文件的解密后，通过自定义的Classloader在内存中加载解密后的dex文件</p>
-<p>只要获取到加固应用最终通过反射设置后的Classloader，我们就可以通过一系列反射最终获取到当前应用所加载的解密后的内存中的Dex文件。</p>
-<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-252630.htm">https://bbs.pediy.com/thread-252630.htm</a></p>
-<p>Android源码：<a target="_blank" rel="noopener" href="http://aospxref.com/">http://aospxref.com/</a></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/04/11/APP%E5%8A%A0%E5%A3%B3%E8%84%B1%E5%A3%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -786,7 +642,16 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-11 14:29:33" itemprop="dateModified" datetime="2022-04-11T14:29:33+08:00">2022-04-11</time>
+      <time title="Modified: 2022-04-23 13:22:53" itemprop="dateModified" datetime="2022-04-23T13:22:53+08:00">2022-04-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+        </span>
     </span>
 
   
@@ -823,15 +688,14 @@
 </ul>
 </li>
 </ol>
-<h1 id="查看文件的方式"><a href="#查看文件的方式" class="headerlink" title="查看文件的方式"></a>查看文件的方式</h1><ol>
-<li>cat [-n -b ] filename </li>
-<li>tac 倒叙查看文件内容 （从最后一行开始）</li>
-<li>head [-n] filename直接查看,默认前10行</li>
-<li>tail [-n] filename 倒叙查看，默认前10行</li>
-<li>more filename 文件过大，分页显示内容，空格建翻页</li>
-<li>wc 文件名 统计一个文件中各种数据的数量计算文件的byte 数，字数，列数等</li>
-</ol>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/04/01/linux-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -976,7 +840,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-10 19:33:05" itemprop="dateModified" datetime="2022-04-10T19:33:05+08:00">2022-04-10</time>
+      <time title="Modified: 2022-04-23 13:16:36" itemprop="dateModified" datetime="2022-04-23T13:16:36+08:00">2022-04-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1004,38 +868,14 @@
 <p><strong>sinks</strong>: points of unwanted information release (e.g., methods related to the Internet and SMS transmission). </p>
 <p>If data from a sensitive source reaches a sink, taint tracking identifies the path from the source to the sink as an instance of data leakage.</p>
 </blockquote>
-<h1 id="Flowdroid"><a href="#Flowdroid" class="headerlink" title="Flowdroid"></a>Flowdroid</h1><p>从2.0版本之后就可以处理ICC了</p>
-<blockquote>
-<p>使用这些污点分析工具的时候并不一定非要在源代码的基础上面修改，也可以直接使用他们的库，只要能够达到我的目的即可。</p>
-</blockquote>
-<p><a target="_blank" rel="noopener" href="https://github.com/secure-software-engineering/FlowDroid">https://github.com/secure-software-engineering/FlowDroid</a></p>
-<p>flowdroid采用保守策略 ，将框架分为四种：generation, exclude, kill, and default</p>
-<ul>
-<li>When method parameters (including the receiver object itself) or their fields are tainted, the methods in the <strong>generation</strong> type will have their receiver and the return value, as well as all their fields, tainted; no taint will be propagated for methods of the <strong>exclude</strong> type; </li>
-<li>all taints will be removed for methods of the <strong>kill</strong> type. </li>
-<li>If a method is not assigned with any of these types, the <strong>default</strong> rule will apply , propagating the taint<br>from the receiver object and its fields to the method return value and its fields. </li>
-<li>That is, only for the methods in the <strong>generation</strong> type FLOWDROID will propagate the taint from method parameters and will taint the receiver parameter and its fields; it does not taint any other method parameters in any of the conservative strategies.</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar \</span><br><span class="line">    -a &lt;APK File&gt; \</span><br><span class="line">    -p &lt;Android JAR folder&gt; \</span><br><span class="line">    -s &lt;SourcesSinks file&gt;</span><br></pre></td></tr></table></figure>
-
-<p>本电脑的命令使用：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -a D:\mobileForensics\apks\tests -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h1 id="Amandroid"><a href="#Amandroid" class="headerlink" title="Amandroid"></a>Amandroid</h1><p>支持native层，实现了一个流和上下文敏感的内部组件数据流分析。在一个过程间的控制流图和数据流图之上，为每一个组件构建一个数据依赖图，然后生成一个汇总表，记录可能的组件间通信连接。</p>
-<p>不能处理隐式流。</p>
-<ul>
-<li>AMANDROID precisely models a subset of Android framework methods and applies a conservative strategy for the remaining ones. </li>
-<li>Interestingly , AMANDROID’s strategy is different from that of FLOWDROID:<ul>
-<li>in addition to the receiver object and the return value of a method, AMANDROID also taints all method parameters and their fields. </li>
-<li>However, it is doing so only <strong>when the method receiver or parameters themselves</strong><br><strong>are tainted</strong>, not when one of their fields is tainted. </li>
-<li>Strategies applied by both tools lead to false positive and false negative results, albeit in different cases, as we show in our evaluation.</li>
-</ul>
-</li>
-</ul>
-<h1 id="静态分析工具的对比"><a href="#静态分析工具的对比" class="headerlink" title="静态分析工具的对比"></a>静态分析工具的对比</h1><p><img src="https://raw.githubusercontent.com/Dfault0/images/main/image-20220406161407676.png" alt="静态分析工具的对比"></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/24/TaintAnalysis-tools-study/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1089,9 +929,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-03-23 16:29:11 / Modified: 19:12:41" itemprop="dateCreated datePublished" datetime="2022-03-23T16:29:11+08:00">2022-03-23</time>
+      <time title="Created: 2022-03-23 16:29:11" itemprop="dateCreated datePublished" datetime="2022-03-23T16:29:11+08:00">2022-03-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-23 13:20:22" itemprop="dateModified" datetime="2022-04-23T13:20:22+08:00">2022-04-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1114,215 +960,26 @@
     
     <div class="post-body" itemprop="articleBody">
           <h1 id="从物理结构上来区分："><a href="#从物理结构上来区分：" class="headerlink" title="从物理结构上来区分："></a>从物理结构上来区分：</h1><ul>
-<li><p>Android 4.4</p>
-<ul>
+<li>Android 4.4<ul>
 <li>内部存储 internal storage</li>
 <li>外部存储 external storage （sdCard）</li>
 </ul>
 </li>
-<li><p>Android 4.4以上</p>
-<ul>
+<li>Android 4.4以上<ul>
 <li>手机自身存储结构<ul>
 <li>内部存储 internal storage</li>
 <li>内置的外部存储</li>
 </ul>
 </li>
-<li>外部存储 external storage （sdCard）</li>
-</ul>
-</li>
-</ul>
-<h1 id="internal-storage"><a href="#internal-storage" class="headerlink" title="internal storage"></a>internal storage</h1><ul>
-<li>app目录：手机已安装的app的apk存放目录</li>
-<li>data目录：是各个APP存放自己私有数据的位置：shared preference, sqlite, cach。这些数据别人无法访问</li>
-</ul>
-<h1 id="external-storage"><a href="#external-storage" class="headerlink" title="external storage"></a>external storage</h1><ul>
-<li>data目录：存放非系统app的对应包名的数据，也是私有数据。</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/03/18/%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Dfault0">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dfault0's blog">
-      <meta itemprop="description" content="I CAN">
-    </span>
-    
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Dfault0's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/03/18/%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">做题笔记</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2022-03-18 16:33:52" itemprop="dateCreated datePublished" datetime="2022-03-18T16:33:52+08:00">2022-03-18</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-13 13:55:43" itemprop="dateModified" datetime="2022-04-13T13:55:43+08:00">2022-04-13</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>写代码：<font color=red>先在草稿上面分清楚类别</font>，分析好了各个情况才开始敲代码，不然一直调试会很不方便，效率较低。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> Integer.parseInt(string) ;<span class="comment">//可以将string直接转换成int(按照十进制)</span></span><br><span class="line"><span class="type">String</span> <span class="variable">b</span> <span class="operator">=</span> String.valueOf(<span class="type">int</span>) ;<span class="comment">//可以将int直接转换成字符串 比如 1 = &quot;1&quot;</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>很多数组填充类的问题，都可以先预先给数组扩容带填充后的大小，然后在从后向前进行操作。</li>
-<li>如果需要判断某个数据是否再一个数据结构中是否存在，则一般建议可以用哈希表</li>
-<li>哈希表和数组再同等情况下建议用数组（时间更快）</li>
-</ul>
-<h1 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h1><p>头插法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//递归</span></span><br><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">ReverseList</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span>(head==<span class="literal">null</span>||head.next==<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> head;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">p</span> <span class="operator">=</span> ReverseList(head.next);</span><br><span class="line">    <span class="comment">//走到了尾节点</span></span><br><span class="line">    head.next.next = head;</span><br><span class="line">    head.next = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//循环</span></span><br><span class="line">    <span class="keyword">public</span> ListNode <span class="title function_">ReverseList</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line">         </span><br><span class="line">        <span class="type">ListNode</span> <span class="variable">p</span> <span class="operator">=</span> <span class="literal">null</span>,next;</span><br><span class="line">        <span class="keyword">while</span>(head!=<span class="literal">null</span>)&#123;</span><br><span class="line">            next = head.next;</span><br><span class="line">            head.next = p;</span><br><span class="line">            p = head;</span><br><span class="line">            head = next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> p;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>找到循环链表的入口：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//两个指针，一个指针一次走两步，一个指针一次走一步，第一次相遇是结束循环</span></span><br><span class="line"><span class="comment">//第二次循环时，快指针从头开始，两个指针以相同的速度来移动，则这一次相遇的时候就是链表循环的部分的入口</span></span><br><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">EntryNodeOfLoop</span><span class="params">(ListNode pHead)</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">fast</span> <span class="operator">=</span> pHead,slow = pHead;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(fast!=<span class="literal">null</span>&amp;&amp;fast.next!=<span class="literal">null</span>)&#123;</span><br><span class="line">        fast = fast.next.next;</span><br><span class="line">        slow = slow.next;</span><br><span class="line">        <span class="keyword">if</span>(fast == slow)&#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(fast==<span class="literal">null</span> || fast.next==<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    fast = pHead;</span><br><span class="line">    <span class="keyword">while</span>(fast!=slow)&#123;</span><br><span class="line">        fast = fast.next;</span><br><span class="line">        slow = slow.next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> slow;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>复杂链表的深度拷贝：该链表包括一个随机指针，和一个next指针</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> RandomListNode <span class="title function_">Clone</span><span class="params">(RandomListNode pHead)</span> &#123;</span><br><span class="line">    <span class="type">RandomListNode</span> <span class="variable">pre</span> <span class="operator">=</span> pHead,l1 = pHead,next,p;</span><br><span class="line">    RandomListNode l2 ;</span><br><span class="line">    <span class="comment">//将所有的节点复制到本节点的下一个节点</span></span><br><span class="line">    <span class="keyword">while</span>(pHead!=<span class="literal">null</span> &amp;&amp; pre!=<span class="literal">null</span>)&#123;</span><br><span class="line">        next = pHead.next;</span><br><span class="line">        <span class="type">RandomListNode</span> <span class="variable">temp</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RandomListNode</span>(pHead.label);</span><br><span class="line">        pre.next = temp;</span><br><span class="line">        pre.next.next = next;</span><br><span class="line">        pre = next;</span><br><span class="line">        pHead = next;</span><br><span class="line">    &#125;</span><br><span class="line">    pre = l1;</span><br><span class="line">    l2 = pre.next;</span><br><span class="line">    p = l2;</span><br><span class="line">    <span class="comment">//处理随机指针，复制之后的节点的随机指针指向，原来节点的随机指针的下一个节点</span></span><br><span class="line">    <span class="keyword">while</span>(pre!=<span class="literal">null</span> &amp;&amp; p!=<span class="literal">null</span> )&#123;</span><br><span class="line">        <span class="keyword">if</span>(pre.random!=<span class="literal">null</span>)&#123;</span><br><span class="line">            p.random = pre.random.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(p.next!=<span class="literal">null</span>)&#123;</span><br><span class="line">            p = p.next.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(pre.next!=<span class="literal">null</span>)&#123;</span><br><span class="line">            pre = pre.next.next;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    p = l2;</span><br><span class="line">    pre = l1;</span><br><span class="line">    <span class="comment">//将两个链表分开</span></span><br><span class="line">    <span class="keyword">while</span>(pre!=<span class="literal">null</span>&amp;&amp;p!=<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(p.next!=<span class="literal">null</span>)&#123;</span><br><span class="line">            p.next = p.next.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(pre.next!=<span class="literal">null</span>)&#123;</span><br><span class="line">            pre.next = pre.next.next;</span><br><span class="line">        &#125;</span><br><span class="line">        p = p.next;</span><br><span class="line">        pre = pre.next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> l2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="树"><a href="#树" class="headerlink" title="树"></a>树</h1><p><font color = red>在某些情况下，可以使用一个emptyNode来代替空指针</font></p>
-<p>层次遍历的模板：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">TreeDepth</span><span class="params">(TreeNode root)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span>(root==<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//LinkedList实现了queue，可以将其当作一个队列来用</span></span><br><span class="line">    LinkedList&lt;TreeNode&gt; queue = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;();</span><br><span class="line">    queue.add(root);</span><br><span class="line">    <span class="type">int</span> <span class="variable">level</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(!queue.isEmpty())&#123;</span><br><span class="line">        <span class="comment">//这个size控制的是当前层的节点数目，在遍历的同时，需要将其孩子节点放入到队列中，</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">size</span> <span class="operator">=</span> queue.size();</span><br><span class="line">        <span class="comment">//到目前为止，队列中放的就是一层的节点</span></span><br><span class="line">        <span class="keyword">while</span>(size--!=<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">//出队列，然后，节点的孩子入队列</span></span><br><span class="line">            <span class="type">TreeNode</span> <span class="variable">temp</span> <span class="operator">=</span> queue.getFirst();</span><br><span class="line">            queue.removeFirst();</span><br><span class="line">            <span class="keyword">if</span>(temp.left!=<span class="literal">null</span>)&#123;</span><br><span class="line">                queue.add(temp.left);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(temp.right!=<span class="literal">null</span>)&#123;</span><br><span class="line">                queue.add(temp.right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        level++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> level;</span><br></pre></td></tr></table></figure>
-
-<p>在一般情况下，通常考虑的不是整体的框架改变，还是改变其他的数据，比如，以之字形来遍历二叉树，二叉树的层次遍历的整体框架不变，边的只是每层访问结束之后，array这个临时变量是如何改变的。比如是否需要反转等。<code>格局打开</code></p>
-<h3 id="统计二叉树的节点个数："><a href="#统计二叉树的节点个数：" class="headerlink" title="统计二叉树的节点个数："></a>统计二叉树的节点个数：</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">countNodes</span><span class="params">(TreeNode root)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root==<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(root.left==<span class="literal">null</span>&amp;&amp;root.right==<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> countNodes(root.left) + countNodes(root.right) +<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="在递归中使用栈："><a href="#在递归中使用栈：" class="headerlink" title="在递归中使用栈："></a>在递归中使用栈：</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Stack;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">public class TreeNode &#123;</span></span><br><span class="line"><span class="comment">    int val = 0;</span></span><br><span class="line"><span class="comment">    TreeNode left = null;</span></span><br><span class="line"><span class="comment">    TreeNode right = null;</span></span><br><span class="line"><span class="comment">    public TreeNode(int val) &#123;</span></span><br><span class="line"><span class="comment">        this.val = val;</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    ArrayList&lt;ArrayList&lt;Integer&gt;&gt; result = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    </span><br><span class="line">    Stack&lt;Integer&gt; path = <span class="keyword">new</span> <span class="title class_">Stack</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">public</span> ArrayList&lt;ArrayList&lt;Integer&gt;&gt; <span class="title function_">FindPath</span><span class="params">(TreeNode root,<span class="type">int</span> expectNumber)</span> &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span>(root==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line">        path.push(root.val);</span><br><span class="line">        <span class="keyword">if</span>(root.val==expectNumber &amp;&amp;root.left==<span class="literal">null</span>&amp;&amp;root.right==<span class="literal">null</span>)&#123;</span><br><span class="line">            result.add(<span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;Integer&gt;(path));</span><br><span class="line">        &#125;</span><br><span class="line">        FindPath(root.left,expectNumber-root.val);</span><br><span class="line">        FindPath(root.right,expectNumber-root.val);</span><br><span class="line">        path.pop();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="遍历"><a href="#遍历" class="headerlink" title="遍历"></a>遍历</h2><h2 id="中序遍历："><a href="#中序遍历：" class="headerlink" title="中序遍历："></a>中序遍历：</h2><p>递归：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">KthNode</span> <span class="params">(TreeNode proot, <span class="type">int</span> k)</span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">    <span class="keyword">if</span>(proot==<span class="literal">null</span> || k&lt;=<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    KthNode(proot.left,k);</span><br><span class="line">    i++;</span><br><span class="line">    <span class="keyword">if</span>(i == k)&#123;</span><br><span class="line">        <span class="type">return</span> <span class="variable">result</span> <span class="operator">=</span> proot.val;</span><br><span class="line">    &#125;</span><br><span class="line">    KthNode(proot.right,k);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="层次遍历"><a href="#层次遍历" class="headerlink" title="层次遍历"></a>层次遍历</h2><p>循环，并且</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//需要知道当前层次</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">KthNode</span> <span class="params">(TreeNode proot, <span class="type">int</span> k)</span> &#123;</span><br><span class="line">    <span class="comment">// write code here</span></span><br><span class="line">    <span class="keyword">if</span>(proot==<span class="literal">null</span>||k&lt;=<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    Stack&lt;TreeNode&gt; stack = <span class="keyword">new</span> <span class="title class_">Stack</span>&lt;&gt;();</span><br><span class="line">    stack.push(proot);</span><br><span class="line">    <span class="type">TreeNode</span> <span class="variable">node</span> <span class="operator">=</span> proot;</span><br><span class="line">    <span class="keyword">while</span>(!stack.isEmpty())&#123;</span><br><span class="line">        <span class="keyword">while</span>(node.left!=<span class="literal">null</span>)&#123;</span><br><span class="line">            stack.push(node.left);</span><br><span class="line">            node = node.left; </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果，这里写成 node = stack.pop()是会出错的。因为，左子树遍历结束之后需要遍历右子树，只有右子树不为空，node才会变，否则便是一直为空，便会一直会进入上面的循环里面（node.left!=null）</span></span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">temp</span> <span class="operator">=</span> stack.pop();</span><br><span class="line">        count++;</span><br><span class="line">        <span class="keyword">if</span>(count == k)&#123;</span><br><span class="line">            <span class="keyword">return</span> temp.val;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(temp.right!=<span class="literal">null</span>)&#123;</span><br><span class="line">            stack.push(temp.right);</span><br><span class="line">            node = temp.right;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//如果不需要知道当前层次，就很简单</span></span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *   int val = 0;</span></span><br><span class="line"><span class="comment"> *   TreeNode left = null;</span></span><br><span class="line"><span class="comment"> *   TreeNode right = null;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">lowestCommonAncestor</span> <span class="params">(TreeNode root)</span> &#123;</span><br><span class="line">        <span class="comment">// write code here</span></span><br><span class="line">        Queue&lt;TreeNode&gt; queue = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;();</span><br><span class="line">        queue.add(root);</span><br><span class="line">        <span class="keyword">while</span>(!queue.isEmpty())&#123;</span><br><span class="line">            <span class="type">TreeNode</span> <span class="variable">node</span> <span class="operator">=</span> queue.poll();</span><br><span class="line">            <span class="keyword">if</span>(node.left!=<span class="literal">null</span>)&#123;</span><br><span class="line">                queue.add(node.left);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(node.right!=<span class="literal">null</span>)&#123;</span><br><span class="line">                queue.add(node.right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>二叉搜索树：中序遍历构造双指针链表</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">public class TreeNode &#123;</span></span><br><span class="line"><span class="comment">    int val = 0;</span></span><br><span class="line"><span class="comment">    TreeNode left = null;</span></span><br><span class="line"><span class="comment">    TreeNode right = null;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    public TreeNode(int val) &#123;</span></span><br><span class="line"><span class="comment">        this.val = val;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    TreeNode pre ;</span><br><span class="line">    TreeNode root;</span><br><span class="line">    <span class="keyword">public</span> TreeNode <span class="title function_">Convert</span><span class="params">(TreeNode pRootOfTree)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(pRootOfTree==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//左节点</span></span><br><span class="line">        Convert(pRootOfTree.left);</span><br><span class="line">        <span class="keyword">if</span>(root==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="comment">//找到头节点，可以用这种方法来给某个特定的节点赋值，而不怕在递归的过程中改变。</span></span><br><span class="line">            root = pRootOfTree;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(pre!=<span class="literal">null</span>)&#123;</span><br><span class="line">            pre.right = pRootOfTree;</span><br><span class="line">            pRootOfTree.left = pre;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        pre = pRootOfTree;</span><br><span class="line">        <span class="comment">//右节点</span></span><br><span class="line">        Convert(pRootOfTree.right);</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>找到给定节点中序遍历的下一个节点 JZ8：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">public class TreeLinkNode &#123;</span></span><br><span class="line"><span class="comment">    int val;</span></span><br><span class="line"><span class="comment">    TreeLinkNode left = null;</span></span><br><span class="line"><span class="comment">    TreeLinkNode right = null;</span></span><br><span class="line"><span class="comment">    TreeLinkNode next = null;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    TreeLinkNode(int val) &#123;</span></span><br><span class="line"><span class="comment">        this.val = val;</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    </span><br><span class="line">    TreeLinkNode next;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> TreeLinkNode <span class="title function_">GetNext</span><span class="params">(TreeLinkNode pNode)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(pNode==<span class="literal">null</span>||pNode.right==<span class="literal">null</span>&amp;&amp;pNode.left==<span class="literal">null</span>&amp;&amp;pNode.next==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//该节点存在右子树，则中序遍历的下一个节点就是右子树的最左孩子节点</span></span><br><span class="line">        <span class="keyword">if</span>(pNode.right!=<span class="literal">null</span>)&#123;</span><br><span class="line">            pNode = pNode.right;</span><br><span class="line">            <span class="keyword">while</span>(pNode.left!=<span class="literal">null</span>)&#123;</span><br><span class="line">                pNode = pNode.left;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> pNode;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果不存在右子树，则下一个节点就是该节点的第一个右父节点</span></span><br><span class="line">        <span class="comment">//右代表的是这个节点的位于右父节点的左边。</span></span><br><span class="line">        <span class="keyword">while</span>(pNode.next!=<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(pNode.next.left == pNode)&#123;</span><br><span class="line">                <span class="keyword">return</span> pNode.next;</span><br><span class="line">            &#125;</span><br><span class="line">            pNode = pNode.next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="构造二叉树"><a href="#构造二叉树" class="headerlink" title="构造二叉树"></a>构造二叉树</h2><h3 id="前序遍历-中序遍历构造二叉树：JZ7，看不懂"><a href="#前序遍历-中序遍历构造二叉树：JZ7，看不懂" class="headerlink" title="前序遍历+中序遍历构造二叉树：JZ7，看不懂"></a>前序遍历+中序遍历构造二叉树：JZ7，看不懂</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//递归</span></span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for binary tree</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode left;</span></span><br><span class="line"><span class="comment"> *     TreeNode right;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int x) &#123; val = x; &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> TreeNode <span class="title function_">reConstructBinaryTree</span><span class="params">(<span class="type">int</span> [] pre,<span class="type">int</span> [] vin)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(pre.length!=vin.length)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dfs(pre,<span class="number">0</span>,vin,<span class="number">0</span>,vin.length);</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> TreeNode <span class="title function_">dfs</span><span class="params">(<span class="type">int</span>[]pre, <span class="type">int</span> preStart,<span class="type">int</span>[] vin, <span class="type">int</span> vinStart,<span class="type">int</span> vinEnd)</span>&#123;</span><br><span class="line">         <span class="keyword">if</span>(preStart&gt;pre.length-<span class="number">1</span>||vinStart&gt;vinEnd)&#123;</span><br><span class="line">             <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">         &#125; </span><br><span class="line">        <span class="type">int</span> i;</span><br><span class="line">        <span class="keyword">for</span>( i = vinStart;i&lt;=vinEnd;i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(pre[preStart] == vin[i])&#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//以I为中心，分别构造左孩子节点和右孩子节点</span></span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">node</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TreeNode</span>(pre[preStart]);</span><br><span class="line">        <span class="comment">//关键是要分清楚左孩的节点数和右孩子的节点数，这个关系到了前序遍历节点位置开始的地方</span></span><br><span class="line">        node.left = dfs(pre,preStart+<span class="number">1</span>,vin,vinStart,i-<span class="number">1</span>);</span><br><span class="line">        node.right = dfs(pre,preStart+i-vinStart+<span class="number">1</span>,vin,i+<span class="number">1</span>,vinEnd);</span><br><span class="line">        <span class="keyword">return</span> node;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for binary tree</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode left;</span></span><br><span class="line"><span class="comment"> *     TreeNode right;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int x) &#123; val = x; &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> TreeNode <span class="title function_">reConstructBinaryTree</span><span class="params">(<span class="type">int</span> [] pre,<span class="type">int</span> [] vin)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(pre.length!=vin.length)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        Stack&lt;TreeNode&gt; stack = <span class="keyword">new</span> <span class="title class_">Stack</span>&lt;&gt;();</span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">root</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TreeNode</span>(pre[<span class="number">0</span>]);</span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">cur</span> <span class="operator">=</span> root;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>,j=<span class="number">0</span>;i&lt;pre.length;i++)&#123;</span><br><span class="line">            <span class="comment">//首先，如果满足这个if，则说明有左子树，</span></span><br><span class="line">            <span class="comment">//所以前序遍历的两个相邻的节点就是左子树和父节点的关系</span></span><br><span class="line">            <span class="keyword">if</span>(cur.val!=vin[j])&#123;</span><br><span class="line">                cur.left = <span class="keyword">new</span> <span class="title class_">TreeNode</span>(pre[i]);</span><br><span class="line">                stack.push(cur);</span><br><span class="line">                cur = cur.left;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">//就是相等了</span></span><br><span class="line">                j++;</span><br><span class="line">                <span class="comment">//栈为空表示，该子树没有左子树</span></span><br><span class="line">                <span class="comment">//寻找栈里面的元素有右节点，之前压栈的元素全是cur的祖先节点</span></span><br><span class="line">                <span class="comment">//前序遍历的下一个节点就是某个祖先节点的右孩子节点。</span></span><br><span class="line">                <span class="keyword">while</span>(!stack.isEmpty() &amp;&amp; stack.peek().val==vin[j])&#123;</span><br><span class="line">                    cur = stack.pop();</span><br><span class="line">                    j++;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//java 连等是从右网左赋值的</span></span><br><span class="line">                cur.right = <span class="keyword">new</span> <span class="title class_">TreeNode</span>(pre[i]);</span><br><span class="line">                cur = cur.right;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="序列化树："><a href="#序列化树：" class="headerlink" title="序列化树："></a>序列化树：</h2><blockquote>
-<p>使用什么方式序列化的，就需要使用同样的方式进行反序列化</p>
-</blockquote>
-<h3 id="方法1：使用层次遍历"><a href="#方法1：使用层次遍历" class="headerlink" title="方法1：使用层次遍历"></a>方法1：使用层次遍历</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">public class TreeNode &#123;</span></span><br><span class="line"><span class="comment">    int val = 0;</span></span><br><span class="line"><span class="comment">    TreeNode left = null;</span></span><br><span class="line"><span class="comment">    TreeNode right = null;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    public TreeNode(int val) &#123;</span></span><br><span class="line"><span class="comment">        this.val = val;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">INF</span> <span class="operator">=</span> <span class="number">0x3f3f3f3f</span>;</span><br><span class="line">    String <span class="title function_">Serialize</span><span class="params">(TreeNode root)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(root==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">emptyNode</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TreeNode</span>(INF);</span><br><span class="line">        <span class="type">StringBuffer</span> <span class="variable">result</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuffer</span>();</span><br><span class="line">        Deque&lt;TreeNode&gt; deque = <span class="keyword">new</span> <span class="title class_">ArrayDeque</span>&lt;&gt;();</span><br><span class="line">        deque.add(root);</span><br><span class="line">        <span class="keyword">while</span>(!deque.isEmpty())&#123;</span><br><span class="line">            <span class="type">TreeNode</span> <span class="variable">node</span> <span class="operator">=</span> deque.pollFirst();</span><br><span class="line">            result.append(String.valueOf(node.val)+<span class="string">&quot;,&quot;</span>);</span><br><span class="line">            <span class="comment">//只要该节点不是空节点，那么他的孩子节点就可以出来，至于是否是空节点需要考虑</span></span><br><span class="line">            <span class="keyword">if</span>(!node.equals(emptyNode))&#123;</span><br><span class="line">                deque.add(node.left==<span class="literal">null</span>?emptyNode:node.left);</span><br><span class="line">                deque.add(node.right==<span class="literal">null</span>?emptyNode:node.right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result.toString();</span><br><span class="line">    &#125;</span><br><span class="line">    TreeNode <span class="title function_">Deserialize</span><span class="params">(String str)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(str.length()==<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//根据分隔符进行分割</span></span><br><span class="line">       String[]ss = str.split(<span class="string">&quot;,&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span>ss.length;</span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">root</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TreeNode</span>(Integer.parseInt(ss[<span class="number">0</span>]));</span><br><span class="line">        Deque&lt;TreeNode&gt; deque = <span class="keyword">new</span> <span class="title class_">ArrayDeque</span>&lt;&gt;();</span><br><span class="line">        deque.add(root);</span><br><span class="line">        <span class="comment">//因为每次都是建立了两个节点，所以i需要加2</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;n-<span class="number">1</span>;i+=<span class="number">2</span>)&#123;</span><br><span class="line">            <span class="type">TreeNode</span> <span class="variable">node</span> <span class="operator">=</span> deque.pollFirst();</span><br><span class="line">            <span class="comment">//a b分别是左孩子节点和右孩子节点</span></span><br><span class="line">            <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> Integer.parseInt(ss[i]),b = Integer.parseInt(ss[i+<span class="number">1</span>]);</span><br><span class="line">            <span class="keyword">if</span>(a!=INF)&#123;</span><br><span class="line">                node.left = <span class="keyword">new</span> <span class="title class_">TreeNode</span>(a);</span><br><span class="line">                deque.add(node.left);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(b!=INF)&#123;</span><br><span class="line">                node.right = <span class="keyword">new</span> <span class="title class_">TreeNode</span>(b);</span><br><span class="line">                deque.add(node.right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="找到最近公共祖先节点"><a href="#找到最近公共祖先节点" class="headerlink" title="找到最近公共祖先节点"></a>找到最近公共祖先节点</h2><p>非递归</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *   int val = 0;</span></span><br><span class="line"><span class="comment"> *   TreeNode left = null;</span></span><br><span class="line"><span class="comment"> *   TreeNode right = null;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> root TreeNode类 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> o1 int整型 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> o2 int整型 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int整型</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">lowestCommonAncestor</span> <span class="params">(TreeNode root, <span class="type">int</span> o1, <span class="type">int</span> o2)</span> &#123;</span><br><span class="line">        <span class="comment">// write code here</span></span><br><span class="line">        </span><br><span class="line">        Map&lt;Integer,Integer&gt; parent = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        Queue&lt;TreeNode&gt; queue = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;();</span><br><span class="line">        parent.put(root.val,-<span class="number">1</span>);</span><br><span class="line">        queue.add(root);</span><br><span class="line">        <span class="keyword">while</span>(!queue.isEmpty()&amp;&amp;(!parent.containsKey(o1)||!parent.containsKey(o2)))&#123;</span><br><span class="line">            <span class="type">TreeNode</span> <span class="variable">node</span> <span class="operator">=</span> queue.poll();</span><br><span class="line">            <span class="keyword">if</span>(node.left!=<span class="literal">null</span>)&#123;</span><br><span class="line">                parent.put(node.left.val,node.val);</span><br><span class="line">                queue.add(node.left);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(node.right!=<span class="literal">null</span>)&#123;</span><br><span class="line">                parent.put(node.right.val,node.val);</span><br><span class="line">                queue.add(node.right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        Set&lt;Integer&gt; ancestors = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;&gt;();</span><br><span class="line">        <span class="comment">//得到o1的所有祖先节点</span></span><br><span class="line">        <span class="keyword">while</span>(parent.containsKey(o1))&#123;</span><br><span class="line">            ancestors.add(o1);</span><br><span class="line">            o1 = parent.get(o1);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//同理</span></span><br><span class="line">        <span class="keyword">while</span>(!ancestors.contains(o2))&#123;</span><br><span class="line">            <span class="comment">//一直获取o2的祖先，直到o1的祖先里面包含了o2</span></span><br><span class="line">            o2 = parent.get(o2);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> o2;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>递归</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *   int val = 0;</span></span><br><span class="line"><span class="comment"> *   TreeNode left = null;</span></span><br><span class="line"><span class="comment"> *   TreeNode right = null;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> root TreeNode类 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> o1 int整型 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> o2 int整型 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int整型</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">lowestCommonAncestor</span> <span class="params">(TreeNode root, <span class="type">int</span> o1, <span class="type">int</span> o2)</span> &#123;</span><br><span class="line">        <span class="comment">// write code here</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> helper(root,o1,o2).val;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//查找目标节点。</span></span><br><span class="line">    <span class="keyword">public</span> TreeNode <span class="title function_">helper</span><span class="params">(TreeNode root, <span class="type">int</span> o1, <span class="type">int</span> o2)</span>&#123;</span><br><span class="line">        <span class="comment">//如果当前节点为空，或者其值为目标值中的一个，那么就返回他</span></span><br><span class="line">        <span class="keyword">if</span>(root==<span class="literal">null</span>||root.val==o1||root.val==o2)&#123;</span><br><span class="line">            <span class="keyword">return</span> root;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">left</span> <span class="operator">=</span> helper(root.left,o1,o2);</span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">right</span> <span class="operator">=</span> helper(root.right,o1,o2);</span><br><span class="line">        <span class="comment">//如果left为null则说明，这两个系欸但在root节点的右子树上，只需返回右节点</span></span><br><span class="line">        <span class="keyword">if</span>(left==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> right;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(right==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> left;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果都不为null则表示，这两个节点一个在左子树上，一个在右子树上，就直接返回当前节点就可以了</span></span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>递归:主要思想是，从根节点开始递归，以当前节点作为新的根节点，查找是否目标节点的位置（在当前节点的左子树、右子树、或者一左一右），</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *   int val = 0;</span></span><br><span class="line"><span class="comment"> *   TreeNode left = null;</span></span><br><span class="line"><span class="comment"> *   TreeNode right = null;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> root TreeNode类 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> o1 int整型 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> o2 int整型 </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> int整型</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">lowestCommonAncestor</span> <span class="params">(TreeNode root, <span class="type">int</span> o1, <span class="type">int</span> o2)</span> &#123;</span><br><span class="line">        <span class="comment">// write code here</span></span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> helper(root,o1,o2).val;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//，从当前节点开始，查找目标节点。递归的主体就是当前节点，</span></span><br><span class="line">    <span class="keyword">public</span> TreeNode <span class="title function_">helper</span><span class="params">(TreeNode root, <span class="type">int</span> o1, <span class="type">int</span> o2)</span>&#123;</span><br><span class="line">        <span class="comment">//如果当前节点为空，或者其值为目标值中的一个，那么就返回他</span></span><br><span class="line">        <span class="keyword">if</span>(root==<span class="literal">null</span>||root.val==o1||root.val==o2)&#123;</span><br><span class="line">            <span class="keyword">return</span> root;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//left和right表示的是，目标节点到底在当前节点的左子树还是右子树上，是具体的哪个节点</span></span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">left</span> <span class="operator">=</span> helper(root.left,o1,o2);</span><br><span class="line">        <span class="type">TreeNode</span> <span class="variable">right</span> <span class="operator">=</span> helper(root.right,o1,o2);</span><br><span class="line">        <span class="comment">//如果left为null则说明，这两个系欸但在root节点的右子树上，只需返回右节点</span></span><br><span class="line">        <span class="keyword">if</span>(left==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> right;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(right==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> left;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//如果都不为null则表示，这两个节点一个在左子树上，一个在右子树上，就直接返回当前节点就可以了</span></span><br><span class="line">        <span class="keyword">return</span> root;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><p>查找重复的元素</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">findRepeatNumber</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">temp</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;nums.length;)&#123;</span><br><span class="line">            <span class="keyword">if</span>(nums[i] == i)&#123;</span><br><span class="line">                <span class="comment">//只有这个才能下一步</span></span><br><span class="line">                i++;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(nums[nums[i]] == nums[i])&#123;</span><br><span class="line">                <span class="keyword">return</span> nums[i];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//注意交换</span></span><br><span class="line">            temp = nums[i];</span><br><span class="line">            nums[i] =  nums[temp];</span><br><span class="line">            nums[temp] = temp;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="二分查找："><a href="#二分查找：" class="headerlink" title="二分查找："></a>二分查找：</h2><p>二分查找的时候需要注意的是，有两种情况，区间表示：</p>
-<ul>
-<li>[left, right] <ul>
-<li>则表示右端点是有效的，循环是while(left &lt;&#x3D; right)</li>
-</ul>
-</li>
-<li>[left, right)<ul>
-<li>表示右端点无效，循环是 while (left &lt; right)</li>
-</ul>
-</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">missingNumber</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="comment">//同样使用二分查找方法来找</span></span><br><span class="line">        <span class="keyword">if</span>(nums[nums.length-<span class="number">1</span>]!=nums.length)&#123;</span><br><span class="line">            <span class="keyword">return</span> nums.length;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> left=<span class="number">0</span>,right=nums.length-<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span> (left+right)/<span class="number">2</span>;</span><br><span class="line">        <span class="comment">//需要注意</span></span><br><span class="line">        <span class="keyword">while</span>(left&lt;=right)&#123;</span><br><span class="line">            <span class="keyword">if</span>(nums[mid]==mid)&#123;</span><br><span class="line">                left = mid+<span class="number">1</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                right = mid-<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            mid = (left+right)/<span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// if(nums[mid]==mid)&#123;</span></span><br><span class="line">        <span class="comment">//     return mid+1;</span></span><br><span class="line">        <span class="comment">// &#125;else&#123;</span></span><br><span class="line">        <span class="comment">//     return mid;</span></span><br><span class="line">        <span class="comment">// &#125;</span></span><br><span class="line">        <span class="comment">//注意二分查找结束的时候的结果，不满足条件之后，left = 右半的一个</span></span><br><span class="line">        <span class="comment">//right = 左半边的一个，所以直接返回left即可</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> left;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>二维数组二分</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">Find</span><span class="params">(<span class="type">int</span> target, <span class="type">int</span> [][] array)</span> &#123;</span><br><span class="line">        <span class="comment">//是要从右上角来进行二分</span></span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> <span class="variable">m</span> <span class="operator">=</span> array.length;</span><br><span class="line">        <span class="keyword">if</span>(m==<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> array[<span class="number">0</span>].length;</span><br><span class="line">        <span class="keyword">if</span>(n==<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="type">int</span> <span class="variable">col</span> <span class="operator">=</span> n-<span class="number">1</span>,row=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(row&lt;m &amp;&amp; col&gt;=<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(target == array[row][col])&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(target&gt;array[row][col])&#123;</span><br><span class="line">                <span class="comment">//说明第row行的所有元素都不行</span></span><br><span class="line">                row++;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">//说明第col列都不合适，都大于target</span></span><br><span class="line">                col--;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>无目标的二分法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">minNumberInRotateArray</span><span class="params">(<span class="type">int</span> [] array)</span> &#123;</span><br><span class="line">        <span class="comment">//二分法的变形，如果二分法没有目标值，则需要和端点进行比较，</span></span><br><span class="line">        <span class="comment">//这里比较的是右端点</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> <span class="number">0</span>,right = array.length-<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span> (left+right)/<span class="number">2</span>;</span><br><span class="line">        <span class="keyword">while</span>(left&lt;right)&#123;</span><br><span class="line">            <span class="keyword">if</span>(array[left]&lt;array[right])&#123;</span><br><span class="line">                <span class="keyword">return</span> array[left];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(array[mid]&gt;array[right] )&#123;</span><br><span class="line">                left = mid+<span class="number">1</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(array[mid]&lt;array[right])&#123;</span><br><span class="line">                <span class="comment">//注意这里不能-1，因为只是mid+1后面的数据不满足需求了</span></span><br><span class="line">                right = mid;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                right--;</span><br><span class="line">            &#125;</span><br><span class="line">            mid = (left+right)/<span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> array[left];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">minNumberInRotateArray</span><span class="params">(<span class="type">int</span> [] array)</span> &#123;</span><br><span class="line">        <span class="comment">//二分法的变形，如果二分法没有目标值，则需要和端点进行比较，</span></span><br><span class="line">        <span class="comment">//这里比较的是左端点</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">left</span> <span class="operator">=</span> <span class="number">0</span>,right = array.length-<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span> (left+right)/<span class="number">2</span>;</span><br><span class="line">        <span class="keyword">while</span>(left&lt;right)&#123;</span><br><span class="line">            <span class="keyword">if</span>(array[left]&lt;array[right])&#123;</span><br><span class="line">                <span class="keyword">return</span> array[left];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(array[mid]&gt;array[left] )&#123;</span><br><span class="line">                left = mid+<span class="number">1</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span> <span class="keyword">if</span>(array[mid]&lt;array[left])&#123;</span><br><span class="line">                <span class="comment">//注意这里不能-1，因为只是mid+1后面的数据不满足需求了</span></span><br><span class="line">                right = mid;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                left++;</span><br><span class="line">            &#125;</span><br><span class="line">            mid = (left+right)/<span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> array[left];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h1><p><strong>JZ38</strong> <strong>字符串的排列</strong> 还需要再看看</p>
-<p>二进制加法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">addBinary</span><span class="params">(String a, String b)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">StringBuffer</span> <span class="variable">result</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuffer</span>();</span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> a.length()-<span class="number">1</span>,j = b.length()-<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">jing</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>(i&gt;=<span class="number">0</span>||j&gt;=<span class="number">0</span> ||jing!=<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">ii</span> <span class="operator">=</span> i&gt;=<span class="number">0</span>?a.charAt(i--)-<span class="string">&#x27;0&#x27;</span>:<span class="number">0</span>;</span><br><span class="line">            <span class="type">int</span> <span class="variable">jj</span> <span class="operator">=</span> j&gt;=<span class="number">0</span>?b.charAt(j--)-<span class="string">&#x27;0&#x27;</span>:<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">            jing = ii+jj+jing;</span><br><span class="line">            result.insert(<span class="number">0</span>,jing%<span class="number">2</span>);</span><br><span class="line">            jing = jing/<span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> result.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h1><p>得到一个字符串的掩码（就是看各个位置上面是不是有1）</p>
-<p>​        &#x2F;&#x2F;将1进行左移相应的位数，就可以得到相关的掩码</p>
-<p>​        masks[i] |&#x3D; 1 &lt;&lt; words[i].charAt(j) - ‘a’;</p>
-<h4 id="剑指-Offer-II-005-单词长度的最大乘积"><a href="#剑指-Offer-II-005-单词长度的最大乘积" class="headerlink" title="剑指 Offer II 005. 单词长度的最大乘积"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/aseY1I/">剑指 Offer II 005. 单词长度的最大乘积</a></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">maxProduct</span><span class="params">(String[] words)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> words.length;</span><br><span class="line">        <span class="type">int</span>[] masks = <span class="keyword">new</span> <span class="title class_">int</span>[n];</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; n; i ++)</span><br><span class="line">        <span class="comment">//得到字符串数组中的每个元素的掩码</span></span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; words[i].length(); j ++)</span><br><span class="line">                <span class="comment">//将1进行左移相应的位数，就可以得到相关的掩码</span></span><br><span class="line">                masks[i] |= <span class="number">1</span> &lt;&lt; words[i].charAt(j) - <span class="string">&#x27;a&#x27;</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">ans</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; n - <span class="number">1</span>; i ++)</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i + <span class="number">1</span>; j &lt; n; j ++)</span><br><span class="line">                <span class="comment">//表示 i 和 j里没有重复的字符</span></span><br><span class="line">                <span class="keyword">if</span>((masks[i] &amp; masks[j]) == <span class="number">0</span>)</span><br><span class="line">                    ans = Math.max(words[i].length() * words[j].length(), ans);</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
+<li>外部存储 external storage （sdCard）
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/23/Android-%E5%AD%98%E5%82%A8%E7%9B%B8%E5%85%B3%E4%BF%A1%E6%81%AF/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1384,7 +1041,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-18 09:45:44" itemprop="dateModified" datetime="2022-04-18T09:45:44+08:00">2022-04-18</time>
+      <time title="Modified: 2022-04-21 09:56:08" itemprop="dateModified" datetime="2022-04-21T09:56:08+08:00">2022-04-21</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1474,9 +1131,119 @@
 <p>aabaa的最长相等前后缀是2</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">strStr</span><span class="params">(String haystack, String needle)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span>[]next = getNext(needle);</span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt;haystack.length();i++)&#123;</span><br><span class="line">            <span class="keyword">while</span>(j&gt;=<span class="number">0</span>&amp;&amp;haystack.charAt(i)!=needle.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                <span class="comment">//模式子串进行回退</span></span><br><span class="line">                j = next[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(haystack.charAt(i)==needle.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(j == next.length-<span class="number">1</span>)&#123;</span><br><span class="line">                <span class="keyword">return</span> i-j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span>[] getNext(String s)&#123;</span><br><span class="line">        <span class="type">int</span> j=-<span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> [] next = <span class="keyword">new</span> <span class="title class_">int</span>[s.length()];</span><br><span class="line">        next[<span class="number">0</span>] = j;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;s.length();i++)&#123;</span><br><span class="line">            <span class="comment">//进行回退</span></span><br><span class="line">            <span class="keyword">while</span>(j&gt;=<span class="number">0</span> &amp;&amp; s.charAt(i)!=s.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                j = next[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(s.charAt(i)==s.charAt(j+<span class="number">1</span>))&#123;</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">            next[i] = j;</span><br><span class="line">            System.out.println(j);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<h1 id="回溯"><a href="#回溯" class="headerlink" title="回溯"></a>回溯</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * public class TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode left;</span></span><br><span class="line"><span class="comment"> *     TreeNode right;</span></span><br><span class="line"><span class="comment"> *     TreeNode() &#123;&#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val) &#123; this.val = val; &#125;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int val, TreeNode left, TreeNode right) &#123;</span></span><br><span class="line"><span class="comment"> *         this.val = val;</span></span><br><span class="line"><span class="comment"> *         this.left = left;</span></span><br><span class="line"><span class="comment"> *         this.right = right;</span></span><br><span class="line"><span class="comment"> *     &#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    List&lt;String&gt; result = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt; <span class="title function_">binaryTreePaths</span><span class="params">(TreeNode root)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(root==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line">        List&lt;Integer&gt; paths = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        getBinaryTreePaths(root,paths);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">getBinaryTreePaths</span><span class="params">(TreeNode root, List&lt;Integer&gt; paths)</span>&#123;</span><br><span class="line">        paths.add(root.val) ;</span><br><span class="line">        <span class="keyword">if</span>(root.left==<span class="literal">null</span> &amp;&amp; root.right == <span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="type">StringBuilder</span> <span class="variable">temp</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;paths.size()-<span class="number">1</span>;i++)&#123;</span><br><span class="line">                temp.append(String.valueOf(paths.get(i)) +<span class="string">&quot;-&gt;&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            temp.append(paths.get(paths.size()-<span class="number">1</span>)) ;</span><br><span class="line">            result.add(temp.toString());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(root.left!=<span class="literal">null</span>)&#123;</span><br><span class="line">            getBinaryTreePaths(root.left,paths);</span><br><span class="line">            <span class="comment">//每一次递归之后都需要回溯一下</span></span><br><span class="line">            paths.remove(paths.size()-<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(root.right!=<span class="literal">null</span>)&#123;</span><br><span class="line">            getBinaryTreePaths(root.right,paths);</span><br><span class="line">            paths.remove(paths.size()-<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/03/18/%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/03/18/%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">刷题-算法篇</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-03-18 16:33:52" itemprop="dateCreated datePublished" datetime="2022-03-18T16:33:52+08:00">2022-03-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-04-23 13:18:47" itemprop="dateModified" datetime="2022-04-23T13:18:47+08:00">2022-04-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/notes/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">算法</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>写代码：<font color=red>先在草稿上面分清楚类别</font>，分析好了各个情况才开始敲代码，不然一直调试会很不方便，效率较低。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> Integer.parseInt(string) ;<span class="comment">//可以将string直接转换成int(按照十进制)</span></span><br><span class="line"><span class="type">String</span> <span class="variable">b</span> <span class="operator">=</span> String.valueOf(<span class="type">int</span>) ;<span class="comment">//可以将int直接转换成字符串 比如 1 = &quot;1&quot;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>很多数组填充类的问题，都可以先预先给数组扩容带填充后的大小，然后在从后向前进行操作。</p>
+</li>
+<li><p>如果需要判断某个数据是否再一个数据结构中是否存在，则一般建议可以用哈希表</p>
+</li>
+<li><p>哈希表和数组再同等情况下建议用数组（时间更快）</p>
+</li>
+<li><p><strong>如果需要遍历整棵树，递归函数就不能有返回值。如果需要遍历某一条固定路线，递归函数就一定要有返回值！</strong></p>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/18/%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 

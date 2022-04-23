@@ -27,14 +27,15 @@
 <meta property="og:site_name" content="Dfault0&#39;s blog">
 <meta property="og:description" content="污点分析sources and sinks  sources: the information we want to protect on a mobile device (e.g., phone number, contacts, location, and unique device identifiers)  sinks: points of unwanted information rel">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220418121650.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/image-20220406161407676.png">
 <meta property="article:published_time" content="2022-03-24T11:06:46.000Z">
-<meta property="article:modified_time" content="2022-04-10T11:33:05.900Z">
+<meta property="article:modified_time" content="2022-04-23T05:16:36.783Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="taint analysis">
 <meta property="article:tag" content="tools">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/Dfault0/images/main/image-20220406161407676.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220418121650.png">
 
 
 <link rel="canonical" href="http://dfault0.github.io/2022/03/24/TaintAnalysis-tools-study/">
@@ -146,12 +147,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -226,7 +227,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-10 19:33:05" itemprop="dateModified" datetime="2022-04-10T19:33:05+08:00">2022-04-10</time>
+      <time title="Modified: 2022-04-23 13:16:36" itemprop="dateModified" datetime="2022-04-23T13:16:36+08:00">2022-04-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -254,6 +255,8 @@
 <p><strong>sinks</strong>: points of unwanted information release (e.g., methods related to the Internet and SMS transmission). </p>
 <p>If data from a sensitive source reaches a sink, taint tracking identifies the path from the source to the sink as an instance of data leakage.</p>
 </blockquote>
+<span id="more"></span>
+
 <h1 id="Flowdroid"><a href="#Flowdroid" class="headerlink" title="Flowdroid"></a>Flowdroid</h1><p>从2.0版本之后就可以处理ICC了</p>
 <blockquote>
 <p>使用这些污点分析工具的时候并不一定非要在源代码的基础上面修改，也可以直接使用他们的库，只要能够达到我的目的即可。</p>
@@ -269,10 +272,19 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar \</span><br><span class="line">    -a &lt;APK File&gt; \</span><br><span class="line">    -p &lt;Android JAR folder&gt; \</span><br><span class="line">    -s &lt;SourcesSinks file&gt;</span><br></pre></td></tr></table></figure>
 
 <p>本电脑的命令使用：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -a D:\mobileForensics\apks\tests -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -d -a D:\mobileForensics\apks\tests\app-realse.apk -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt -o outputs -t</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
+<p>java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -a D:\mobileForensics\Mixed -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt -o .&#x2F;output</p>
+<p>For FlowDroid can thus generate a main method in which every order of individual component lifecycles and callbacks is possible, it does not need to simulate all possible paths.</p>
+<p><strong>In FlowDroid, only method calls can be the original source of a taint.</strong> </p>
+<p>主要流程：</p>
+<ol>
+<li>解析文件</li>
+<li>Next, FlowDroid generates the main method from the list of lifecycle and  callback methods (see the Paragraphs Callbacks and Substitution Classes for more  information). This main method is then used to generate a call graph and an  inter-procedural control-flow graph (ICFG). </li>
+<li>Starting at the detected sources,  the taint analysis then tracks taints by traversing the ICFG as explained in  Section 4.</li>
+<li>Native Calls require a special treatment which is described below along with a  performance optimization called Taint Wrapping. </li>
+<li>At the end, FlowDroid reports  all discovered flows from sources to sinks.</li>
+</ol>
 <h1 id="Amandroid"><a href="#Amandroid" class="headerlink" title="Amandroid"></a>Amandroid</h1><p>支持native层，实现了一个流和上下文敏感的内部组件数据流分析。在一个过程间的控制流图和数据流图之上，为每一个组件构建一个数据依赖图，然后生成一个汇总表，记录可能的组件间通信连接。</p>
 <p>不能处理隐式流。</p>
 <ul>
@@ -284,6 +296,7 @@
 </ul>
 </li>
 </ul>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220418121650.png" alt="amdroid分析流程"></p>
 <h1 id="静态分析工具的对比"><a href="#静态分析工具的对比" class="headerlink" title="静态分析工具的对比"></a>静态分析工具的对比</h1><p><img src="https://raw.githubusercontent.com/Dfault0/images/main/image-20220406161407676.png" alt="静态分析工具的对比"></p>
 
     </div>

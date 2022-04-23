@@ -34,7 +34,7 @@
 <meta property="og:image" content="c:/Users/fourth/AppData/Roaming/Typora/typora-user-images/image-20210730204946092.png">
 <meta property="og:image" content="c:/Users/fourth/AppData/Roaming/Typora/typora-user-images/image-20210730204917972.png">
 <meta property="article:published_time" content="2021-07-25T10:32:14.000Z">
-<meta property="article:modified_time" content="2022-03-25T10:35:20.096Z">
+<meta property="article:modified_time" content="2022-04-23T05:24:51.958Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="fuzzing">
 <meta property="article:tag" content="paper">
@@ -151,12 +151,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -231,7 +231,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-03-25 18:35:20" itemprop="dateModified" datetime="2022-03-25T18:35:20+08:00">2022-03-25</time>
+      <time title="Modified: 2022-04-23 13:24:51" itemprop="dateModified" datetime="2022-04-23T13:24:51+08:00">2022-04-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -258,6 +258,8 @@
     
     <div class="post-body" itemprop="articleBody">
         <h1 id="1-IOTFUZZER-Discovering-Memory-Corruptions-in-IoT-Through-App-based-Fuzzing"><a href="#1-IOTFUZZER-Discovering-Memory-Corruptions-in-IoT-Through-App-based-Fuzzing" class="headerlink" title="1.IOTFUZZER: Discovering Memory Corruptions in IoT Through App-based Fuzzing"></a>1.IOTFUZZER: Discovering Memory Corruptions in IoT Through App-based Fuzzing</h1><h2 id="摘要："><a href="#摘要：" class="headerlink" title="摘要："></a>摘要：</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Existing binary analysis based approaches only work on firmware, which is less accessible except for those equipped with special tools for extracting the code from the device.</span><br><span class="line">现有的二进制分析的方法只能在固件上面工作，但是除了配备特殊工具的设备外，固件的获取具有一定的难度。</span><br><span class="line"> IOTFUZZER：自动fuzzing框架，目的是查找物联网设备中的内存损坏漏洞（不需要获取其固件镜像）</span><br><span class="line"> </span><br><span class="line">The key idea ：most IoT devices are controlled through their official mobile apps, and such an app often contains rich information about the protocol it uses to communicate with its device. </span><br><span class="line">主要思想：大多数的物联网设备是由APP控制的，这些APP中有与其交互的各种协议</span><br><span class="line"></span><br><span class="line"> Therefore, by identifying and reusing program-specific logic (e.g., encryption) to mutate the test case (particularly message fields), we are able to effectively probe IoT targets without relying on any knowledge about its protocol specifications. </span><br><span class="line"> 通过识别和重用APP特定的逻辑来变异测试用例，我们就可以有效得探测物联网目标，而不依赖于任何关于其协议规范的知识</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
 
 <h2 id="主要思想："><a href="#主要思想：" class="headerlink" title="主要思想："></a>主要思想：</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">A unique property of IOTFUZZER is that it runs a protocol-guided fuzz and utilizes the information carried by the IoT app without reverse-engineering the protocol or explicit recovering such knowledge from the app, as prior approaches [20], [10] do. </span><br><span class="line">协议引导并且利用APP携带的信息</span><br><span class="line"></span><br><span class="line">it performs a dynamic analysis to identify the content inside the app that forms the messages to be delivered to the target device, and automatically mutates such content during the runtime so as to use the app’s program logics to produce meaningful test cases for probing the target firmware.</span><br><span class="line">利用动态执行来识别程序内部传递到目标设备的内容，并且自动变异这些内容</span><br></pre></td></tr></table></figure>
 

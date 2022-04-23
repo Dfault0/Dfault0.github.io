@@ -20,15 +20,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="Technical “whitepaper” for afl-fuzzDesign statement该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。 原则：速度、可靠性、易使用 Coverage measurements这个插桩注入到编译好的程序来获取分支覆盖率 注入点： 123cur_location &#x3D; &lt;COMPILE_TIME_RANDOM">
+    <meta name="description" content="Technical “whitepaper” for afl-fuzzDesign statement该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。 原则：速度、可靠性、易使用">
 <meta property="og:type" content="article">
 <meta property="og:title" content="AFL fuzz whitepaper">
 <meta property="og:url" content="http://dfault0.github.io/2021/11/08/AFL-fuzz-whitepaper/index.html">
 <meta property="og:site_name" content="Dfault0&#39;s blog">
-<meta property="og:description" content="Technical “whitepaper” for afl-fuzzDesign statement该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。 原则：速度、可靠性、易使用 Coverage measurements这个插桩注入到编译好的程序来获取分支覆盖率 注入点： 123cur_location &#x3D; &lt;COMPILE_TIME_RANDOM">
+<meta property="og:description" content="Technical “whitepaper” for afl-fuzzDesign statement该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。 原则：速度、可靠性、易使用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-11-08T02:45:10.000Z">
-<meta property="article:modified_time" content="2022-03-18T08:40:18.752Z">
+<meta property="article:modified_time" content="2022-04-23T05:20:11.160Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="AFL">
 <meta property="article:tag" content="whitepaper">
@@ -144,12 +144,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -224,7 +224,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-03-18 16:40:18" itemprop="dateModified" datetime="2022-03-18T16:40:18+08:00">2022-03-18</time>
+      <time title="Modified: 2022-04-23 13:20:11" itemprop="dateModified" datetime="2022-04-23T13:20:11+08:00">2022-04-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -248,6 +248,8 @@
     <div class="post-body" itemprop="articleBody">
         <h1 id="Technical-“whitepaper”-for-afl-fuzz"><a href="#Technical-“whitepaper”-for-afl-fuzz" class="headerlink" title="Technical “whitepaper” for afl-fuzz"></a>Technical “whitepaper” for afl-fuzz</h1><h2 id="Design-statement"><a href="#Design-statement" class="headerlink" title="Design statement"></a>Design statement</h2><p>该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。</p>
 <p>原则：速度、可靠性、易使用</p>
+<span id="more"></span>
+
 <h2 id="Coverage-measurements"><a href="#Coverage-measurements" class="headerlink" title="Coverage measurements"></a>Coverage measurements</h2><p>这个插桩注入到编译好的程序来获取分支覆盖率</p>
 <p>注入点：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cur_location = &lt;COMPILE_TIME_RANDOM&gt;;</span><br><span class="line">shared_mem[cur_location ^ prev_location]++; </span><br><span class="line">prev_location = cur_location &gt;&gt; 1;</span><br></pre></td></tr></table></figure>

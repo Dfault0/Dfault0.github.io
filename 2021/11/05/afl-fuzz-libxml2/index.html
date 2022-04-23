@@ -20,15 +20,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="使用AFL++模糊测试libxml2简单模糊测试12345在这里的时候需要用绝对路径相对路径是会报错的。&#x2F;home&#x2F;fourth&#x2F;fuzz$ make CC&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLplusplus&#x2F;afl-clang-fast CXX&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLplusplus&#x2F;afl-clang-fast++ LD&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLp">
+    <meta name="description" content="模糊测试复现笔记">
 <meta property="og:type" content="article">
 <meta property="og:title" content="afl fuzz libxml2">
 <meta property="og:url" content="http://dfault0.github.io/2021/11/05/afl-fuzz-libxml2/index.html">
 <meta property="og:site_name" content="Dfault0&#39;s blog">
-<meta property="og:description" content="使用AFL++模糊测试libxml2简单模糊测试12345在这里的时候需要用绝对路径相对路径是会报错的。&#x2F;home&#x2F;fourth&#x2F;fuzz$ make CC&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLplusplus&#x2F;afl-clang-fast CXX&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLplusplus&#x2F;afl-clang-fast++ LD&#x3D;&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;AFLp">
+<meta property="og:description" content="模糊测试复现笔记">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2021-11-05T02:45:34.000Z">
-<meta property="article:modified_time" content="2022-03-18T08:40:11.461Z">
+<meta property="article:modified_time" content="2022-04-23T05:19:52.759Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="AFL">
 <meta property="article:tag" content="Fuzzing">
@@ -145,12 +145,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -225,7 +225,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-03-18 16:40:11" itemprop="dateModified" datetime="2022-03-18T16:40:11+08:00">2022-03-18</time>
+      <time title="Modified: 2022-04-23 13:19:52" itemprop="dateModified" datetime="2022-04-23T13:19:52+08:00">2022-04-23</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -247,7 +247,10 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="使用AFL-模糊测试libxml2"><a href="#使用AFL-模糊测试libxml2" class="headerlink" title="使用AFL++模糊测试libxml2"></a>使用AFL++模糊测试libxml2</h1><h2 id="简单模糊测试"><a href="#简单模糊测试" class="headerlink" title="简单模糊测试"></a>简单模糊测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">在这里的时候需要用绝对路径相对路径是会报错的。</span><br><span class="line">/home/fourth/fuzz</span><br><span class="line">$ make CC=/home/fourth/fuzz/AFLplusplus/afl-clang-fast CXX=/home/fourth/fuzz/AFLplusplus/afl-clang-fast++ LD=/home/fourth/fuzz/AFLplusplus/afl-clang-fast</span><br><span class="line"></span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i ./in -o ./out -m none -d -- ./xmlint_cov @@</span><br></pre></td></tr></table></figure>
+        <p>模糊测试复现笔记</p>
+<span id="more"></span>
+
+<h1 id="使用AFL-模糊测试libxml2"><a href="#使用AFL-模糊测试libxml2" class="headerlink" title="使用AFL++模糊测试libxml2"></a>使用AFL++模糊测试libxml2</h1><h2 id="简单模糊测试"><a href="#简单模糊测试" class="headerlink" title="简单模糊测试"></a>简单模糊测试</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">在这里的时候需要用绝对路径相对路径是会报错的。</span><br><span class="line">/home/fourth/fuzz</span><br><span class="line">$ make CC=/home/fourth/fuzz/AFLplusplus/afl-clang-fast CXX=/home/fourth/fuzz/AFLplusplus/afl-clang-fast++ LD=/home/fourth/fuzz/AFLplusplus/afl-clang-fast</span><br><span class="line"></span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i ./in -o ./out -m none -d -- ./xmlint_cov @@</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│        run time : 0 days, 0 hrs, 3 min, 47 sec      │  cycles done : 0     │</span><br><span class="line">│   last new path : 0 days, 0 hrs, 0 min, 1 sec       │  total paths : 1710  │</span><br><span class="line">│ last uniq crash : none seen yet                     │ uniq crashes : 0     │</span><br><span class="line">│  last uniq hang : none seen yet                     │   uniq hangs : 0     │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│  now processing : 1558.1 (91.1%)     │    map density : 1.00% / 4.98%      │</span><br><span class="line">│ paths timed out : 0 (0.00%)          │ count coverage : 3.23 bits/tuple    │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│  now trying : havoc                  │ favored paths : 330 (19.30%)        │</span><br><span class="line">│ stage execs : 25.4k/32.8k (77.41%)   │  new edges on : 509 (29.77%)        │</span><br><span class="line">│ total execs : 1.24M                  │ total crashes : 0 (0 unique)        │</span><br><span class="line">│  exec speed : 5649/sec               │  total tmouts : 1 (1 unique)        │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│   bit flips : disabled (default, enable with -D)   │    levels : 9         │</span><br><span class="line">│  byte flips : disabled (default, enable with -D)   │   pending : 1435      │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D)   │  pend fav : 109       │</span><br><span class="line">│  known ints : disabled (default, enable with -D)   │ own finds : 1707      │</span><br><span class="line">│  dictionary : n/a                                  │  imported : 0         │</span><br><span class="line">│havoc/splice : 1173/890k, 526/285k                  │ stability : 96.68%    │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused       ├───────────────────────┘</span><br><span class="line">│    trim/eff : 18.12%/6877, disabled                │          [cpu000:150%]</span><br><span class="line">└────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
 
