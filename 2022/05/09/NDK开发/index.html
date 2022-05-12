@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="基础知识静态方法可以直接由类名来进行调用 1private static native int testStaticNative(int a);  1234567&#x2F;&#x2F;表示的是使用自己的名字来编译，extern &quot;C&quot;JNIEXPORT jint JNICALLJava_com_kanxue_secondshell_180_MainActivity_testStaticNativ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NDK开发">
+<meta property="og:url" content="http://dfault0.github.io/2022/05/09/NDK%E5%BC%80%E5%8F%91/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="基础知识静态方法可以直接由类名来进行调用 1private static native int testStaticNative(int a);  1234567&#x2F;&#x2F;表示的是使用自己的名字来编译，extern &quot;C&quot;JNIEXPORT jint JNICALLJava_com_kanxue_secondshell_180_MainActivity_testStaticNativ">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-05-09T12:17:16.000Z">
+<meta property="article:modified_time" content="2022-05-11T08:39:12.665Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="code">
+<meta property="article:tag" content="NDK">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/05/09/NDK%E5%BC%80%E5%8F%91/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/05/09/NDK%E5%BC%80%E5%8F%91/","path":"2022/05/09/NDK开发/","title":"NDK开发"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>NDK开发 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8D%E5%B0%84"><span class="nav-number">2.</span> <span class="nav-text">反射</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JavaVM-amp-JNIEnv"><span class="nav-number">3.</span> <span class="nav-text">JavaVM &amp; JNIEnv</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/05/09/NDK%E5%BC%80%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="NDK开发 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NDK开发
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-05-09 20:17:16" itemprop="dateCreated datePublished" datetime="2022-05-09T20:17:16+08:00">2022-05-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-05-11 16:39:12" itemprop="dateModified" datetime="2022-05-11T16:39:12+08:00">2022-05-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/NDK/" itemprop="url" rel="index"><span itemprop="name">NDK</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><p>静态方法可以直接由类名来进行调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">native</span> <span class="type">int</span> <span class="title function_">testStaticNative</span><span class="params">(<span class="type">int</span> a)</span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//表示的是使用自己的名字来编译，</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span></span><br><span class="line"><span class="function">JNIEXPORT jint JNICALL</span></span><br><span class="line"><span class="function"><span class="title">Java_com_kanxue_secondshell_180_MainActivity_testStaticNative</span><span class="params">(JNIEnv *env, jclass clazz,jint a)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// <span class="doctag">TODO:</span> implement testStaticNative()</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">5</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果要在.cpp文件中用c的函数的话，需要在加入头文件的地方进行如下操作</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span>&#123;</span><br><span class="line">	<span class="meta">#<span class="keyword">include</span><span class="string">&lt;xxxx.h&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h1><p>获取类名的方式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">getClassByreflection</span><span class="params">(String className)</span>&#123;</span><br><span class="line">    <span class="comment">//className，包含包名的全称</span></span><br><span class="line">     <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="type">Class</span> <span class="variable">clazz</span> <span class="operator">=</span> MainActivity.class.getClassLoader().loadClass(className);</span><br><span class="line">          <span class="type">Class</span> <span class="variable">clazz1</span> <span class="operator">=</span> Class.forName(className);</span><br><span class="line">          <span class="type">Class</span> <span class="variable">clazz2</span> <span class="operator">=</span> Test.class; <span class="comment">//直接知道在同一个项目里面，并且知道类名</span></span><br><span class="line">     &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">          e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>获取类中的相关变量，方法等</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//能够获得包括私有的方法，但是没有继承的方法</span></span><br><span class="line">Class[] declaredClasses = clazz.getDeclaredClasses();</span><br><span class="line">Field[] declaredFields = clazz.getDeclaredFields();</span><br><span class="line">Method[] declaredMethods = clazz.getDeclaredMethods();</span><br><span class="line">Constructor[] declaredConstructors = clazz.getDeclaredConstructors();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//只能获取public的</span></span><br><span class="line">Class&lt;? <span class="keyword">extends</span> <span class="title class_">Class</span>&gt; aClass = clazz.getClass();</span><br><span class="line">Field[] fields = clazz.getFields();</span><br><span class="line"><span class="comment">//获取所有的public方法，包括继承来的方法</span></span><br><span class="line">Method[] methods = clazz.getMethods();</span><br><span class="line">Constructor[] constructors = clazz.getConstructors();</span><br></pre></td></tr></table></figure>
+
+<p>一般为了保险起见都会将获取到的方法或者变量设置为setAccessible(true)，就可以修改了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">privateStaticField_field.setAccessible(<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>在jni中调用Java中的方法</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//包名需要用‘/’来分隔</span></span><br><span class="line">jclass TestJclass = env-&gt;<span class="built_in">FindClass</span>(<span class="string">&quot;com/kanxue/reflectiontest/Test&quot;</span>);</span><br><span class="line">jfieldID publicStaticField_jfieldID = env-&gt;<span class="built_in">GetStaticFieldID</span>(TestJclass, <span class="string">&quot;publicStaticField&quot;</span>,<span class="string">&quot;Ljava/lang/String;&quot;</span>);</span><br><span class="line">jstring publicStaticField_content = (jstring) env-&gt;<span class="built_in">GetStaticObjectField</span>(TestJclass, publicStaticField_jfieldID);</span><br><span class="line"><span class="comment">//Java中的字符串转换成，c++中的字符串</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span> *content_ptr = env-&gt;<span class="built_in">GetStringUTFChars</span>(publicStaticField_content, <span class="literal">nullptr</span>);</span><br></pre></td></tr></table></figure>
+
+<p>jni函数描述符</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String test()      Ljava/lang/String;</span><br><span class="line">int f(int i,Object object)    (ILjava/lang/Object;)I</span><br></pre></td></tr></table></figure>
+
+<h1 id="JavaVM-amp-JNIEnv"><a href="#JavaVM-amp-JNIEnv" class="headerlink" title="JavaVM &amp; JNIEnv"></a>JavaVM &amp; JNIEnv</h1><ul>
+<li><p>JavaVM  &#x3D; JNIInvokeInterface*:是虚拟机在JNI层的一个代表，一个进程只有一个，所有的线程共用一个</p>
+</li>
+<li><p>JNIEnv &#x3D; JNINativeInterface*：指向了本地方法的一个函数表，该函数表中的每一个成员指向一个jni函数，本地方法通过JNI函数来访问JVM中的数据结构</p>
+<ul>
+<li>注意在c和c++中对env的使用方法不同，在C中env是一个二级指针，而在c++中是一个一级指针</li>
+<li>只在创建他的线程中生效，不能进行跨线程传递，<strong>不同线程之间彼此独立</strong></li>
+<li>在native中创建的线程，如果要访问JNI，必须要使用AttachCurrentThread进行关联，并且使用DetachCurrentThread解除附加</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/code/" rel="tag"># code</a>
+              <a href="/tags/NDK/" rel="tag"># NDK</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/04/16/%E7%A0%B4%E8%A7%A3%E7%AC%AC%E4%B8%80%E4%B8%AAAndroid%E7%A8%8B%E5%BA%8F/" rel="prev" title="破解第一个Android程序">
+                  <i class="fa fa-chevron-left"></i> 破解第一个Android程序
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/05/10/HOOK%E4%B8%8E%E6%B3%A8%E5%85%A5/" rel="next" title="HOOK与注入">
+                  HOOK与注入 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

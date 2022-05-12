@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="手脱UPX壳  要在XP上脱壳，不然基地址有问题，可以直接改就可以  调试工具是PEID和OD  方法1：单步跟踪,只是让其实现向下的   方法2：ESP定律法，在关键句的下一行，在或者ESP突变，就是只有他变红  dd XXXXX（ESP的值） hr XXXXX 右键在数据窗口中跟随然后设置硬件访问断点，在单步就可以到达OEP，（记得要删除硬件断点debug里面）   方法3：2次内存镜像法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PE脱壳">
+<meta property="og:url" content="http://dfault0.github.io/2018/05/08/PE%E8%84%B1%E5%A3%B3/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="手脱UPX壳  要在XP上脱壳，不然基地址有问题，可以直接改就可以  调试工具是PEID和OD  方法1：单步跟踪,只是让其实现向下的   方法2：ESP定律法，在关键句的下一行，在或者ESP突变，就是只有他变红  dd XXXXX（ESP的值） hr XXXXX 右键在数据窗口中跟随然后设置硬件访问断点，在单步就可以到达OEP，（记得要删除硬件断点debug里面）   方法3：2次内存镜像法">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-05-08T07:49:33.000Z">
+<meta property="article:modified_time" content="2022-05-08T08:11:48.233Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="脱壳">
+<meta property="article:tag" content="windows">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2018/05/08/PE%E8%84%B1%E5%A3%B3/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2018/05/08/PE%E8%84%B1%E5%A3%B3/","path":"2018/05/08/PE脱壳/","title":"PE脱壳"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>PE脱壳 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%8B%E8%84%B1UPX%E5%A3%B3"><span class="nav-number">1.</span> <span class="nav-text">手脱UPX壳</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%8B%E8%84%B1ASPACK%E5%A3%B3"><span class="nav-number">2.</span> <span class="nav-text">手脱ASPACK壳</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%8B%E8%84%B1NSPACK%EF%BC%88%E5%8C%97%E6%96%97%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">手脱NSPACK（北斗）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%8B%E8%84%B1FSG%E5%A3%B3"><span class="nav-number">4.</span> <span class="nav-text">手脱FSG壳</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%8B%E8%84%B1PECompact2-X%E7%9A%84%E5%A3%B3"><span class="nav-number">5.</span> <span class="nav-text">手脱PECompact2.X的壳</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%8B%E8%84%B1EZIP-%E5%A3%B3"><span class="nav-number">6.</span> <span class="nav-text">手脱EZIP 壳</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%8B%E8%84%B1tElock-0-98b1%E5%A3%B3"><span class="nav-number">7.</span> <span class="nav-text">手脱tElock 0.98b1壳</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%8B%E8%84%B1exe32pack%E5%A3%B3"><span class="nav-number">8.</span> <span class="nav-text">手脱exe32pack壳</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%84%B1WinUpack%E5%8A%A0%E7%9A%84%E5%A3%B3"><span class="nav-number">9.</span> <span class="nav-text">脱WinUpack加的壳</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%84%B1%E5%A3%B3%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%80%9D%E8%B7%AF%E5%8F%8A%E5%B0%8F%E7%BB%93"><span class="nav-number">10.</span> <span class="nav-text">脱壳的基本思路及小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E8%AF%AD%E8%A8%80%E7%9A%84%E7%A8%8B%E5%BA%8F%E5%85%A5%E5%8F%A3%E7%82%B9%EF%BC%9A"><span class="nav-number">11.</span> <span class="nav-text">常见语言的程序入口点：</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2018/05/08/PE%E8%84%B1%E5%A3%B3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="PE脱壳 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PE脱壳
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2018-05-08 15:49:33" itemprop="dateCreated datePublished" datetime="2018-05-08T15:49:33+08:00">2018-05-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-05-08 16:11:48" itemprop="dateModified" datetime="2022-05-08T16:11:48+08:00">2022-05-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">安全</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AE%89%E5%85%A8/%E8%84%B1%E5%A3%B3/" itemprop="url" rel="index"><span itemprop="name">脱壳</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="手脱UPX壳"><a href="#手脱UPX壳" class="headerlink" title="手脱UPX壳"></a>手脱UPX壳</h1><blockquote>
+<p> 要在XP上脱壳，不然基地址有问题，可以直接改就可以</p>
+</blockquote>
+<p>调试工具是PEID和OD</p>
+<ul>
+<li><p>方法1：单步跟踪,只是让其实现向下的 </p>
+</li>
+<li><p>方法2：ESP定律法，在关键句的下一行，在或者ESP突变，就是只有他变红</p>
+<ul>
+<li>dd XXXXX（ESP的值）</li>
+<li>hr XXXXX</li>
+<li>右键在数据窗口中跟随然后设置硬件访问断点，在单步就可以到达OEP，（记得要删除硬件断点debug里面）</li>
+</ul>
+</li>
+<li><p>方法3：2次内存镜像法</p>
+<ul>
+<li>在内存窗口中找到程序的第一个.rsrc资源文件资源，下断点，运行shift+f9，来到这个地方然后又再一次，在再upx0的地方下断（0040100这个地方），在进行单步</li>
+</ul>
+</li>
+<li><p>方法4：一步直达法（upxde aspsk的壳）</p>
+<ul>
+<li>查找popad</li>
+</ul>
+</li>
+<li><p>5使用loadpe </p>
+</li>
+<li><p>先修正一下镜像大小，然后完整转存</p>
+</li>
+<li><p>失败，然后再od中找到OEP的那个地方记录地址，然后使用一个工具，先写下正确的OEP的地址</p>
+</li>
+<li><p>自动查找，获取输入表，显示无效，修复转存文件</p>
+</li>
+</ul>
+<h1 id="手脱ASPACK壳"><a href="#手脱ASPACK壳" class="headerlink" title="手脱ASPACK壳"></a>手脱ASPACK壳</h1><p>ASPack 2.12 -&gt; Alexey Solodovnikov</p>
+<p>工具：PEID和OD</p>
+<p>6种方法脱</p>
+<ul>
+<li><p>方法1：单步跟踪（在哪那个call的时候，程序会跑起来，要f7）</p>
+</li>
+<li><p>方法2：ESP定律</p>
+</li>
+<li><p>方法3：一步直达</p>
+</li>
+<li><p>方法4：2次内存镜像</p>
+</li>
+<li><p>方法5：模拟跟踪（自动查找程序的OEP）</p>
+<ul>
+<li>tc eip&lt;xxxxxx（SFX的地址，第一个）</li>
+</ul>
+</li>
+<li><p>方法6：SFX在调试选项里面）选择块方式跟踪正真的入口，或者其下一个，就会自动跳转到OEP的地方</p>
+</li>
+</ul>
+<h1 id="手脱NSPACK（北斗）"><a href="#手脱NSPACK（北斗）" class="headerlink" title="手脱NSPACK（北斗）"></a>手脱NSPACK（北斗）</h1><p>nSPack 1.3 -&gt; North Star&#x2F;Liu Xing Ping</p>
+<p><strong>离头比较近的call一般跟进去</strong></p>
+<p> NsPacK V3.7 -&gt; LiuXingPing *</p>
+<p> at GetVersion（在命令行这里输入这个，就可以在这个地方下断点。。。适合于北斗3.0以前的壳）</p>
+<p>WILLSOFT STUDIO</p>
+<p><a target="_blank" rel="noopener" href="http://www.054live.com.cn/">www.054live.com.cn</a></p>
+<h1 id="手脱FSG壳"><a href="#手脱FSG壳" class="headerlink" title="手脱FSG壳"></a>手脱FSG壳</h1><p>FSG 2.0 -&gt; bart&#x2F;xt(代码不长向下拉就可哟看到连续三个跳转，其中有一个就是跳到oep的) </p>
+<p>重点为修复</p>
+<p>手动、查找IAT</p>
+<p>在OEP哪里点一下回车就会看见call*****，就有一些IAT，主模块，d call的地址</p>
+<p>，在数据窗口中显示数值过后，向上拉，直到数值全为0，记下地址，向下拉全为0(好像是没有函数的地方)的地方记下地址，，在修复的那里，填写，</p>
+<p>rva</p>
+<p><strong>特殊的esp定律法，FSG 2.0 -&gt; bart&#x2F;xt专用的</strong></p>
+<p>单步popad下面</p>
+<p>看堆栈里面下数第四行，右键在反汇编窗口跟随</p>
+<p>下硬件断点，</p>
+<p>然后shift+f9</p>
+<p>00425000  77DA6BF0 ADVAPI32.RegCloseKey</p>
+<p>00425280  7C838DE8 kernel32.LCMapStringA</p>
+<p><a target="_blank" rel="noopener" href="http://www.054live.com.cn/">www.054live.com.cn</a></p>
+<p>willsoft studio</p>
+<p>A、去掉ASLR—LODPE——pe编辑器——特征值的…..的那个，点开，勾选重定位就可以了，file header，里面的那个clickhere</p>
+<p>ASLR开启的话，基地址是随机的</p>
+<p>【ASLR关闭工具】OD载入每次入口地址都不一样怎么办？就这么办。</p>
+<p><a target="_blank" rel="noopener" href="http://www.52pojie.cn/thread-377450-1-1.html">http://www.52pojie.cn/thread-377450-1-1.html</a></p>
+<p>B、不去掉ASLR—修复重定位</p>
+<p>排查崩溃原因，忽略所有异常过后，运行程序失败，看见堆栈信息，右键在反汇编窗口跟随，下个断点，地址复制下来，在有壳的地方</p>
+<h1 id="手脱PECompact2-X的壳"><a href="#手脱PECompact2-X的壳" class="headerlink" title="手脱PECompact2.X的壳"></a>手脱PECompact2.X的壳</h1><p>PECompact 2.x -&gt; Jeremy Collake</p>
+<ol>
+<li>单步.</li>
+<li>ESP定律 </li>
+<li>方法：</li>
+</ol>
+<ul>
+<li>BP VirtualFree 下断点</li>
+<li>SHIFT+F9，取消断点</li>
+<li>ALT+F9  返回到用户代码</li>
+<li>查找 push 8000(特征码)</li>
+<li>运行到这</li>
+<li>单步跟</li>
+</ul>
+<ol start="4">
+<li><p>方法：</p>
+<ol>
+<li>BP VirtualFree</li>
+<li>两次SHIFT+F9</li>
+<li>中断后取消断点，Alt+F9返回</li>
+<li>单步走。</li>
+</ol>
+</li>
+<li><p>方法</p>
+<ul>
+<li>0040A86D &gt; B8 74DE4500   mov eax,qqspirit.0045DE74</li>
+</ul>
+</li>
+</ol>
+<p>bp 0045de74  程序开始的代码的那个地址 shift+ f9然后取消断点</p>
+<p>到return的时候程序就会跑起来，所以在return 下面的一句下断点</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">045DE74  B8 F9CB45F0   mov eax,F045CBF9</span><br><span class="line">0045DE79  8D88 9E120010  lea ecx,dword ptr ds:[eax+1000129E]</span><br><span class="line">0045DE7F  8941 01     mov dword ptr ds:[ecx+1],eax</span><br><span class="line">0045DE82  8B5424 04    mov edx,dword ptr ss:[esp+4]</span><br><span class="line">0045DE86  8B52 0C     mov edx,dword ptr ds:[edx+C]</span><br><span class="line">0045DE89  C602 E9     mov byte ptr ds:[edx],0E9</span><br><span class="line">0045DE8C  83C2 05     add edx,5</span><br><span class="line">0045DE8F  2BCA      sub ecx,edx</span><br><span class="line">0045DE91  894A FC     mov dword ptr ds:[edx-4],ecx</span><br><span class="line">0045DE94  33C0      xor eax,eax</span><br><span class="line">0045DE96  C3       retn</span><br><span class="line">0045DE97  B8 78563412   mov eax,12345678//下断</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li><p>方法6</p>
+<ol>
+<li>bp VirtualAlloc SHIFT+F9运行</li>
+<li>取消断点</li>
+<li>ALT+F9  好像是Ctrl+f9</li>
+<li>向下拉，看到JMP。运行到这</li>
+</ol>
+</li>
+<li><p>方法7最后一次异常法；</p>
+<ol>
+<li>取消所有异常。</li>
+<li>2次跑飞。先shift +f9按m-1次</li>
+<li>在堆栈窗口找SE句柄</li>
+<li>转到SE xxxx处</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">045DE74  B8 F9CB45F0   mov eax,F045CBF9</span><br><span class="line">0045DE79  8D88 9E120010  lea ecx,dword ptr ds:[eax+1000129E]</span><br><span class="line">0045DE7F  8941 01     mov dword ptr ds:[ecx+1],eax</span><br><span class="line">0045DE82  8B5424 04    mov edx,dword ptr ss:[esp+4]</span><br><span class="line">0045DE86  8B52 0C     mov edx,dword ptr ds:[edx+C]</span><br><span class="line">0045DE89  C602 E9     mov byte ptr ds:[edx],0E9</span><br><span class="line">0045DE8C  83C2 05     add edx,5</span><br><span class="line">0045DE8F  2BCA      sub ecx,edx</span><br><span class="line">0045DE91  894A FC     mov dword ptr ds:[edx-4],ecx</span><br><span class="line">0045DE94  33C0      xor eax,eax</span><br><span class="line">0045DE96  C3       retn</span><br><span class="line">0045DE97  B8 78563412   mov eax,12345678//下断</span><br></pre></td></tr></table></figure>
+<ol start="8">
+<li>两次内存</li>
+<li>at GetVersion</li>
+</ol>
+<h1 id="手脱EZIP-壳"><a href="#手脱EZIP-壳" class="headerlink" title="手脱EZIP 壳"></a>手脱EZIP 壳</h1><ol>
+<li>单步</li>
+<li>ESP定律</li>
+</ol>
+<p>修复完成之后还是不能运行的话，有时候可以用重建PE的方法。</p>
+<h1 id="手脱tElock-0-98b1壳"><a href="#手脱tElock-0-98b1壳" class="headerlink" title="手脱tElock 0.98b1壳"></a>手脱tElock 0.98b1壳</h1><ol>
+<li>最后一次异常法  在堆栈找到se句柄 然后Ctrl +g</li>
+<li>模拟跟踪  tc eip &lt;SFX的地址</li>
+<li>两次内存镜像</li>
+</ol>
+<p>重点还是修复 等级3跟踪。要打开原来的程序修复，后来再剪切无效函数</p>
+<h1 id="手脱exe32pack壳"><a href="#手脱exe32pack壳" class="headerlink" title="手脱exe32pack壳"></a>手脱exe32pack壳</h1><ol>
+<li>ESP定律</li>
+<li>下断：BP IsDebuggerPresent <ul>
+<li>运行，取消断点</li>
+<li>ALT+F9</li>
+<li>计算ss+edi</li>
+<li>转到OEP！</li>
+</ul>
+</li>
+</ol>
+<h1 id="脱WinUpack加的壳"><a href="#脱WinUpack加的壳" class="headerlink" title="脱WinUpack加的壳"></a>脱WinUpack加的壳</h1><p>加条件断点的方法。  Eax&#x3D;0的时候  函数重建，一直在循环，不能让他直接强行跳转到OEP</p>
+<h1 id="脱壳的基本思路及小结"><a href="#脱壳的基本思路及小结" class="headerlink" title="脱壳的基本思路及小结"></a>脱壳的基本思路及小结</h1><p>壳的分类：压缩壳、加密壳</p>
+<p>脱壳的基本方法：</p>
+<ol>
+<li><p>单步</p>
+</li>
+<li><p>ESP定律</p>
+</li>
+<li><p>内存镜像</p>
+</li>
+<li><p>模拟跟踪（2类）</p>
+</li>
+<li><p>最后一次异常</p>
+<ol>
+<li><p>SFX跟踪</p>
+</li>
+<li><p>tc eip&lt;XXXX</p>
+</li>
+</ol>
+</li>
+<li><p>特殊</p>
+</li>
+</ol>
+<h1 id="常见语言的程序入口点："><a href="#常见语言的程序入口点：" class="headerlink" title="常见语言的程序入口点："></a>常见语言的程序入口点：</h1><p>VB：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">004012D4 &gt; 68 54474000   push QQ个性网.00404754</span><br><span class="line">004012D9  E8 F0FFFFFF   call &lt;jmp.&amp;MSVBVM60.#100&gt;</span><br><span class="line">004012DE  0000      add byte ptr ds:[eax],al</span><br><span class="line">004012E0  0000      add byte ptr ds:[eax],al</span><br><span class="line">004012E2  0000      add byte ptr ds:[eax],al</span><br><span class="line">004012E4  3000      xor byte ptr ds:[eax],al</span><br><span class="line">004012E6  0000      add byte ptr ds:[eax],al</span><br><span class="line">004012E8  48       dec eax</span><br></pre></td></tr></table></figure>
+
+<p>delphi:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> 004A5C54 &gt; 55       push ebp</span><br><span class="line">004A5C55  8BEC      mov ebp,esp</span><br><span class="line">004A5C57  83C4 F0     add esp,-10</span><br><span class="line">004A5C5A  B8 EC594A00   mov eax,openpro.004A59EC</span><br></pre></td></tr></table></figure>
+
+<p>BC++:</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">00401678 &gt; /EB 10      jmp short btengine.0040168A</span><br><span class="line">0040167A  |66:623A     bound di,dword ptr ds:[edx]</span><br><span class="line">0040167D  |43       inc ebx</span><br><span class="line">0040167E  |2B2B      sub ebp,dword ptr ds:[ebx]</span><br><span class="line">00401680  |48       dec eax</span><br><span class="line">00401681  |4F       dec edi</span><br><span class="line">00401682  |4F       dec edi</span><br><span class="line">00401683  |4B       dec ebx</span><br><span class="line">00401684  |90       nop</span><br><span class="line">00401685 -|E9 98005400   jmp 00941722</span><br><span class="line">0040168A  \A1 8B005400   mov eax,dword ptr ds:[54008B]</span><br><span class="line">0040168F  C1E0 02     shl eax,2</span><br><span class="line">00401692  A3 8F005400   mov dword ptr ds:[54008F],eax</span><br><span class="line">00401697  52       push edx</span><br><span class="line">00401698  6A 00      push 0</span><br><span class="line">0040169A  E8 99D01300   call &lt;jmp.&amp;KERNEL32.GetModuleHandleA&gt;</span><br><span class="line">0040169F  8BD0      mov edx,eax</span><br></pre></td></tr></table></figure>
+
+<p>VC++:</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">0040A41E &gt; 55       push ebp</span><br><span class="line">0040A41F  8BEC      mov ebp,esp</span><br><span class="line">0040A421  6A FF      push -1</span><br><span class="line">0040A423  68 C8CB4000   push 跑跑排行.0040CBC8</span><br><span class="line">0040A428  68 A4A54000   push &lt;jmp.&amp;MSVCRT._except_handler3&gt;</span><br><span class="line">0040A42D  64:A1 00000000 mov eax,dword ptr fs:[0]</span><br><span class="line">0040A433  50       push eax</span><br><span class="line">0040A434  64:8925 0000000&gt;mov dword ptr fs:[0],esp</span><br><span class="line">0040A43B  83EC 68     sub esp,68</span><br><span class="line">0040A43E  53       push ebx</span><br><span class="line">0040A43F  56       push esi</span><br><span class="line">0040A440  57       push edi</span><br></pre></td></tr></table></figure>
+
+<p>MASM(汇编):</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">004035C9 &gt; 6A 00      push 0</span><br><span class="line">004035CB  E8 A20A0000   call &lt;jmp.&amp;kernel32.GetModuleHandleA&gt;</span><br><span class="line">004035D0  A3 5B704000   mov dword ptr ds:[40705B],eax</span><br><span class="line">004035D5  68 80000000   push 80</span><br><span class="line">004035DA  68 2C754000   push 11.0040752C</span><br><span class="line">004035DF  FF35 5B704000  push dword ptr ds:[40705B]</span><br><span class="line">004035E5  E8 820A0000   call &lt;jmp.&amp;kernel32.GetModuleFileNameA&gt;</span><br><span class="line">004035EA  E8 87070000   call 11.00403D76</span><br><span class="line">004035EF  6A 00      push 0</span><br><span class="line">004035F1  68 0B364000   push 11.0040360B</span><br><span class="line">004035F6  6A 00      push 0</span><br><span class="line">004035F8  6A 64      push 64</span><br><span class="line">004035FA  FF35 5B704000  push dword ptr ds:[40705B]</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%84%B1%E5%A3%B3/" rel="tag"># 脱壳</a>
+              <a href="/tags/windows/" rel="tag"># windows</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2018/01/27/java-collection/" rel="prev" title="java collection">
+                  <i class="fa fa-chevron-left"></i> java collection
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/07/25/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E7%9B%B8%E5%85%B3%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/" rel="next" title="模糊测试相关论文笔记">
+                  模糊测试相关论文笔记 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

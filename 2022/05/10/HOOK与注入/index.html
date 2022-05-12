@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="HookDalvik Hook主要是通过Java反射机制获取目标函数，然后再修改其method结构体的各个字段 由于Dalvik虚拟机所运行 的系统版本低于Android 5.0， 早期安全研究人员对Java层的Hook 的研究集中在Dalvik虚拟机上。 那个时期的Hook技术能够实现， 得益于如下三个方面。  Java语言的反射机制。 对Dalvik虚拟机中任何一个Java类的方法 进行Hoo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HOOK与注入">
+<meta property="og:url" content="http://dfault0.github.io/2022/05/10/HOOK%E4%B8%8E%E6%B3%A8%E5%85%A5/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="HookDalvik Hook主要是通过Java反射机制获取目标函数，然后再修改其method结构体的各个字段 由于Dalvik虚拟机所运行 的系统版本低于Android 5.0， 早期安全研究人员对Java层的Hook 的研究集中在Dalvik虚拟机上。 那个时期的Hook技术能够实现， 得益于如下三个方面。  Java语言的反射机制。 对Dalvik虚拟机中任何一个Java类的方法 进行Hoo">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-05-10T05:13:44.000Z">
+<meta property="article:modified_time" content="2022-05-10T07:01:26.656Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="Android安全">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/05/10/HOOK%E4%B8%8E%E6%B3%A8%E5%85%A5/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/05/10/HOOK%E4%B8%8E%E6%B3%A8%E5%85%A5/","path":"2022/05/10/HOOK与注入/","title":"HOOK与注入"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>HOOK与注入 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Hook"><span class="nav-number">1.</span> <span class="nav-text">Hook</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Dalvik-Hook"><span class="nav-number">1.1.</span> <span class="nav-text">Dalvik Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ART-Hook"><span class="nav-number">1.2.</span> <span class="nav-text">ART Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LD-PRE-LOAD-Hook"><span class="nav-number">1.3.</span> <span class="nav-text">LD_PRE LOAD Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GOT-Hook"><span class="nav-number">1.4.</span> <span class="nav-text">GOT Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lnline-Hook"><span class="nav-number">1.5.</span> <span class="nav-text">lnline Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Xposed-Hook%E6%A1%86%E6%9E%B6"><span class="nav-number">1.6.</span> <span class="nav-text">Xposed Hook框架</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E5%85%A5"><span class="nav-number">2.</span> <span class="nav-text">注入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#so%E5%8A%A8%E6%80%81%E6%B3%A8%E5%85%A5"><span class="nav-number">2.1.</span> <span class="nav-text">so动态注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DEX%E6%B3%A8%E5%85%A5"><span class="nav-number">2.2.</span> <span class="nav-text">DEX注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Frida%E6%B3%A8%E5%85%A5%E6%A1%86%E6%9E%B6"><span class="nav-number">2.3.</span> <span class="nav-text">Frida注入框架</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/05/10/HOOK%E4%B8%8E%E6%B3%A8%E5%85%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="HOOK与注入 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          HOOK与注入
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-05-10 13:13:44 / Modified: 15:01:26" itemprop="dateCreated datePublished" datetime="2022-05-10T13:13:44+08:00">2022-05-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android-Security/" itemprop="url" rel="index"><span itemprop="name">Android Security</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="Hook"><a href="#Hook" class="headerlink" title="Hook"></a>Hook</h1><h2 id="Dalvik-Hook"><a href="#Dalvik-Hook" class="headerlink" title="Dalvik Hook"></a>Dalvik Hook</h2><p><strong>主要是通过Java反射机制获取目标函数，然后再修改其method结构体的各个字段</strong></p>
+<p>由于Dalvik虚拟机所运行 的系统版本低于Android 5.0， 早期安全研究人员对Java层的Hook 的研究集中在Dalvik虚拟机上。 那个时期的Hook技术能够实现， 得益于如下三个方面。</p>
+<ol>
+<li>Java语言的反射机制。 对Dalvik虚拟机中任何一个Java类的方法 进行Hook，其本质就是 对Java语言中的Method类进行Hook操作。 通过Java 的反射机制，DEX文件中的代码很容 易就能访问自己内存空间中的 任何类的方法信息。 在Dalvik虚拟机中， 每个Java类的方法 都对 应于java&#x2F;lang&#x2F;reflect&#x2F;Method类。</li>
+<li>Dalvik虚拟机底层的Java方法实现。 在Dalvik虚拟机中，Java方法 的定义位于Android源 码文件 dalvik&#x2F;vm&#x2F;oo&#x2F;Object.h中。Method结构体中的字段完整地描述了一个Java方法的信息。 可以将它们的值修改为目标方 法的相应字段，就可以对其进行hook</li>
+<li>可以修改自身进程空间的内存。 在Linux类操作系统中 进程对自身内存 空间的数据有绝对的控制权。</li>
+</ol>
+<h2 id="ART-Hook"><a href="#ART-Hook" class="headerlink" title="ART Hook"></a>ART Hook</h2><p>ART出现：Android 5.0及更高的版本，其原理和Dalvik Hook类似，都是修改目标函数的字段</p>
+<ul>
+<li>在API24及之后版本的Android系统中， 通过 getDeclaredMethod()方法，返回的一 个AbstractMethod抽象 方法对象， </li>
+<li>然后， 通过调用getDeclared()获 取它的artMethod 字段， 进而获取它的具体的方法 类 。</li>
+<li>ArtMethod 类位于：art&#x2F;runtime&#x2F;art method.h中</li>
+</ul>
+<h2 id="LD-PRE-LOAD-Hook"><a href="#LD-PRE-LOAD-Hook" class="headerlink" title="LD_PRE LOAD Hook"></a>LD_PRE LOAD Hook</h2><p>LD_PRE LOAD Hook是Linux系统的一个环境变量</p>
+<ul>
+<li>动态链接：动态链接没有把函数编译到可执行文件中， 而 在程序运行时动态加载</li>
+<li>静态链接：把所有的函数全部编译到可执行文件中</li>
+</ul>
+<p>只需通过该环境变量预先 指定想要加载的动态链接库文件列表， 在程序运行时，系统就会优先加载这个动态链接库列表中 的动态库， 并通过它的函数信息来设置程序的.pit 节区中的函数。就可以达到hook的目的。</p>
+<h2 id="GOT-Hook"><a href="#GOT-Hook" class="headerlink" title="GOT Hook"></a>GOT Hook</h2><p><strong>思路：修改内存中ELF与so的符号指针</strong></p>
+<p>过程链接 表（Procedure Linkage Table, PL T ）、全局偏移量表（ Global Offset Table, GOT ）</p>
+<p>GOT存放再.data区中，可以被修改。在实施GOT Hook时， 出于对兼容性的考虑， 需要同时在.got 与.got.plt节区中查找要Hook 的函数 。</p>
+<p>使用GOT Hook自身程序：</p>
+<ol>
+<li>在自身程序代码中编写要替换的函数 。</li>
+<li>待程序加载后， 读取自身内存中的SectionHeader Table， 定 位 .got与.got.plt节区头的信息。 </li>
+<li>根据.got与.got.plt节区头的信息定位具体的节区。</li>
+<li>查找要替换的函数在内存中的地址。 </li>
+<li>用自己编写的函数的地址替换原函数的地址， 完成 Hook工作。</li>
+</ol>
+<p>GOT Hook外部程序：</p>
+<ol>
+<li>编写要替换的函数， 并将其编译成so动态库。 </li>
+<li>将so注入目标程序进程。</li>
+<li>根据目标内存中的Section Header Table， 定位.got与.got.pit节区头的信息。 </li>
+<li>根据.got与.got.pit节区头的信息定位具体的节区。 </li>
+<li>查找要替换的函数在目标内存中的地址。 </li>
+<li>用自己编写的so中要替换的函数的地址替换原函数的地址， 完成Hook工作。</li>
+</ol>
+<h2 id="lnline-Hook"><a href="#lnline-Hook" class="headerlink" title="lnline Hook"></a>lnline Hook</h2><p>其内联特性主要体现在修改目标函数开始处的汇编指令上。</p>
+<p>需要注意以下几点：</p>
+<ul>
+<li>对不同目标指令集的处理</li>
+<li>对跳转指令的处理，系统不同，跳转指令不同，以及修改了跳转指令之后是否会影响后面的指令的执行</li>
+<li>对多线程的支持</li>
+<li>小函数指令：修改了函数之后，其内存大小大于原来的函数，会影响程序的其他函数的代码。</li>
+<li>指令更新</li>
+</ul>
+<p>其hook步骤如下：</p>
+<ol>
+<li>在程序中编写替换函数。 </li>
+<li>使用 mprotect （）函数将目标函数代码段的属性更改为可写。</li>
+<li>保存 “ 现场” 。 定位到需要修改的函数的起始处， 保存 Inline Hook 起始处的指令（保存的 长度为 Inlink Hook 跳转指令的长度）。 同时， 保存当前寄存器的状态。 </li>
+<li>修改函数起始处的指令。 使用一个跳转指令去执行替换函数。 执行后， 根据需求， 可以选择 跳转回来或者放弃执行原函数。 例如， 对 ARM模式下的 ARM 指令， 可以使用 ld 「 pc, XXX  指令进行替换（XXX 表示要转去执行的函数的地址， 即之前在程序中编写的替换函数的地· 址）。 修改后， 别忘了刷新缓存。 在 ARM 平台上， 需要执行 cacheflush（）函数来刷新修 改后的目标函数的缓存。 </li>
+<li>使用 mprotect（）函数将目标函数代码段的属性改为只读与可执行。 如果不将属性修改回去， 在开启了 SELinux 的 Android 设备上， 程序的运行可能会因为代码段是可写与可执行的而 失败。</li>
+</ol>
+<h2 id="Xposed-Hook框架"><a href="#Xposed-Hook框架" class="headerlink" title="Xposed Hook框架"></a>Xposed Hook框架</h2><p>需要root设备</p>
+<p><strong>支持 Android Java层的Dalvik Hook和ART Hook，总的来说就像是在目标函数执行前后插入了想要的代码，或者直接替换原来的方法。</strong></p>
+<p>使用步骤：</p>
+<ol>
+<li>为其编写插件， Hook 我们所关心的 Java 方法。 </li>
+<li>通过 XC_MethodHook 接 口提供的 beforeHookedMethod（）方法， 可以在 Hook 的方法执行前添加想要执行的代码逻辑。</li>
+<li>也可 以使用 XC_MethodHook 接口提供的 afterHookedMethod（）方法， 在 Hook 的方法执行后添加相应的处 理代码。 </li>
+<li>也可以使用XC_MethodReplacement直接替换方法的所有实现。</li>
+</ol>
+<p>示例代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.content.Context;</span><br><span class="line"><span class="keyword">import</span> android.util.Log;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XC_MethodHook;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XC_MethodReplacement;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XposedBridge;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XposedHelpers;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CheckSNHook</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">XC_MethodReplacement</span> <span class="variable">replacementTrue</span> <span class="operator">=</span> XC_MethodReplacement.returnConstant(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CheckSNHook</span><span class="params">(ClassLoader cl)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line"></span><br><span class="line">        XposedBridge.log(<span class="string">&quot;hooking checkSN.&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Class</span> <span class="variable">clz</span> <span class="operator">=</span> (Class&lt;?&gt;) XposedHelpers.findClass(<span class="string">&quot;com.droider.crackme0201.MainActivity&quot;</span>, cl);</span><br><span class="line">            <span class="comment">//直接替换目标函数的返回值为true</span></span><br><span class="line">            XposedBridge.hookAllMethods(clz, <span class="string">&quot;checkSN&quot;</span>, replacementTrue);</span><br><span class="line">            <span class="comment">/*</span></span><br><span class="line"><span class="comment">            XposedHelpers.findAndHookMethod(clz,</span></span><br><span class="line"><span class="comment">                    &quot;checkSN&quot;,</span></span><br><span class="line"><span class="comment">                    String.class, String.class,</span></span><br><span class="line"><span class="comment">                    new XC_MethodHook() &#123;</span></span><br><span class="line"><span class="comment">                        @Override</span></span><br><span class="line"><span class="comment">                        protected void afterHookedMethod(MethodHookParam param)</span></span><br><span class="line"><span class="comment">                                throws Throwable &#123;</span></span><br><span class="line"><span class="comment">                            XposedBridge.log(&quot;CheckSN afterHookedMethod called.&quot;);</span></span><br><span class="line"><span class="comment">                            String s1 = (String) param.args[0];</span></span><br><span class="line"><span class="comment">                            String s2 = (String) param.args[1];</span></span><br><span class="line"><span class="comment">                            param.setResult(true);</span></span><br><span class="line"><span class="comment">                            super.afterHookedMethod(param);</span></span><br><span class="line"><span class="comment">                        &#125;</span></span><br><span class="line"><span class="comment">                    &#125;);</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        XposedBridge.log(<span class="string">&quot;hook checkSN done.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="注入"><a href="#注入" class="headerlink" title="注入"></a>注入</h1><h2 id="so动态注入"><a href="#so动态注入" class="headerlink" title="so动态注入"></a>so动态注入</h2><p>与Windows dll注入类似</p>
+<p>步骤：</p>
+<ol>
+<li>编写Native代码， 定义so 加载后需要执行的函数， 并将其编译成so文件。</li>
+<li>编写注入程序， 实现远程进程注入。 注入程序使用Native代码编写， 并需要使用ptrace系 统的进程调试接口函数。</li>
+<li>将so文件注入目标进程。</li>
+<li>运行so文件中指定的函数。</li>
+</ol>
+<p>注入程序的注入流程：</p>
+<ol>
+<li>调用ptrace_attach（）附加进程。</li>
+<li>调用 ptrace_getregs（）获取目标进程的寄存器信息， 并将它们保存起来。 在注入过程中 ， 它们的值会被修改。 注入后 ， 需要将它们恢复为原始值。 </li>
+<li>获取目标进程mmap（）函数的地址 ， 并调用它为so文件分配内存空间。</li>
+<li>调用ptrace_writedata（）， 将so文件的内容写入目标进程。</li>
+<li>获取目标进程dlopen（）与dlsym（）等函数的地址。</li>
+<li>调用ptrace_writedata（）， 将需要执行的函数的参数信息写入目标进程。</li>
+<li>调用dlopen（）与dlsym（）获取需要执行的函数在so文件中加载后的地址。 ③调用ptrace_setregs（）恢复进程的寄存器信息。 </li>
+<li>调用ptrace_detach（）取消对目标进程的附加。</li>
+</ol>
+<h2 id="DEX注入"><a href="#DEX注入" class="headerlink" title="DEX注入"></a>DEX注入</h2><p>将dex文件或者apk文件加载到目标apk中运行的技术称为”DEX注入”</p>
+<p>步骤如下：</p>
+<ol>
+<li>编写Java代码， 并将其编译成DEX或APK文件。 </li>
+<li>编写 Native代码， 定义so加载后需要执行的函数（它的内容必须包含加载DEX的代码）， 将其编译成so文件。 调用系统的DexClassLoader、 来加载DEX或APK文件。</li>
+<li>编写注入程序， 实现远程进程注入。 这一步与so动态库注入是一样的。 </li>
+<li>将so文件注入目标进程。</li>
+<li>运行so文件中指定的函数。</li>
+</ol>
+<h2 id="Frida注入框架"><a href="#Frida注入框架" class="headerlink" title="Frida注入框架"></a>Frida注入框架</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh interface portproxy add v4tov4 listenport=8888 listenaddress=10.0.2.15 connectport=21513 connectaddress=127.0.0.1</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="https://github.com/feicong/androidbook">https://github.com/feicong/androidbook</a></p>
+<p>Android软件安全权威指南-非虫</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android%E5%AE%89%E5%85%A8/" rel="tag"># Android安全</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/05/09/NDK%E5%BC%80%E5%8F%91/" rel="prev" title="NDK开发">
+                  <i class="fa fa-chevron-left"></i> NDK开发
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

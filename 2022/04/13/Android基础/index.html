@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220413191810.png">
 <meta property="article:published_time" content="2022-04-13T11:04:30.000Z">
-<meta property="article:modified_time" content="2022-04-23T05:20:31.960Z">
+<meta property="article:modified_time" content="2022-05-06T13:30:38.842Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="基础知识">
@@ -127,7 +127,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.</span> <span class="nav-text">Activity生命周期</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Activity%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.</span> <span class="nav-text">Activity生命周期</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Android%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">Android基本知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ART-amp-Dalvik-amp-JVM"><span class="nav-number">2.1.</span> <span class="nav-text">ART &amp; Dalvik &amp; JVM</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -140,18 +140,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -226,7 +226,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-23 13:20:31" itemprop="dateModified" datetime="2022-04-23T13:20:31+08:00">2022-04-23</time>
+      <time title="Modified: 2022-05-06 21:30:38" itemprop="dateModified" datetime="2022-05-06T21:30:38+08:00">2022-05-06</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -255,6 +255,33 @@
         <h1 id="Activity生命周期"><a href="#Activity生命周期" class="headerlink" title="Activity生命周期"></a>Activity生命周期</h1><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220413191810.png" style="zoom:40%;" />
 
 <span id="more"></span>
+
+<h1 id="Android基本知识"><a href="#Android基本知识" class="headerlink" title="Android基本知识"></a>Android基本知识</h1><h2 id="ART-amp-Dalvik-amp-JVM"><a href="#ART-amp-Dalvik-amp-JVM" class="headerlink" title="ART &amp; Dalvik &amp; JVM"></a>ART &amp; Dalvik &amp; JVM</h2><p><strong>Dalvik:</strong></p>
+<ul>
+<li>基于寄存器，运行dex文件</li>
+<li>.dex格式是专为Dalvik设计的一种压缩格式，适合内存和处理器速度有限的系统</li>
+<li>每一个Dalvik 应用作为一个独立的Linux 进程执行</li>
+<li>实现在libdvm.so中</li>
+<li>应用每次运行的时候，字节码都需要通过即时编译器（just in time ，JIT）转换为机器码（这回拖慢程序的运行）</li>
+</ul>
+<p><strong>ART：</strong></p>
+<ul>
+<li>Android runtime</li>
+<li><strong>预编译（AOT ahead-of-time</strong>）:应用在第一次安装的时候，字节码就会预先编译成机器码，使其成为真正的本地应用，</li>
+<li>ART包括一个编译器（dex2oat工具）和一起启动Zygote而加载的运行时（libart.so）。</li>
+<li>怎么对其进行apk进行编译可以进行配置（安装的时候就全部编译、前几次运行记录下常执行的方法，然后对其进行AOT编译等）</li>
+<li>dex2oat接受一个apk文件，并生成多个编译工件文件，然后运行时会加载这些文件。在Android O版本中，会生成一下文件<ul>
+<li>.vedx:其中包含apk的未压缩dex代码，以及一些旨在加快验证速度的元数据</li>
+<li>.odex:包含APK中已经经过AOT编译的方法的代码</li>
+<li>.art(optional):包含APK中列出的某些字符串和类的ART内部表示，用于加快应用启动速度</li>
+</ul>
+</li>
+</ul>
+<p><strong>jvm（Java Virtual Machine）:</strong></p>
+<ul>
+<li>基于栈，运行Java字节码</li>
+</ul>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p>art详解：<a target="_blank" rel="noopener" href="https://sufushi.github.io/2017/10/27/ART%E6%9C%BA%E5%88%B6%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3/">https://sufushi.github.io/2017/10/27/ART%E6%9C%BA%E5%88%B6%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3/</a></p>
 
     </div>
 
