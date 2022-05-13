@@ -133,18 +133,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">24</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -173,6 +173,98 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/07/25/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E7%9B%B8%E5%85%B3%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/07/25/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E7%9B%B8%E5%85%B3%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">模糊测试相关论文笔记</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-07-25 18:32:14" itemprop="dateCreated datePublished" datetime="2021-07-25T18:32:14+08:00">2021-07-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-05-13 12:03:00" itemprop="dateModified" datetime="2022-05-13T12:03:00+08:00">2022-05-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/fuzzing/" itemprop="url" rel="index"><span itemprop="name">fuzzing</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="1-IOTFUZZER-Discovering-Memory-Corruptions-in-IoT-Through-App-based-Fuzzing"><a href="#1-IOTFUZZER-Discovering-Memory-Corruptions-in-IoT-Through-App-based-Fuzzing" class="headerlink" title="1.IOTFUZZER: Discovering Memory Corruptions in IoT Through App-based Fuzzing"></a>1.IOTFUZZER: Discovering Memory Corruptions in IoT Through App-based Fuzzing</h1><h2 id="摘要："><a href="#摘要：" class="headerlink" title="摘要："></a>摘要：</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Existing binary analysis based approaches only work on firmware, which is less accessible except for those equipped with special tools for extracting the code from the device.</span><br><span class="line">现有的二进制分析的方法只能在固件上面工作，但是除了配备特殊工具的设备外，固件的获取具有一定的难度。</span><br><span class="line"> IOTFUZZER：自动fuzzing框架，目的是查找物联网设备中的内存损坏漏洞（不需要获取其固件镜像）</span><br><span class="line"> </span><br><span class="line">The key idea ：most IoT devices are controlled through their official mobile apps, and such an app often contains rich information about the protocol it uses to communicate with its device. </span><br><span class="line">主要思想：大多数的物联网设备是由APP控制的，这些APP中有与其交互的各种协议</span><br><span class="line"></span><br><span class="line"> Therefore, by identifying and reusing program-specific logic (e.g., encryption) to mutate the test case (particularly message fields), we are able to effectively probe IoT targets without relying on any knowledge about its protocol specifications. </span><br><span class="line"> 通过识别和重用APP特定的逻辑来变异测试用例，我们就可以有效得探测物联网目标，而不依赖于任何关于其协议规范的知识</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/25/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E7%9B%B8%E5%85%B3%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -218,7 +310,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-05-08 16:11:48" itemprop="dateModified" datetime="2022-05-08T16:11:48+08:00">2022-05-08</time>
+      <time title="Modified: 2022-05-13 12:09:24" itemprop="dateModified" datetime="2022-05-13T12:09:24+08:00">2022-05-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -500,7 +592,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-23 13:21:10" itemprop="dateModified" datetime="2022-04-23T13:21:10+08:00">2022-04-23</time>
+      <time title="Modified: 2022-05-13 12:08:23" itemprop="dateModified" datetime="2022-05-13T12:08:23+08:00">2022-05-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -597,7 +689,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-04-23 13:21:03" itemprop="dateModified" datetime="2022-04-23T13:21:03+08:00">2022-04-23</time>
+      <time title="Modified: 2022-05-13 12:12:22" itemprop="dateModified" datetime="2022-05-13T12:12:22+08:00">2022-05-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
