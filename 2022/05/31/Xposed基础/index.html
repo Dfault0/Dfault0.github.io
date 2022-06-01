@@ -20,15 +20,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="环境搭建官方的xposed只更新到了Android8.1（sdk 27）,以后的版本如果要安装xposed框架需要安装别的扩展框架，比如：Edxposed Xposed框架原理 init 进程负责创建 zygote 进程。  控制zygote进程：通过替换&#x2F;system&#x2F;bin&#x2F;app_precesss程序（zygote的可执行程序）控制zygote进程，  使得它在">
+    <meta name="description" content="Xposed框架原理 init 进程负责创建 zygote 进程。  控制zygote进程：通过替换&#x2F;system&#x2F;bin&#x2F;app_precesss程序（zygote的可执行程序）控制zygote进程，  使得它在系统启动的过程种 会加载Xposed framework的一个jar文件，即XposedBridge.jar，  从而完成对Zygote进程及其创建的D">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Xposed基础">
 <meta property="og:url" content="http://dfault0.github.io/2022/05/31/Xposed%E5%9F%BA%E7%A1%80/index.html">
 <meta property="og:site_name" content="Dfault0&#39;s blog">
-<meta property="og:description" content="环境搭建官方的xposed只更新到了Android8.1（sdk 27）,以后的版本如果要安装xposed框架需要安装别的扩展框架，比如：Edxposed Xposed框架原理 init 进程负责创建 zygote 进程。  控制zygote进程：通过替换&#x2F;system&#x2F;bin&#x2F;app_precesss程序（zygote的可执行程序）控制zygote进程，  使得它在">
+<meta property="og:description" content="Xposed框架原理 init 进程负责创建 zygote 进程。  控制zygote进程：通过替换&#x2F;system&#x2F;bin&#x2F;app_precesss程序（zygote的可执行程序）控制zygote进程，  使得它在系统启动的过程种 会加载Xposed framework的一个jar文件，即XposedBridge.jar，  从而完成对Zygote进程及其创建的D">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-05-31T05:24:46.000Z">
-<meta property="article:modified_time" content="2022-06-01T03:24:43.529Z">
+<meta property="article:modified_time" content="2022-06-01T04:03:48.789Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="Android安全">
 <meta name="twitter:card" content="summary">
@@ -124,7 +124,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Xposed%E6%A1%86%E6%9E%B6%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">Xposed框架原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hook%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">hook测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E8%BF%9E%E6%8E%A5"><span class="nav-number">4.</span> <span class="nav-text">相关连接</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Xposed%E6%A1%86%E6%9E%B6%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">Xposed框架原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hook%E6%B5%8B%E8%AF%95"><span class="nav-number">2.</span> <span class="nav-text">hook测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E8%BF%9E%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">相关连接</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -223,7 +223,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-06-01 11:24:43" itemprop="dateModified" datetime="2022-06-01T11:24:43+08:00">2022-06-01</time>
+      <time title="Modified: 2022-06-01 12:03:48" itemprop="dateModified" datetime="2022-06-01T12:03:48+08:00">2022-06-01</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -249,7 +249,8 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>官方的xposed只更新到了Android8.1（sdk 27）,以后的版本如果要安装xposed框架需要安装别的扩展框架，比如：Edxposed</p>
+        <span id="more"></span>
+
 <h1 id="Xposed框架原理"><a href="#Xposed框架原理" class="headerlink" title="Xposed框架原理"></a>Xposed框架原理</h1><ul>
 <li><p>init 进程负责创建 zygote 进程。</p>
 </li>

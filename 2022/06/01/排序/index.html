@@ -20,15 +20,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="Bubble sort分为向前冒泡，还是向后冒。 原理：比较相邻得两个元素，如果前者大于后者，则交换两个得顺序，一趟遍历之后，最后一个位置得元素得值是最大的。 代码： 1234567for(int i &#x3D; 0;i&lt;nums.length-1;i++)&amp;#123;    for(int j &#x3D; 1;j&lt;nums.length-i;j++)&amp;#123;        if(nums[j]&amp;">
+    <meta name="description" content="Bubble sort分为向前冒泡，还是向后冒。 原理：比较相邻得两个元素，如果前者大于后者，则交换两个得顺序，一趟遍历之后，最后一个位置得元素得值是最大的。 代码： 1234567for(int i &#x3D; 0;i&lt;nums.length-1;i++)&amp;#123;    for(int j &#x3D; 1;j&lt;nums.length-i;j++)&amp;#123;        if(nums[j">
 <meta property="og:type" content="article">
 <meta property="og:title" content="排序">
 <meta property="og:url" content="http://dfault0.github.io/2022/06/01/%E6%8E%92%E5%BA%8F/index.html">
 <meta property="og:site_name" content="Dfault0&#39;s blog">
-<meta property="og:description" content="Bubble sort分为向前冒泡，还是向后冒。 原理：比较相邻得两个元素，如果前者大于后者，则交换两个得顺序，一趟遍历之后，最后一个位置得元素得值是最大的。 代码： 1234567for(int i &#x3D; 0;i&lt;nums.length-1;i++)&amp;#123;    for(int j &#x3D; 1;j&lt;nums.length-i;j++)&amp;#123;        if(nums[j]&amp;">
+<meta property="og:description" content="Bubble sort分为向前冒泡，还是向后冒。 原理：比较相邻得两个元素，如果前者大于后者，则交换两个得顺序，一趟遍历之后，最后一个位置得元素得值是最大的。 代码： 1234567for(int i &#x3D; 0;i&lt;nums.length-1;i++)&amp;#123;    for(int j &#x3D; 1;j&lt;nums.length-i;j++)&amp;#123;        if(nums[j">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-06-01T01:06:10.000Z">
-<meta property="article:modified_time" content="2022-06-01T02:03:40.754Z">
+<meta property="article:modified_time" content="2022-06-01T04:03:33.249Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="code">
 <meta name="twitter:card" content="summary">
@@ -217,7 +217,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2022-06-01 09:06:10 / Modified: 10:03:40" itemprop="dateCreated datePublished" datetime="2022-06-01T09:06:10+08:00">2022-06-01</time>
+      <time title="Created: 2022-06-01 09:06:10 / Modified: 12:03:33" itemprop="dateCreated datePublished" datetime="2022-06-01T09:06:10+08:00">2022-06-01</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -243,7 +243,9 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="Bubble-sort"><a href="#Bubble-sort" class="headerlink" title="Bubble sort"></a>Bubble sort</h1><p>分为向前冒泡，还是向后冒。</p>
+        <span id="more"></span>
+
+<h1 id="Bubble-sort"><a href="#Bubble-sort" class="headerlink" title="Bubble sort"></a>Bubble sort</h1><p>分为向前冒泡，还是向后冒。</p>
 <p>原理：比较相邻得两个元素，如果前者大于后者，则交换两个得顺序，一趟遍历之后，最后一个位置得元素得值是最大的。</p>
 <p>代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;i&lt;nums.length-<span class="number">1</span>;i++)&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>;j&lt;nums.length-i;j++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums[j]&lt;nums[j-<span class="number">1</span>])&#123;</span><br><span class="line">			swap(nums[j],nums[j-<span class="number">1</span>]);</span><br><span class="line">		&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

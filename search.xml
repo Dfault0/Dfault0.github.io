@@ -422,119 +422,6 @@
       </tags>
   </entry>
   <entry>
-    <title>HOOK与注入</title>
-    <url>/2022/05/10/HOOK%E4%B8%8E%E6%B3%A8%E5%85%A5/</url>
-    <content><![CDATA[<h1 id="Hook"><a href="#Hook" class="headerlink" title="Hook"></a>Hook</h1><h2 id="Dalvik-Hook"><a href="#Dalvik-Hook" class="headerlink" title="Dalvik Hook"></a>Dalvik Hook</h2><p><strong>主要是通过Java反射机制获取目标函数，然后再修改其method结构体的各个字段</strong></p>
-<p>由于Dalvik虚拟机所运行 的系统版本低于Android 5.0， 早期安全研究人员对Java层的Hook 的研究集中在Dalvik虚拟机上。 那个时期的Hook技术能够实现， 得益于如下三个方面。</p>
-<ol>
-<li>Java语言的反射机制。 对Dalvik虚拟机中任何一个Java类的方法 进行Hook，其本质就是 对Java语言中的Method类进行Hook操作。 通过Java 的反射机制，DEX文件中的代码很容 易就能访问自己内存空间中的 任何类的方法信息。 在Dalvik虚拟机中， 每个Java类的方法 都对 应于java&#x2F;lang&#x2F;reflect&#x2F;Method类。</li>
-<li>Dalvik虚拟机底层的Java方法实现。 在Dalvik虚拟机中，Java方法 的定义位于Android源 码文件 dalvik&#x2F;vm&#x2F;oo&#x2F;Object.h中。Method结构体中的字段完整地描述了一个Java方法的信息。 可以将它们的值修改为目标方 法的相应字段，就可以对其进行hook</li>
-<li>可以修改自身进程空间的内存。 在Linux类操作系统中 进程对自身内存 空间的数据有绝对的控制权。</li>
-</ol>
-<h2 id="ART-Hook"><a href="#ART-Hook" class="headerlink" title="ART Hook"></a>ART Hook</h2><p>ART出现：Android 5.0及更高的版本，其原理和Dalvik Hook类似，都是修改目标函数的字段</p>
-<ul>
-<li>在API24及之后版本的Android系统中， 通过 getDeclaredMethod()方法，返回的一 个AbstractMethod抽象 方法对象， </li>
-<li>然后， 通过调用getDeclared()获 取它的artMethod 字段， 进而获取它的具体的方法 类 。</li>
-<li>ArtMethod 类位于：art&#x2F;runtime&#x2F;art method.h中</li>
-</ul>
-<h2 id="LD-PRE-LOAD-Hook"><a href="#LD-PRE-LOAD-Hook" class="headerlink" title="LD_PRE LOAD Hook"></a>LD_PRE LOAD Hook</h2><p>LD_PRE LOAD Hook是Linux系统的一个环境变量</p>
-<ul>
-<li>动态链接：动态链接没有把函数编译到可执行文件中， 而 在程序运行时动态加载</li>
-<li>静态链接：把所有的函数全部编译到可执行文件中</li>
-</ul>
-<p>只需通过该环境变量预先 指定想要加载的动态链接库文件列表， 在程序运行时，系统就会优先加载这个动态链接库列表中 的动态库， 并通过它的函数信息来设置程序的.pit 节区中的函数。就可以达到hook的目的。</p>
-<h2 id="GOT-Hook"><a href="#GOT-Hook" class="headerlink" title="GOT Hook"></a>GOT Hook</h2><p><strong>思路：修改内存中ELF与so的符号指针</strong></p>
-<p>过程链接 表（Procedure Linkage Table, PL T ）、全局偏移量表（ Global Offset Table, GOT ）</p>
-<p>GOT存放再.data区中，可以被修改。在实施GOT Hook时， 出于对兼容性的考虑， 需要同时在.got 与.got.plt节区中查找要Hook 的函数 。</p>
-<p>使用GOT Hook自身程序：</p>
-<ol>
-<li>在自身程序代码中编写要替换的函数 。</li>
-<li>待程序加载后， 读取自身内存中的SectionHeader Table， 定 位 .got与.got.plt节区头的信息。 </li>
-<li>根据.got与.got.plt节区头的信息定位具体的节区。</li>
-<li>查找要替换的函数在内存中的地址。 </li>
-<li>用自己编写的函数的地址替换原函数的地址， 完成 Hook工作。</li>
-</ol>
-<p>GOT Hook外部程序：</p>
-<ol>
-<li>编写要替换的函数， 并将其编译成so动态库。 </li>
-<li>将so注入目标程序进程。</li>
-<li>根据目标内存中的Section Header Table， 定位.got与.got.pit节区头的信息。 </li>
-<li>根据.got与.got.pit节区头的信息定位具体的节区。 </li>
-<li>查找要替换的函数在目标内存中的地址。 </li>
-<li>用自己编写的so中要替换的函数的地址替换原函数的地址， 完成Hook工作。</li>
-</ol>
-<h2 id="lnline-Hook"><a href="#lnline-Hook" class="headerlink" title="lnline Hook"></a>lnline Hook</h2><p>其内联特性主要体现在修改目标函数开始处的汇编指令上。</p>
-<p>需要注意以下几点：</p>
-<ul>
-<li>对不同目标指令集的处理</li>
-<li>对跳转指令的处理，系统不同，跳转指令不同，以及修改了跳转指令之后是否会影响后面的指令的执行</li>
-<li>对多线程的支持</li>
-<li>小函数指令：修改了函数之后，其内存大小大于原来的函数，会影响程序的其他函数的代码。</li>
-<li>指令更新</li>
-</ul>
-<p>其hook步骤如下：</p>
-<ol>
-<li>在程序中编写替换函数。 </li>
-<li>使用 mprotect （）函数将目标函数代码段的属性更改为可写。</li>
-<li>保存 “ 现场” 。 定位到需要修改的函数的起始处， 保存 Inline Hook 起始处的指令（保存的 长度为 Inlink Hook 跳转指令的长度）。 同时， 保存当前寄存器的状态。 </li>
-<li>修改函数起始处的指令。 使用一个跳转指令去执行替换函数。 执行后， 根据需求， 可以选择 跳转回来或者放弃执行原函数。 例如， 对 ARM模式下的 ARM 指令， 可以使用 ld 「 pc, XXX  指令进行替换（XXX 表示要转去执行的函数的地址， 即之前在程序中编写的替换函数的地· 址）。 修改后， 别忘了刷新缓存。 在 ARM 平台上， 需要执行 cacheflush（）函数来刷新修 改后的目标函数的缓存。 </li>
-<li>使用 mprotect（）函数将目标函数代码段的属性改为只读与可执行。 如果不将属性修改回去， 在开启了 SELinux 的 Android 设备上， 程序的运行可能会因为代码段是可写与可执行的而 失败。</li>
-</ol>
-<h2 id="Xposed-Hook框架"><a href="#Xposed-Hook框架" class="headerlink" title="Xposed Hook框架"></a>Xposed Hook框架</h2><p>需要root设备</p>
-<p><strong>支持 Android Java层的Dalvik Hook和ART Hook，总的来说就像是在目标函数执行前后插入了想要的代码，或者直接替换原来的方法。</strong></p>
-<p>使用步骤：</p>
-<ol>
-<li>为其编写插件， Hook 我们所关心的 Java 方法。 </li>
-<li>通过 XC_MethodHook 接 口提供的 beforeHookedMethod（）方法， 可以在 Hook 的方法执行前添加想要执行的代码逻辑。</li>
-<li>也可 以使用 XC_MethodHook 接口提供的 afterHookedMethod（）方法， 在 Hook 的方法执行后添加相应的处 理代码。 </li>
-<li>也可以使用XC_MethodReplacement直接替换方法的所有实现。</li>
-</ol>
-<p>示例代码</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.content.Context;</span><br><span class="line"><span class="keyword">import</span> android.util.Log;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XC_MethodHook;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XC_MethodReplacement;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XposedBridge;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XposedHelpers;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CheckSNHook</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">XC_MethodReplacement</span> <span class="variable">replacementTrue</span> <span class="operator">=</span> XC_MethodReplacement.returnConstant(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CheckSNHook</span><span class="params">(ClassLoader cl)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line"></span><br><span class="line">        XposedBridge.log(<span class="string">&quot;hooking checkSN.&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Class</span> <span class="variable">clz</span> <span class="operator">=</span> (Class&lt;?&gt;) XposedHelpers.findClass(<span class="string">&quot;com.droider.crackme0201.MainActivity&quot;</span>, cl);</span><br><span class="line">            <span class="comment">//直接替换目标函数的返回值为true</span></span><br><span class="line">            XposedBridge.hookAllMethods(clz, <span class="string">&quot;checkSN&quot;</span>, replacementTrue);</span><br><span class="line">            <span class="comment">/*</span></span><br><span class="line"><span class="comment">            XposedHelpers.findAndHookMethod(clz,</span></span><br><span class="line"><span class="comment">                    &quot;checkSN&quot;,</span></span><br><span class="line"><span class="comment">                    String.class, String.class,</span></span><br><span class="line"><span class="comment">                    new XC_MethodHook() &#123;</span></span><br><span class="line"><span class="comment">                        @Override</span></span><br><span class="line"><span class="comment">                        protected void afterHookedMethod(MethodHookParam param)</span></span><br><span class="line"><span class="comment">                                throws Throwable &#123;</span></span><br><span class="line"><span class="comment">                            XposedBridge.log(&quot;CheckSN afterHookedMethod called.&quot;);</span></span><br><span class="line"><span class="comment">                            String s1 = (String) param.args[0];</span></span><br><span class="line"><span class="comment">                            String s2 = (String) param.args[1];</span></span><br><span class="line"><span class="comment">                            param.setResult(true);</span></span><br><span class="line"><span class="comment">                            super.afterHookedMethod(param);</span></span><br><span class="line"><span class="comment">                        &#125;</span></span><br><span class="line"><span class="comment">                    &#125;);</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        XposedBridge.log(<span class="string">&quot;hook checkSN done.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="注入"><a href="#注入" class="headerlink" title="注入"></a>注入</h1><h2 id="so动态注入"><a href="#so动态注入" class="headerlink" title="so动态注入"></a>so动态注入</h2><p>与Windows dll注入类似</p>
-<p>步骤：</p>
-<ol>
-<li>编写Native代码， 定义so 加载后需要执行的函数， 并将其编译成so文件。</li>
-<li>编写注入程序， 实现远程进程注入。 注入程序使用Native代码编写， 并需要使用ptrace系 统的进程调试接口函数。</li>
-<li>将so文件注入目标进程。</li>
-<li>运行so文件中指定的函数。</li>
-</ol>
-<p>注入程序的注入流程：</p>
-<ol>
-<li>调用ptrace_attach（）附加进程。</li>
-<li>调用 ptrace_getregs（）获取目标进程的寄存器信息， 并将它们保存起来。 在注入过程中 ， 它们的值会被修改。 注入后 ， 需要将它们恢复为原始值。 </li>
-<li>获取目标进程mmap（）函数的地址 ， 并调用它为so文件分配内存空间。</li>
-<li>调用ptrace_writedata（）， 将so文件的内容写入目标进程。</li>
-<li>获取目标进程dlopen（）与dlsym（）等函数的地址。</li>
-<li>调用ptrace_writedata（）， 将需要执行的函数的参数信息写入目标进程。</li>
-<li>调用dlopen（）与dlsym（）获取需要执行的函数在so文件中加载后的地址。 ③调用ptrace_setregs（）恢复进程的寄存器信息。 </li>
-<li>调用ptrace_detach（）取消对目标进程的附加。</li>
-</ol>
-<h2 id="DEX注入"><a href="#DEX注入" class="headerlink" title="DEX注入"></a>DEX注入</h2><p>将dex文件或者apk文件加载到目标apk中运行的技术称为”DEX注入”</p>
-<p>步骤如下：</p>
-<ol>
-<li>编写Java代码， 并将其编译成DEX或APK文件。 </li>
-<li>编写 Native代码， 定义so加载后需要执行的函数（它的内容必须包含加载DEX的代码）， 将其编译成so文件。 调用系统的DexClassLoader、 来加载DEX或APK文件。</li>
-<li>编写注入程序， 实现远程进程注入。 这一步与so动态库注入是一样的。 </li>
-<li>将so文件注入目标进程。</li>
-<li>运行so文件中指定的函数。</li>
-</ol>
-<h2 id="Frida注入框架"><a href="#Frida注入框架" class="headerlink" title="Frida注入框架"></a>Frida注入框架</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">netsh interface portproxy add v4tov4 listenport=8888 listenaddress=10.0.2.15 connectport=21513 connectaddress=127.0.0.1</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://github.com/feicong/androidbook">https://github.com/feicong/androidbook</a></p>
-<p>Android软件安全权威指南-非虫</p>
-]]></content>
-      <categories>
-        <category>Android</category>
-        <category>Android安全</category>
-      </categories>
-      <tags>
-        <tag>Android安全</tag>
-        <tag>HOOK &amp; 注入</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NDK开发</title>
     <url>/2022/05/09/NDK%E5%BC%80%E5%8F%91/</url>
     <content><![CDATA[<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><p>静态方法可以直接由类名来进行调用</p>
@@ -648,6 +535,119 @@
       <tags>
         <tag>code</tag>
         <tag>NDK</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HOOK与注入</title>
+    <url>/2022/05/10/HOOK%E4%B8%8E%E6%B3%A8%E5%85%A5/</url>
+    <content><![CDATA[<h1 id="Hook"><a href="#Hook" class="headerlink" title="Hook"></a>Hook</h1><h2 id="Dalvik-Hook"><a href="#Dalvik-Hook" class="headerlink" title="Dalvik Hook"></a>Dalvik Hook</h2><p><strong>主要是通过Java反射机制获取目标函数，然后再修改其method结构体的各个字段</strong></p>
+<p>由于Dalvik虚拟机所运行 的系统版本低于Android 5.0， 早期安全研究人员对Java层的Hook 的研究集中在Dalvik虚拟机上。 那个时期的Hook技术能够实现， 得益于如下三个方面。</p>
+<ol>
+<li>Java语言的反射机制。 对Dalvik虚拟机中任何一个Java类的方法 进行Hook，其本质就是 对Java语言中的Method类进行Hook操作。 通过Java 的反射机制，DEX文件中的代码很容 易就能访问自己内存空间中的 任何类的方法信息。 在Dalvik虚拟机中， 每个Java类的方法 都对 应于java&#x2F;lang&#x2F;reflect&#x2F;Method类。</li>
+<li>Dalvik虚拟机底层的Java方法实现。 在Dalvik虚拟机中，Java方法 的定义位于Android源 码文件 dalvik&#x2F;vm&#x2F;oo&#x2F;Object.h中。Method结构体中的字段完整地描述了一个Java方法的信息。 可以将它们的值修改为目标方 法的相应字段，就可以对其进行hook</li>
+<li>可以修改自身进程空间的内存。 在Linux类操作系统中 进程对自身内存 空间的数据有绝对的控制权。</li>
+</ol>
+<h2 id="ART-Hook"><a href="#ART-Hook" class="headerlink" title="ART Hook"></a>ART Hook</h2><p>ART出现：Android 5.0及更高的版本，其原理和Dalvik Hook类似，都是修改目标函数的字段</p>
+<ul>
+<li>在API24及之后版本的Android系统中， 通过 getDeclaredMethod()方法，返回的一 个AbstractMethod抽象 方法对象， </li>
+<li>然后， 通过调用getDeclared()获 取它的artMethod 字段， 进而获取它的具体的方法 类 。</li>
+<li>ArtMethod 类位于：art&#x2F;runtime&#x2F;art method.h中</li>
+</ul>
+<h2 id="LD-PRE-LOAD-Hook"><a href="#LD-PRE-LOAD-Hook" class="headerlink" title="LD_PRE LOAD Hook"></a>LD_PRE LOAD Hook</h2><p>LD_PRE LOAD Hook是Linux系统的一个环境变量</p>
+<ul>
+<li>动态链接：动态链接没有把函数编译到可执行文件中， 而 在程序运行时动态加载</li>
+<li>静态链接：把所有的函数全部编译到可执行文件中</li>
+</ul>
+<p>只需通过该环境变量预先 指定想要加载的动态链接库文件列表， 在程序运行时，系统就会优先加载这个动态链接库列表中 的动态库， 并通过它的函数信息来设置程序的.pit 节区中的函数。就可以达到hook的目的。</p>
+<h2 id="GOT-Hook"><a href="#GOT-Hook" class="headerlink" title="GOT Hook"></a>GOT Hook</h2><p><strong>思路：修改内存中ELF与so的符号指针</strong></p>
+<p>过程链接 表（Procedure Linkage Table, PL T ）、全局偏移量表（ Global Offset Table, GOT ）</p>
+<p>GOT存放再.data区中，可以被修改。在实施GOT Hook时， 出于对兼容性的考虑， 需要同时在.got 与.got.plt节区中查找要Hook 的函数 。</p>
+<p>使用GOT Hook自身程序：</p>
+<ol>
+<li>在自身程序代码中编写要替换的函数 。</li>
+<li>待程序加载后， 读取自身内存中的SectionHeader Table， 定 位 .got与.got.plt节区头的信息。 </li>
+<li>根据.got与.got.plt节区头的信息定位具体的节区。</li>
+<li>查找要替换的函数在内存中的地址。 </li>
+<li>用自己编写的函数的地址替换原函数的地址， 完成 Hook工作。</li>
+</ol>
+<p>GOT Hook外部程序：</p>
+<ol>
+<li>编写要替换的函数， 并将其编译成so动态库。 </li>
+<li>将so注入目标程序进程。</li>
+<li>根据目标内存中的Section Header Table， 定位.got与.got.pit节区头的信息。 </li>
+<li>根据.got与.got.pit节区头的信息定位具体的节区。 </li>
+<li>查找要替换的函数在目标内存中的地址。 </li>
+<li>用自己编写的so中要替换的函数的地址替换原函数的地址， 完成Hook工作。</li>
+</ol>
+<h2 id="lnline-Hook"><a href="#lnline-Hook" class="headerlink" title="lnline Hook"></a>lnline Hook</h2><p>其内联特性主要体现在修改目标函数开始处的汇编指令上。</p>
+<p>需要注意以下几点：</p>
+<ul>
+<li>对不同目标指令集的处理</li>
+<li>对跳转指令的处理，系统不同，跳转指令不同，以及修改了跳转指令之后是否会影响后面的指令的执行</li>
+<li>对多线程的支持</li>
+<li>小函数指令：修改了函数之后，其内存大小大于原来的函数，会影响程序的其他函数的代码。</li>
+<li>指令更新</li>
+</ul>
+<p>其hook步骤如下：</p>
+<ol>
+<li>在程序中编写替换函数。 </li>
+<li>使用 mprotect （）函数将目标函数代码段的属性更改为可写。</li>
+<li>保存 “ 现场” 。 定位到需要修改的函数的起始处， 保存 Inline Hook 起始处的指令（保存的 长度为 Inlink Hook 跳转指令的长度）。 同时， 保存当前寄存器的状态。 </li>
+<li>修改函数起始处的指令。 使用一个跳转指令去执行替换函数。 执行后， 根据需求， 可以选择 跳转回来或者放弃执行原函数。 例如， 对 ARM模式下的 ARM 指令， 可以使用 ld 「 pc, XXX  指令进行替换（XXX 表示要转去执行的函数的地址， 即之前在程序中编写的替换函数的地· 址）。 修改后， 别忘了刷新缓存。 在 ARM 平台上， 需要执行 cacheflush（）函数来刷新修 改后的目标函数的缓存。 </li>
+<li>使用 mprotect（）函数将目标函数代码段的属性改为只读与可执行。 如果不将属性修改回去， 在开启了 SELinux 的 Android 设备上， 程序的运行可能会因为代码段是可写与可执行的而 失败。</li>
+</ol>
+<h2 id="Xposed-Hook框架"><a href="#Xposed-Hook框架" class="headerlink" title="Xposed Hook框架"></a>Xposed Hook框架</h2><p>需要root设备</p>
+<p><strong>支持 Android Java层的Dalvik Hook和ART Hook，总的来说就像是在目标函数执行前后插入了想要的代码，或者直接替换原来的方法。</strong></p>
+<p>使用步骤：</p>
+<ol>
+<li>为其编写插件， Hook 我们所关心的 Java 方法。 </li>
+<li>通过 XC_MethodHook 接 口提供的 beforeHookedMethod（）方法， 可以在 Hook 的方法执行前添加想要执行的代码逻辑。</li>
+<li>也可 以使用 XC_MethodHook 接口提供的 afterHookedMethod（）方法， 在 Hook 的方法执行后添加相应的处 理代码。 </li>
+<li>也可以使用XC_MethodReplacement直接替换方法的所有实现。</li>
+</ol>
+<p>示例代码</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.content.Context;</span><br><span class="line"><span class="keyword">import</span> android.util.Log;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XC_MethodHook;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XC_MethodReplacement;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XposedBridge;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XposedHelpers;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CheckSNHook</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">XC_MethodReplacement</span> <span class="variable">replacementTrue</span> <span class="operator">=</span> XC_MethodReplacement.returnConstant(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CheckSNHook</span><span class="params">(ClassLoader cl)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line"></span><br><span class="line">        XposedBridge.log(<span class="string">&quot;hooking checkSN.&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Class</span> <span class="variable">clz</span> <span class="operator">=</span> (Class&lt;?&gt;) XposedHelpers.findClass(<span class="string">&quot;com.droider.crackme0201.MainActivity&quot;</span>, cl);</span><br><span class="line">            <span class="comment">//直接替换目标函数的返回值为true</span></span><br><span class="line">            XposedBridge.hookAllMethods(clz, <span class="string">&quot;checkSN&quot;</span>, replacementTrue);</span><br><span class="line">            <span class="comment">/*</span></span><br><span class="line"><span class="comment">            XposedHelpers.findAndHookMethod(clz,</span></span><br><span class="line"><span class="comment">                    &quot;checkSN&quot;,</span></span><br><span class="line"><span class="comment">                    String.class, String.class,</span></span><br><span class="line"><span class="comment">                    new XC_MethodHook() &#123;</span></span><br><span class="line"><span class="comment">                        @Override</span></span><br><span class="line"><span class="comment">                        protected void afterHookedMethod(MethodHookParam param)</span></span><br><span class="line"><span class="comment">                                throws Throwable &#123;</span></span><br><span class="line"><span class="comment">                            XposedBridge.log(&quot;CheckSN afterHookedMethod called.&quot;);</span></span><br><span class="line"><span class="comment">                            String s1 = (String) param.args[0];</span></span><br><span class="line"><span class="comment">                            String s2 = (String) param.args[1];</span></span><br><span class="line"><span class="comment">                            param.setResult(true);</span></span><br><span class="line"><span class="comment">                            super.afterHookedMethod(param);</span></span><br><span class="line"><span class="comment">                        &#125;</span></span><br><span class="line"><span class="comment">                    &#125;);</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        XposedBridge.log(<span class="string">&quot;hook checkSN done.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="注入"><a href="#注入" class="headerlink" title="注入"></a>注入</h1><h2 id="so动态注入"><a href="#so动态注入" class="headerlink" title="so动态注入"></a>so动态注入</h2><p>与Windows dll注入类似</p>
+<p>步骤：</p>
+<ol>
+<li>编写Native代码， 定义so 加载后需要执行的函数， 并将其编译成so文件。</li>
+<li>编写注入程序， 实现远程进程注入。 注入程序使用Native代码编写， 并需要使用ptrace系 统的进程调试接口函数。</li>
+<li>将so文件注入目标进程。</li>
+<li>运行so文件中指定的函数。</li>
+</ol>
+<p>注入程序的注入流程：</p>
+<ol>
+<li>调用ptrace_attach（）附加进程。</li>
+<li>调用 ptrace_getregs（）获取目标进程的寄存器信息， 并将它们保存起来。 在注入过程中 ， 它们的值会被修改。 注入后 ， 需要将它们恢复为原始值。 </li>
+<li>获取目标进程mmap（）函数的地址 ， 并调用它为so文件分配内存空间。</li>
+<li>调用ptrace_writedata（）， 将so文件的内容写入目标进程。</li>
+<li>获取目标进程dlopen（）与dlsym（）等函数的地址。</li>
+<li>调用ptrace_writedata（）， 将需要执行的函数的参数信息写入目标进程。</li>
+<li>调用dlopen（）与dlsym（）获取需要执行的函数在so文件中加载后的地址。 ③调用ptrace_setregs（）恢复进程的寄存器信息。 </li>
+<li>调用ptrace_detach（）取消对目标进程的附加。</li>
+</ol>
+<h2 id="DEX注入"><a href="#DEX注入" class="headerlink" title="DEX注入"></a>DEX注入</h2><p>将dex文件或者apk文件加载到目标apk中运行的技术称为”DEX注入”</p>
+<p>步骤如下：</p>
+<ol>
+<li>编写Java代码， 并将其编译成DEX或APK文件。 </li>
+<li>编写 Native代码， 定义so加载后需要执行的函数（它的内容必须包含加载DEX的代码）， 将其编译成so文件。 调用系统的DexClassLoader、 来加载DEX或APK文件。</li>
+<li>编写注入程序， 实现远程进程注入。 这一步与so动态库注入是一样的。 </li>
+<li>将so文件注入目标进程。</li>
+<li>运行so文件中指定的函数。</li>
+</ol>
+<h2 id="Frida注入框架"><a href="#Frida注入框架" class="headerlink" title="Frida注入框架"></a>Frida注入框架</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">netsh interface portproxy add v4tov4 listenport=8888 listenaddress=10.0.2.15 connectport=21513 connectaddress=127.0.0.1</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://github.com/feicong/androidbook">https://github.com/feicong/androidbook</a></p>
+<p>Android软件安全权威指南-非虫</p>
+]]></content>
+      <categories>
+        <category>Android</category>
+        <category>Android安全</category>
+      </categories>
+      <tags>
+        <tag>Android安全</tag>
+        <tag>HOOK &amp; 注入</tag>
       </tags>
   </entry>
   <entry>
@@ -858,9 +858,72 @@
       </tags>
   </entry>
   <entry>
+    <title>TaintAnalysis tools study</title>
+    <url>/2022/03/24/TaintAnalysis-tools-study/</url>
+    <content><![CDATA[<h1 id="污点分析"><a href="#污点分析" class="headerlink" title="污点分析"></a>污点分析</h1><p>sources and sinks</p>
+<blockquote>
+<p><strong>sources</strong>: the information we want to protect on a mobile device (e.g., phone number, contacts, location, and unique device identifiers) </p>
+<p><strong>sinks</strong>: points of unwanted information release (e.g., methods related to the Internet and SMS transmission). </p>
+<p>If data from a sensitive source reaches a sink, taint tracking identifies the path from the source to the sink as an instance of data leakage.</p>
+</blockquote>
+<span id="more"></span>
+
+<h1 id="Flowdroid"><a href="#Flowdroid" class="headerlink" title="Flowdroid"></a>Flowdroid</h1><p>从2.0版本之后就可以处理ICC了</p>
+<blockquote>
+<p>使用这些污点分析工具的时候并不一定非要在源代码的基础上面修改，也可以直接使用他们的库，只要能够达到我的目的即可。</p>
+</blockquote>
+<p><a href="https://github.com/secure-software-engineering/FlowDroid">https://github.com/secure-software-engineering/FlowDroid</a></p>
+<p>flowdroid采用保守策略 ，将框架分为四种：generation, exclude, kill, and default</p>
+<ul>
+<li>When method parameters (including the receiver object itself) or their fields are tainted, the methods in the <strong>generation</strong> type will have their receiver and the return value, as well as all their fields, tainted; no taint will be propagated for methods of the <strong>exclude</strong> type; </li>
+<li>all taints will be removed for methods of the <strong>kill</strong> type. </li>
+<li>If a method is not assigned with any of these types, the <strong>default</strong> rule will apply , propagating the taint<br>from the receiver object and its fields to the method return value and its fields. </li>
+<li>That is, only for the methods in the <strong>generation</strong> type FLOWDROID will propagate the taint from method parameters and will taint the receiver parameter and its fields; it does not taint any other method parameters in any of the conservative strategies.</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar \</span><br><span class="line">    -a &lt;APK File&gt; \</span><br><span class="line">    -p &lt;Android JAR folder&gt; \</span><br><span class="line">    -s &lt;SourcesSinks file&gt;</span><br></pre></td></tr></table></figure>
+
+<p>本电脑的命令使用：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -d -a D:\mobileForensics\apks\tests\app-realse.apk -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt -o outputs -t</span><br></pre></td></tr></table></figure>
+
+<p>java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -a D:\mobileForensics\Mixed -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt -o .&#x2F;output</p>
+<p>For FlowDroid can thus generate a main method in which every order of individual component lifecycles and callbacks is possible, it does not need to simulate all possible paths.</p>
+<p><strong>In FlowDroid, only method calls can be the original source of a taint.</strong> </p>
+<p>主要流程：</p>
+<ol>
+<li>解析文件</li>
+<li>Next, FlowDroid generates the main method from the list of lifecycle and  callback methods (see the Paragraphs Callbacks and Substitution Classes for more  information). This main method is then used to generate a call graph and an  inter-procedural control-flow graph (ICFG). </li>
+<li>Starting at the detected sources,  the taint analysis then tracks taints by traversing the ICFG as explained in  Section 4.</li>
+<li>Native Calls require a special treatment which is described below along with a  performance optimization called Taint Wrapping. </li>
+<li>At the end, FlowDroid reports  all discovered flows from sources to sinks.</li>
+</ol>
+<h1 id="Amandroid"><a href="#Amandroid" class="headerlink" title="Amandroid"></a>Amandroid</h1><p>支持native层，实现了一个流和上下文敏感的内部组件数据流分析。在一个过程间的控制流图和数据流图之上，为每一个组件构建一个数据依赖图，然后生成一个汇总表，记录可能的组件间通信连接。</p>
+<p>不能处理隐式流。</p>
+<ul>
+<li>AMANDROID precisely models a subset of Android framework methods and applies a conservative strategy for the remaining ones. </li>
+<li>Interestingly , AMANDROID’s strategy is different from that of FLOWDROID:<ul>
+<li>in addition to the receiver object and the return value of a method, AMANDROID also taints all method parameters and their fields. </li>
+<li>However, it is doing so only <strong>when the method receiver or parameters themselves</strong><br><strong>are tainted</strong>, not when one of their fields is tainted. </li>
+<li>Strategies applied by both tools lead to false positive and false negative results, albeit in different cases, as we show in our evaluation.</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220418121650.png" alt="amdroid分析流程"></p>
+<h1 id="静态分析工具的对比"><a href="#静态分析工具的对比" class="headerlink" title="静态分析工具的对比"></a>静态分析工具的对比</h1><p><img src="https://raw.githubusercontent.com/Dfault0/images/main/image-20220406161407676.png" alt="静态分析工具的对比"></p>
+]]></content>
+      <categories>
+        <category>Android</category>
+        <category>Android安全</category>
+      </categories>
+      <tags>
+        <tag>Android安全</tag>
+        <tag>taint analysis tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Xposed基础</title>
     <url>/2022/05/31/Xposed%E5%9F%BA%E7%A1%80/</url>
-    <content><![CDATA[<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>官方的xposed只更新到了Android8.1（sdk 27）,以后的版本如果要安装xposed框架需要安装别的扩展框架，比如：Edxposed</p>
+    <content><![CDATA[<span id="more"></span>
+
 <h1 id="Xposed框架原理"><a href="#Xposed框架原理" class="headerlink" title="Xposed框架原理"></a>Xposed框架原理</h1><ul>
 <li><p>init 进程负责创建 zygote 进程。</p>
 </li>
@@ -903,50 +966,6 @@
       </categories>
       <tags>
         <tag>Android安全</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>afl fuzz libxml2</title>
-    <url>/2021/11/05/afl-fuzz-libxml2/</url>
-    <content><![CDATA[<p>模糊测试复现笔记</p>
-<span id="more"></span>
-
-<h1 id="使用AFL-模糊测试libxml2"><a href="#使用AFL-模糊测试libxml2" class="headerlink" title="使用AFL++模糊测试libxml2"></a>使用AFL++模糊测试libxml2</h1><h2 id="简单模糊测试"><a href="#简单模糊测试" class="headerlink" title="简单模糊测试"></a>简单模糊测试</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">在这里的时候需要用绝对路径相对路径是会报错的。</span><br><span class="line">/home/fourth/fuzz</span><br><span class="line">$ make CC=/home/fourth/fuzz/AFLplusplus/afl-clang-fast CXX=/home/fourth/fuzz/AFLplusplus/afl-clang-fast++ LD=/home/fourth/fuzz/AFLplusplus/afl-clang-fast</span><br><span class="line"></span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i ./in -o ./out -m none -d -- ./xmlint_cov @@</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│        run time : 0 days, 0 hrs, 3 min, 47 sec      │  cycles done : 0     │</span><br><span class="line">│   last new path : 0 days, 0 hrs, 0 min, 1 sec       │  total paths : 1710  │</span><br><span class="line">│ last uniq crash : none seen yet                     │ uniq crashes : 0     │</span><br><span class="line">│  last uniq hang : none seen yet                     │   uniq hangs : 0     │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│  now processing : 1558.1 (91.1%)     │    map density : 1.00% / 4.98%      │</span><br><span class="line">│ paths timed out : 0 (0.00%)          │ count coverage : 3.23 bits/tuple    │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│  now trying : havoc                  │ favored paths : 330 (19.30%)        │</span><br><span class="line">│ stage execs : 25.4k/32.8k (77.41%)   │  new edges on : 509 (29.77%)        │</span><br><span class="line">│ total execs : 1.24M                  │ total crashes : 0 (0 unique)        │</span><br><span class="line">│  exec speed : 5649/sec               │  total tmouts : 1 (1 unique)        │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│   bit flips : disabled (default, enable with -D)   │    levels : 9         │</span><br><span class="line">│  byte flips : disabled (default, enable with -D)   │   pending : 1435      │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D)   │  pend fav : 109       │</span><br><span class="line">│  known ints : disabled (default, enable with -D)   │ own finds : 1707      │</span><br><span class="line">│  dictionary : n/a                                  │  imported : 0         │</span><br><span class="line">│havoc/splice : 1173/890k, 526/285k                  │ stability : 96.68%    │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused       ├───────────────────────┘</span><br><span class="line">│    trim/eff : 18.12%/6877, disabled                │          [cpu000:150%]</span><br><span class="line">└────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-<h2 id="persistent-mode"><a href="#persistent-mode" class="headerlink" title="persistent mode"></a>persistent mode</h2><p>使用AFL++ 的persistent mode来加速fuzz</p>
-<p>首先需要改写我们的主程序代码xmllint.c，其中带<code>+</code>的就是需要重新添加的。一般是循环10000次，是我自己少写了一个0，并且一般就是只需要修改的是main函数，然后把原来的main函数改一个名字即可。</p>
-<p><code>__AFL_LOOP</code>就是告诉AFL，我们需要用到的是persistent mode。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ diff -u a/xmllint.c b/xmllint.c &gt; ./b/diff.patch</span><br><span class="line"></span><br><span class="line">***@ubuntu:~/fuzz/libxml2$ <span class="built_in">cat</span> ./b/diff.patch</span><br><span class="line">--- a/xmllint.c	2021-11-08 18:20:14.461467630 -0800</span><br><span class="line">+++ b/xmllint.c	2021-11-08 19:01:45.680069687 -0800</span><br><span class="line">@@ -3131,7 +3131,13 @@</span><br><span class="line">     int files = 0;</span><br><span class="line">     int version = 0;</span><br><span class="line">     const char* indent;</span><br><span class="line">-</span><br><span class="line">+    </span><br><span class="line">+    <span class="keyword">if</span>(argc&lt;2)</span><br><span class="line">+    	<span class="built_in">return</span> 1;</span><br><span class="line">+    <span class="keyword">while</span>(__AFL_LOOP(1000))</span><br><span class="line">+    	parseAndPrintFile(argv[1],NULL);</span><br><span class="line">+    <span class="built_in">return</span> 0;</span><br><span class="line">+    </span><br><span class="line">     <span class="keyword">if</span> (argc &lt;= 1) &#123;</span><br><span class="line"> 	usage(stderr, argv[0]);</span><br><span class="line"> 	<span class="built_in">return</span>(1);</span><br><span class="line"> 一般是需要改成下面的这个样子的 	</span><br><span class="line">+int main(int argc, char** argv) &#123;</span><br><span class="line">+</span><br><span class="line">+  <span class="keyword">if</span> (argc &lt; 2) <span class="built_in">return</span> 1;</span><br><span class="line">+</span><br><span class="line">+  <span class="keyword">while</span> (__AFL_LOOP(10000))</span><br><span class="line">+    parseAndPrintFile(argv[1], NULL);</span><br><span class="line">+</span><br><span class="line">+  <span class="built_in">return</span> 0;</span><br><span class="line">+</span><br><span class="line">+&#125;</span><br><span class="line">+</span><br><span class="line"> int</span><br><span class="line">-main(int argc, char **argv) &#123;</span><br><span class="line">+old_main(int argc, char **argv) &#123;</span><br><span class="line">     int i, acount;</span><br><span class="line">     int files = 0;</span><br><span class="line">     int version = 0;</span><br></pre></td></tr></table></figure>
-
-<p>记住，在编译之前一定要先 <code>make clean</code> 否则会报错。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ../fuzz</span><br><span class="line">$ <span class="built_in">rm</span> xmllint</span><br><span class="line">$ make CC=~/AFLplusplus/afl-clang-fast CXX=~/AFLplusplus/afl-clang-fast++ LD=~/AFLplusplus/afl-clang-fast</span><br><span class="line">$ <span class="built_in">cp</span> xmllint ../fuzz/xmllint_persistent</span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i <span class="keyword">in</span>/ -o out -m none -d -- ./xmllint_persistent @@</span><br></pre></td></tr></table></figure>
-
-<p>可以看到模糊测试的速度大致提升了200倍。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">               american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│        run time : 0 days, 3 hrs, 22 min, 41 sec     │  cycles done : 3     │</span><br><span class="line">│   last new path : 0 days, 0 hrs, 0 min, 48 sec      │  total paths : 4212  │</span><br><span class="line">│ last uniq crash : none seen yet                     │ uniq crashes : 0     │</span><br><span class="line">│  last uniq hang : none seen yet                     │   uniq hangs : 0     │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│  now processing : 2166.3 (51.4%)     │    map density : 1.34% / 6.66%      │</span><br><span class="line">│ paths timed out : 0 (0.00%)          │ count coverage : 4.38 bits/tuple    │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│  now trying : havoc                  │ favored paths : 508 (12.06%)        │</span><br><span class="line">│ stage execs : 1212/5299 (22.87%)     │  new edges on : 863 (20.49%)        │</span><br><span class="line">│ total execs : 35.7M                  │ total crashes : 0 (0 unique)        │</span><br><span class="line">│  exec speed : 4039/sec               │  total tmouts : 2711 (233 unique)   │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│   bit flips : disabled (default, enable with -D)   │    levels : 24        │</span><br><span class="line">│  byte flips : disabled (default, enable with -D)   │   pending : 2707      │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D)   │  pend fav : 0         │</span><br><span class="line">│  known ints : disabled (default, enable with -D)   │ own finds : 4209      │</span><br><span class="line">│  dictionary : n/a                                  │  imported : 0         │</span><br><span class="line">│havoc/splice : 2467/16.6M, 1742/18.9M               │ stability : 97.27%    │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused       ├───────────────────────┘</span><br><span class="line">│    trim/eff : 13.36%/188k, disabled                │          [cpu000:150%]</span><br><span class="line">└────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
-
-<h2 id="QEMU-mode"><a href="#QEMU-mode" class="headerlink" title="QEMU mode"></a>QEMU mode</h2><p>假设我们没有源代码，所以就不能对源代码进行打补丁，所以我们就只能使用QEMU模式来对二进制文件来进行插桩。</p>
-<p>首先需要的是编译程序（需要恢复对之前源代码的操作）</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ../libxml2</span><br><span class="line">$ make clean</span><br><span class="line">$ make</span><br><span class="line">$ <span class="built_in">cp</span> xmllint ../fuzz/</span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i <span class="keyword">in</span>/ -o out -m none -d -Q -- ./xmllint @@</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">           american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│ run time : 0 days, 19 hrs, 48 min, 42 sec │ cycles done : 0 │</span><br><span class="line">│ last new path : 0 days, 0 hrs, 0 min, 35 sec │ total paths : 3332 │</span><br><span class="line">│ last uniq crash : none seen yet │ uniq crashes : 0 │</span><br><span class="line">│ last uniq hang : 0 days, 0 hrs, 41 min, 25 sec │ uniq hangs : 2 │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│ now processing : 2335.9 (70.1%) │ map density : 3.47% / 11.94% │</span><br><span class="line">│ paths timed out : 0 (0.00%) │ count coverage : 3.53 bits/tuple │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│ now trying : splice 8 │ favored paths : 445 (13.36%) │</span><br><span class="line">│ stage execs : 51/110 (46.36%) │ new edges on : 807 (24.22%) │</span><br><span class="line">│ total execs : 10.5M │ total crashes : 0 (0 unique) │</span><br><span class="line">│ exec speed : 244.3/sec │ total tmouts : 4802 (272 unique) │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│ bit flips : disabled (default, enable with -D) │ levels : 24 │</span><br><span class="line">│ byte flips : disabled (default, enable with -D) │ pending : 2401 │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D) │ pend fav : 0 │</span><br><span class="line">│ known ints : disabled (default, enable with -D) │ own finds : 3329 │</span><br><span class="line">│ dictionary : n/a │ imported : 0 │</span><br><span class="line">│havoc/splice : 2147/5.38M, 1182/5.04M │ stability : 98.82% │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused ├───────────────────────┘</span><br><span class="line">│ trim/eff : 12.08%/53.4k, disabled │ [cpu000:750%]</span><br><span class="line">└────────────────────────────────────────────────────┘^C</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<p>git clone 不行就是因为终端没有走代理，设置一些即可</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config –global http.proxy “192.168.1.238:1080”</span><br></pre></td></tr></table></figure>
-
-<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://aflplus.plus/docs/tutorials/libxml2_tutorial/">https://aflplus.plus/docs/tutorials/libxml2_tutorial/</a></p>
-]]></content>
-      <categories>
-        <category>Fuzzing</category>
-        <category>AFL</category>
-      </categories>
-      <tags>
-        <tag>Fuzzing</tag>
       </tags>
   </entry>
   <entry>
@@ -1115,107 +1134,6 @@
       </categories>
       <tags>
         <tag>Android安全</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>heartbleed(CVE-2014-0160)</title>
-    <url>/2021/11/14/heartbleed-CVE-2014-0160/</url>
-    <content><![CDATA[<h1 id="心脏滴血漏洞复现（CVE-2014-0160）"><a href="#心脏滴血漏洞复现（CVE-2014-0160）" class="headerlink" title="心脏滴血漏洞复现（CVE 2014-0160）"></a>心脏滴血漏洞复现（CVE 2014-0160）</h1><p>基本信息</p>
-<p>OpenSSL版本：1.0.1</p>
-<p>fuzzer：libfuzzer</p>
-<span id="more"></span>
-
-<h2 id="编译OpenSSL"><a href="#编译OpenSSL" class="headerlink" title="编译OpenSSL"></a>编译OpenSSL</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tar xzf openssl1.0.1f.tgz</span><br><span class="line"><span class="built_in">cd</span> openssl1.0.1f/</span><br><span class="line"></span><br><span class="line">./config</span><br><span class="line">make clean</span><br><span class="line">make CC=<span class="string">&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize=address,fuzzer -fsanitize-coverage=trace-pc-guard,trace-cmp,trace-gep,trace-div&quot;</span> -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
-
-<p>首先是按照教程，但是后面会报错，因为高版本的libfuzzer并不支持了：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-fsanitize-coverage=trace-pc-guard is no longer supported by libFuzzer.</span><br></pre></td></tr></table></figure>
-
-<p>本来想的是修改libfuzzer的版本，但是，并不能成功，所以就参考libfuzzer官方的使用方法，在编译目标程序的时候命令修改成下面的形式（直接删除就好了）</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make CC=<span class="string">&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize=fuzzer -fsanitize-coverage=trace-cmp,trace-gep,trace-div&quot;</span> -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="编译fuzzer-target"><a href="#编译fuzzer-target" class="headerlink" title="编译fuzzer target"></a>编译fuzzer target</h2><p>The first step in using libFuzzer on a library is to implement a <em>fuzz target</em> – a function that accepts an array of bytes and does something interesting with these bytes using the API under test. like this:</p>
-<figure class="highlight cc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// fuzz_target.cc</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *Data, <span class="type">size_t</span> Size)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">DoSomethingInterestingWithMyAPI</span>(Data, Size);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// Non-zero return values are reserved for future use.</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//openssl_fuzzer.cc</span></span><br><span class="line"><span class="comment">// Copyright 2016 Google Inc. All Rights Reserved.</span></span><br><span class="line"><span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/ssl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/err.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stddef.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> CERT_PATH</span></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> CERT_PATH</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">SSL_CTX *<span class="title">Init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">SSL_library_init</span>();</span><br><span class="line">  <span class="built_in">SSL_load_error_strings</span>();</span><br><span class="line">  <span class="built_in">ERR_load_BIO_strings</span>();</span><br><span class="line">  <span class="built_in">OpenSSL_add_all_algorithms</span>();</span><br><span class="line">  SSL_CTX *sctx;</span><br><span class="line">  <span class="built_in">assert</span> (sctx = <span class="built_in">SSL_CTX_new</span>(<span class="built_in">TLSv1_method</span>()));</span><br><span class="line">  <span class="comment">/* These two file were created with this command:</span></span><br><span class="line"><span class="comment">      openssl req -x509 -newkey rsa:512 -keyout server.key \</span></span><br><span class="line"><span class="comment">     -out server.pem -days 9999 -nodes -subj /CN=a/</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="built_in">assert</span>(<span class="built_in">SSL_CTX_use_certificate_file</span>(sctx, CERT_PATH <span class="string">&quot;server.pem&quot;</span>,</span><br><span class="line">                                      SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="built_in">assert</span>(<span class="built_in">SSL_CTX_use_PrivateKey_file</span>(sctx, CERT_PATH <span class="string">&quot;server.key&quot;</span>,</span><br><span class="line">                                     SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="keyword">return</span> sctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *data, <span class="type">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="type">static</span> SSL_CTX *sctx = <span class="built_in">Init</span>();</span><br><span class="line">  SSL *server = <span class="built_in">SSL_new</span>(sctx);</span><br><span class="line">  BIO *sinbio = <span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_mem</span>());</span><br><span class="line">  BIO *soutbio = <span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_mem</span>());</span><br><span class="line">  <span class="built_in">SSL_set_bio</span>(server, sinbio, soutbio);</span><br><span class="line">  <span class="built_in">SSL_set_accept_state</span>(server);</span><br><span class="line">  <span class="built_in">BIO_write</span>(sinbio, data, size);</span><br><span class="line">  <span class="built_in">SSL_do_handshake</span>(server);</span><br><span class="line">  <span class="built_in">SSL_free</span>(server);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>编译：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">clang++ -g openssl_fuzzer.cc -O2 -fno-omit-frame-pointer -fsanitize=address,fuzzer \</span><br><span class="line">    -fsanitize-coverage=trace-cmp,trace-gep,trace-div \</span><br><span class="line">    -Iopenssl1.0.1f/include openssl1.0.1f/libssl.a openssl1.0.1f/libcrypto.a \</span><br><span class="line">    ../../libFuzzer/libFuzzer.a -o openssl_fuzzer</span><br></pre></td></tr></table></figure>
-
-<p>然后创建一个文件夹，使用生成的<code>openssl_fuzzer</code>来测试：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> corpus1</span><br><span class="line">./openssl_fuzzer ./corpus1/</span><br></pre></td></tr></table></figure>
-
-<p>然后就可以看到程序报错了。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">=================================================================</span><br><span class="line">==4447==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x629000009748 at pc 0x000000435777 bp 0x7ffcbf76d0a0 sp 0x7ffcbf76c860</span><br><span class="line">READ of size 48384 at 0x629000009748 thread T0</span><br><span class="line">    #0 0x435776 in memcpy (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x435776)</span><br><span class="line">    #1 0x4ce5cf in tls1_process_heartbeat /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/t1_lib.c:2586:3</span><br><span class="line">    #2 0x503b43 in ssl3_read_bytes /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_pkt.c:1092:4</span><br><span class="line">    #3 0x50559b in ssl3_get_message /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:457:7</span><br><span class="line">    #4 0x4ed420 in ssl3_get_client_hello /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:941:4</span><br><span class="line">    #5 0x4eb8fe in ssl3_accept /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:357:9</span><br><span class="line">    #6 0x4c92e2 in LLVMFuzzerTestOneInput /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer.cc:39:3</span><br><span class="line">    #7 0x67f862 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:556:15</span><br><span class="line">    #8 0x67eea5 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool*) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:470:3</span><br><span class="line">    #9 0x6804b7 in fuzzer::Fuzzer::MutateAndTestOne() /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:698:19</span><br><span class="line">    #10 0x681005 in fuzzer::Fuzzer::Loop(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:830:5</span><br><span class="line">    #11 0x670076 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerDriver.cpp:824:6</span><br><span class="line">    #12 0x66b1a0 in main /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerMain.cpp:19:10</span><br><span class="line">    #13 0x7f7f3f2010b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:308:16</span><br><span class="line">    #14 0x41ea1d in _start (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x41ea1d)</span><br><span class="line"></span><br><span class="line">0x629000009748 is located 0 bytes to the right of 17736-byte region [0x629000005200,0x629000009748)</span><br><span class="line">allocated by thread T0 here:</span><br><span class="line">    #0 0x49715d in malloc (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x49715d)</span><br><span class="line">    #1 0x519b0b in CRYPTO_malloc /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/crypto/mem.c:308:8</span><br><span class="line">    #2 0x505f7b in freelist_extract /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:708:12</span><br><span class="line">    #3 0x505f7b in ssl3_setup_read_buffer /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:770:10</span><br><span class="line">    #4 0x5062ec in ssl3_setup_buffers /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:827:7</span><br><span class="line">    #5 0x4eb807 in ssl3_accept /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:292:9</span><br><span class="line">    #6 0x4c92e2 in LLVMFuzzerTestOneInput /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer.cc:39:3</span><br><span class="line">    #7 0x67f862 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:556:15</span><br><span class="line">    #8 0x6808b8 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:743:3</span><br><span class="line">    #9 0x680dd9 in fuzzer::Fuzzer::Loop(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:792:3</span><br><span class="line">    #10 0x670076 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerDriver.cpp:824:6</span><br><span class="line">    #11 0x66b1a0 in main /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerMain.cpp:19:10</span><br><span class="line">    #12 0x7f7f3f2010b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:308:16</span><br><span class="line"></span><br><span class="line">SUMMARY: AddressSanitizer: heap-buffer-overflow (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x435776) in memcpy</span><br><span class="line">Shadow bytes around the buggy address:</span><br><span class="line">  0x0c527fff9290: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">=&gt;0x0c527fff92e0: 00 00 00 00 00 00 00 00 00[fa]fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff92f0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9300: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9310: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9320: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9330: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">Shadow byte legend (one shadow byte represents 8 application bytes):</span><br><span class="line">  Addressable:           00</span><br><span class="line">  Partially addressable: 01 02 03 04 05 06 07 </span><br><span class="line">  Heap left redzone:       fa</span><br><span class="line">  Freed heap region:       fd</span><br><span class="line">  Stack left redzone:      f1</span><br><span class="line">  Stack mid redzone:       f2</span><br><span class="line">  Stack right redzone:     f3</span><br><span class="line">  Stack after return:      f5</span><br><span class="line">  Stack use after scope:   f8</span><br><span class="line">  Global redzone:          f9</span><br><span class="line">  Global init order:       f6</span><br><span class="line">  Poisoned by user:        f7</span><br><span class="line">  Container overflow:      fc</span><br><span class="line">  Array cookie:            ac</span><br><span class="line">  Intra object redzone:    bb</span><br><span class="line">  ASan internal:           fe</span><br><span class="line">  Left alloca redzone:     ca</span><br><span class="line">  Right alloca redzone:    cb</span><br><span class="line">  Shadow gap:              cc</span><br><span class="line">==4447==ABORTING</span><br><span class="line">MS: 2 InsertByte-InsertByte-; base unit: 6409fc1658e8c93af3744d90dd4f7eb4dbc6e488</span><br><span class="line">0x18,0x3,0xff,0x0,0xd,0x1,0xbd,0x0,0x0,0xb3,0x0,0x0,0x0,0x0,0x0,0xd,0xd,0xd,0xd,0xd,0xd,0x0,0x0,0x0,</span><br><span class="line">\x18\x03\xff\x00\x0d\x01\xbd\x00\x00\xb3\x00\x00\x00\x00\x00\x0d\x0d\x0d\x0d\x0d\x0d\x00\x00\x00</span><br><span class="line">artifact_prefix=&#x27;./&#x27;; Test unit written to ./crash-052a0bf2b9eddd783de293aa5452c3212975c9c1</span><br><span class="line">Base64: GAP/AA0BvQAAswAAAAAADQ0NDQ0NAAAA</span><br></pre></td></tr></table></figure>
-
-<p>SUMMARY: AddressSanitizer: heap-buffer-overflow (&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;libfuzzer-workshop-master&#x2F;lessons&#x2F;05&#x2F;openssl_fuzzer+0x435776) in memcpy</p>
-<p>可以看到就是tls1_process_heartbeat这里出错了。</p>
-<h2 id="crash分析"><a href="#crash分析" class="headerlink" title="crash分析"></a>crash分析</h2><p>在gdb中使用GEF来复现</p>
-<p>注意，需要使用代理才可以使用该工具（或者你换一种使用方法也是可以的），使用的文件是上面fuzzing出来的crash文件（以id开头的文件）</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">proxychains gdb -Q target</span><br><span class="line"></span><br><span class="line">(gdb)pi import urllib.request as u, tempfile as t; g=t.NamedTemporaryFile(suffix=<span class="string">&#x27;-gef.py&#x27;</span>); open(g.name, <span class="string">&#x27;wb+&#x27;</span>).write(u.urlopen(<span class="string">&#x27;https://tinyurl.com/gef-master&#x27;</span>).<span class="built_in">read</span>()); gdb.execute(<span class="string">&#x27;source %s&#x27;</span> % g.name)</span><br><span class="line"></span><br><span class="line">gef&gt; r &gt; <span class="built_in">id</span>:000000,sig:06,src:000004+000003,time:27696,op:splice,rep:4</span><br><span class="line"></span><br><span class="line">exploitable</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm">https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm</a></p>
-<p><a href="https://github.com/Dor1s/libfuzzer-workshop">https://github.com/Dor1s/libfuzzer-workshop</a></p>
-<p><a href="https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/">https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/</a></p>
-]]></content>
-      <categories>
-        <category>Fuzzing</category>
-        <category>libfuzzer</category>
-      </categories>
-      <tags>
-        <tag>Fuzzing</tag>
-        <tag>漏洞复现</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>java 多态</title>
-    <url>/2018/01/06/java-%E5%A4%9A%E6%80%81/</url>
-    <content><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>同一个对象在不同时刻所体现的不同状态<br>子类可以当做父类使用，但是父类不能当做子类使用（狗是动物，但动物不是狗）</p>
-<h2 id="多态的前提"><a href="#多态的前提" class="headerlink" title="多态的前提"></a>多态的前提</h2><blockquote>
-<ul>
-<li>有继承或者实现</li>
-<li>有方法重写</li>
-<li>有父类或者父类解救引用指向子类对象 ： 父 F &#x3D; new 子</li>
-</ul>
-</blockquote>
-<span id="more"></span>
-
-<h2 id="多态的分类"><a href="#多态的分类" class="headerlink" title="多态的分类"></a>多态的分类</h2><p>1.具体类多态</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Son</span> <span class="keyword">extends</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="type">Father</span> <span class="variable">f</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Son</span>();</span><br></pre></td></tr></table></figure>
-
-<p>2.抽象类多态</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Son</span> <span class="keyword">extends</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="type">Father</span> <span class="variable">f</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Son</span>();</span><br></pre></td></tr></table></figure>
-
-<p>3.接口类多态</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Son</span> <span class="keyword">implements</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="type">Father</span> <span class="variable">f</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Son</span>();</span><br></pre></td></tr></table></figure>
-
-<h2 id="多态中的成员访问特点"><a href="#多态中的成员访问特点" class="headerlink" title="多态中的成员访问特点"></a>多态中的成员访问特点</h2><ol>
-<li>成员变量<br>编译看father，运行看son</li>
-<li>构造方法<br>创建子类对象的时候要先访问父类的构造方法，对父类的数据进行初始化（子类所有的构造方法都会先访问父类的无参构造）</li>
-<li>成员方法<br>编译看father，运行看son（方法有重写）</li>
-<li>静态方法<br>编译运行都是看father（和类相关）</li>
-</ol>
-<h2 id="多态的利与弊"><a href="#多态的利与弊" class="headerlink" title="多态的利与弊"></a>多态的利与弊</h2><ul>
-<li>好处<ul>
-<li>提高代码的维护性（继承）</li>
-<li>提高代码的扩展性（多态）</li>
-</ul>
-</li>
-<li>弊处<ul>
-<li>父类不能使用子类的特有功能</li>
-</ul>
-</li>
-</ul>
-<h2 id="多态中的转型"><a href="#多态中的转型" class="headerlink" title="多态中的转型"></a>多态中的转型</h2><p>1.向上转型</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">Father</span> <span class="variable">f</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Son</span>();</span><br></pre></td></tr></table></figure>
-
-<p>2.向下转型：把父类的引用强制转换成子类的引用</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">Son</span> <span class="variable">s</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Father</span>();</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>code</category>
-        <category>java</category>
-      </categories>
-      <tags>
-        <tag>code</tag>
-        <tag>java</tag>
       </tags>
   </entry>
   <entry>
@@ -1505,48 +1423,57 @@
       </tags>
   </entry>
   <entry>
-    <title>linux-基础知识</title>
-    <url>/2022/04/01/linux-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
-    <content><![CDATA[<h1 id="vim"><a href="#vim" class="headerlink" title="vim"></a>vim</h1><p>vim是vi的升级</p>
-<p>vim有三种模式：普通模式、插入模式、命令模式</p>
-<p>&lt; !– more –&gt;</p>
-<ol>
-<li><p>普通模式-&gt;插入模式：</p>
+    <title>java 多态</title>
+    <url>/2018/01/06/java-%E5%A4%9A%E6%80%81/</url>
+    <content><![CDATA[<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>同一个对象在不同时刻所体现的不同状态<br>子类可以当做父类使用，但是父类不能当做子类使用（狗是动物，但动物不是狗）</p>
+<h2 id="多态的前提"><a href="#多态的前提" class="headerlink" title="多态的前提"></a>多态的前提</h2><blockquote>
 <ul>
-<li>i 光标不动，在原光标的前面插入数据</li>
-<li>a光标后移一位，在光标后面插入数据</li>
-<li>I在本行的开始位置插入数据</li>
-<li>A在本行的结束位置处插入数据</li>
-<li>o 在本行下面创建一个空行</li>
-<li>O 在本行的上一行创建一个空行</li>
+<li>有继承或者实现</li>
+<li>有方法重写</li>
+<li>有父类或者父类解救引用指向子类对象 ： 父 F &#x3D; new 子</li>
 </ul>
-</li>
-<li><p>普通模式下的命令较多</p>
-</li>
-<li><p>命令模式下的命令：</p>
-<ul>
-<li>wq 保存并退出文件</li>
-<li>q 退出文件</li>
-<li>q! 强制退出</li>
-</ul>
-</li>
-</ol>
+</blockquote>
 <span id="more"></span>
 
-<h1 id="查看文件的方式"><a href="#查看文件的方式" class="headerlink" title="查看文件的方式"></a>查看文件的方式</h1><ol>
-<li>cat [-n -b ] filename </li>
-<li>tac 倒叙查看文件内容 （从最后一行开始）</li>
-<li>head [-n] filename直接查看,默认前10行</li>
-<li>tail [-n] filename 倒叙查看，默认前10行</li>
-<li>more filename 文件过大，分页显示内容，空格建翻页</li>
-<li>wc 文件名 统计一个文件中各种数据的数量计算文件的byte 数，字数，列数等</li>
+<h2 id="多态的分类"><a href="#多态的分类" class="headerlink" title="多态的分类"></a>多态的分类</h2><p>1.具体类多态</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Son</span> <span class="keyword">extends</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="type">Father</span> <span class="variable">f</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Son</span>();</span><br></pre></td></tr></table></figure>
+
+<p>2.抽象类多态</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Son</span> <span class="keyword">extends</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="type">Father</span> <span class="variable">f</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Son</span>();</span><br></pre></td></tr></table></figure>
+
+<p>3.接口类多态</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Son</span> <span class="keyword">implements</span> <span class="title class_">Father</span> &#123; &#125;</span><br><span class="line"><span class="type">Father</span> <span class="variable">f</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Son</span>();</span><br></pre></td></tr></table></figure>
+
+<h2 id="多态中的成员访问特点"><a href="#多态中的成员访问特点" class="headerlink" title="多态中的成员访问特点"></a>多态中的成员访问特点</h2><ol>
+<li>成员变量<br>编译看father，运行看son</li>
+<li>构造方法<br>创建子类对象的时候要先访问父类的构造方法，对父类的数据进行初始化（子类所有的构造方法都会先访问父类的无参构造）</li>
+<li>成员方法<br>编译看father，运行看son（方法有重写）</li>
+<li>静态方法<br>编译运行都是看father（和类相关）</li>
 </ol>
+<h2 id="多态的利与弊"><a href="#多态的利与弊" class="headerlink" title="多态的利与弊"></a>多态的利与弊</h2><ul>
+<li>好处<ul>
+<li>提高代码的维护性（继承）</li>
+<li>提高代码的扩展性（多态）</li>
+</ul>
+</li>
+<li>弊处<ul>
+<li>父类不能使用子类的特有功能</li>
+</ul>
+</li>
+</ul>
+<h2 id="多态中的转型"><a href="#多态中的转型" class="headerlink" title="多态中的转型"></a>多态中的转型</h2><p>1.向上转型</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">Father</span> <span class="variable">f</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Son</span>();</span><br></pre></td></tr></table></figure>
+
+<p>2.向下转型：把父类的引用强制转换成子类的引用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">Son</span> <span class="variable">s</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Father</span>();</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>linux</category>
+        <category>code</category>
+        <category>java</category>
       </categories>
       <tags>
-        <tag>linux</tag>
+        <tag>code</tag>
+        <tag>java</tag>
       </tags>
   </entry>
   <entry>
@@ -1594,6 +1521,51 @@
       </categories>
       <tags>
         <tag>Fuzzing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>linux-基础知识</title>
+    <url>/2022/04/01/linux-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
+    <content><![CDATA[<h1 id="vim"><a href="#vim" class="headerlink" title="vim"></a>vim</h1><p>vim是vi的升级</p>
+<p>vim有三种模式：普通模式、插入模式、命令模式</p>
+<p>&lt; !– more –&gt;</p>
+<ol>
+<li><p>普通模式-&gt;插入模式：</p>
+<ul>
+<li>i 光标不动，在原光标的前面插入数据</li>
+<li>a光标后移一位，在光标后面插入数据</li>
+<li>I在本行的开始位置插入数据</li>
+<li>A在本行的结束位置处插入数据</li>
+<li>o 在本行下面创建一个空行</li>
+<li>O 在本行的上一行创建一个空行</li>
+</ul>
+</li>
+<li><p>普通模式下的命令较多</p>
+</li>
+<li><p>命令模式下的命令：</p>
+<ul>
+<li>wq 保存并退出文件</li>
+<li>q 退出文件</li>
+<li>q! 强制退出</li>
+</ul>
+</li>
+</ol>
+<span id="more"></span>
+
+<h1 id="查看文件的方式"><a href="#查看文件的方式" class="headerlink" title="查看文件的方式"></a>查看文件的方式</h1><ol>
+<li>cat [-n -b ] filename </li>
+<li>tac 倒叙查看文件内容 （从最后一行开始）</li>
+<li>head [-n] filename直接查看,默认前10行</li>
+<li>tail [-n] filename 倒叙查看，默认前10行</li>
+<li>more filename 文件过大，分页显示内容，空格建翻页</li>
+<li>wc 文件名 统计一个文件中各种数据的数量计算文件的byte 数，字数，列数等</li>
+</ol>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
       </tags>
   </entry>
   <entry>
@@ -1681,166 +1653,6 @@
       </categories>
       <tags>
         <tag>Penetration</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>安装Xposed</title>
-    <url>/2022/06/01/%E5%AE%89%E8%A3%85Xposed/</url>
-    <content><![CDATA[<h1 id="设备解锁"><a href="#设备解锁" class="headerlink" title="设备解锁"></a>设备解锁</h1><p>devices: xiomi x6</p>
-<p>如果手机没有解锁则，需要解锁：</p>
-<ul>
-<li>解锁需要专门的工具：<a href="https://www.miui.com/unlock/index.html">https://www.miui.com/unlock/index.html</a></li>
-<li>解锁的时候，手机需要登录上小米账号，插上sim卡</li>
-<li>如果出现电脑识别不了usb，可能是因为电脑的USB驱动是2.0的，数据线也要是2.0的，如果不是，则需要安装一个3.0的驱动。<a href="https://miuiver.com/usb3-fix/">https://miuiver.com/usb3-fix/</a></li>
-<li>然后直接点击解锁即可</li>
-</ul>
-<h1 id="获取root权限"><a href="#获取root权限" class="headerlink" title="获取root权限"></a>获取root权限</h1><p>通过线刷来刷入想要的Android版本，<strong>注意需要版本相同才可以刷入Google原生的版本</strong>，但是我并没有找到，线刷步骤以及获取root权限：</p>
-<ol>
-<li>为了方便其他的需要，从新刷入了Android8.1的稳定版（先刷了一次测试版，但是测试版老是自动关机，目前稳定版没有自动关机过），这个较为简单，跟着教程来就可以了</li>
-<li>由于使用了TWRP进入recovery模式之后需要输入密码，而一般的软件并不能解锁system,所以选择的是，Magisk Manager来进行刷机</li>
-<li>手机安装上Magisk Manager，在设置里选择app的更新通道为：稳定版本（测试版本会出现手机关机后root权限消失的问题。</li>
-<li>将上面线刷的线刷包里面的boot.img移动到手机上：adb push boot.img &#x2F;sdcard&#x2F;downloads&#x2F;</li>
-<li>打开magisk 选择安装，方式可以选择并修补一个文件，然后选择上第4步的文件，进行修复，然后回生成一个img文件，在特定目录下，或者选择直接安装也是一样的</li>
-<li>将生成的文件移动到电脑，将手机启动到fastboot模式：adb reboot bootloader</li>
-<li>将上面生成的img文件刷入到手机：<strong>fastboot flash boot boot.img</strong> ,注意这里只能使用boot，不能使用别的命令，否则会失败。</li>
-<li>至此手机的root权限就得到了</li>
-</ol>
-<h1 id="安装edxposed"><a href="#安装edxposed" class="headerlink" title="安装edxposed:"></a>安装edxposed:</h1><ol>
-<li>首先需要准备的东西,magisk刷机包v24.3，riru刷机包v25.4.4，edxposed刷机包v0.5.2.2</li>
-<li>magisk刷机包，将下载的magisk.apk 后缀名修改为zip即可</li>
-<li>然后将三个文件放入手机上</li>
-<li>在magisk上面安装模块，注意安装顺序，先安装magisk.zip、然后是riru(注意版本问题，否则会识别不上)、edxposed</li>
-</ol>
-<h1 id="相关连接"><a href="#相关连接" class="headerlink" title="相关连接"></a>相关连接</h1><p>小米6x线刷包：<a href="https://xiaomirom.com/rom/mi-6x-wayne-china-fastboot-recovery-rom/">https://xiaomirom.com/rom/mi-6x-wayne-china-fastboot-recovery-rom/</a></p>
-<p>线刷教程： <a href="https://www.miui.com/shuaji-393.html">https://www.miui.com/shuaji-393.html</a></p>
-<p>xposed: <a href="https://repo.xposed.info/module/de.robv.android.xposed.installer">https://repo.xposed.info/module/de.robv.android.xposed.installer</a></p>
-<p>edxposed: <a href="https://github.com/ElderDrivers/EdXposed">https://github.com/ElderDrivers/EdXposed</a></p>
-<p>magisk: <a href="https://github.com/topjohnwu/Magisk">https://github.com/topjohnwu/Magisk</a></p>
-<p>twrp: <a href="https://twrp.me/Devices/">https://twrp.me/Devices/</a></p>
-]]></content>
-      <categories>
-        <category>Android安全</category>
-        <category>环境搭建</category>
-      </categories>
-      <tags>
-        <tag>Xposed</tag>
-        <tag>环境搭建</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TaintAnalysis tools study</title>
-    <url>/2022/03/24/TaintAnalysis-tools-study/</url>
-    <content><![CDATA[<h1 id="污点分析"><a href="#污点分析" class="headerlink" title="污点分析"></a>污点分析</h1><p>sources and sinks</p>
-<blockquote>
-<p><strong>sources</strong>: the information we want to protect on a mobile device (e.g., phone number, contacts, location, and unique device identifiers) </p>
-<p><strong>sinks</strong>: points of unwanted information release (e.g., methods related to the Internet and SMS transmission). </p>
-<p>If data from a sensitive source reaches a sink, taint tracking identifies the path from the source to the sink as an instance of data leakage.</p>
-</blockquote>
-<span id="more"></span>
-
-<h1 id="Flowdroid"><a href="#Flowdroid" class="headerlink" title="Flowdroid"></a>Flowdroid</h1><p>从2.0版本之后就可以处理ICC了</p>
-<blockquote>
-<p>使用这些污点分析工具的时候并不一定非要在源代码的基础上面修改，也可以直接使用他们的库，只要能够达到我的目的即可。</p>
-</blockquote>
-<p><a href="https://github.com/secure-software-engineering/FlowDroid">https://github.com/secure-software-engineering/FlowDroid</a></p>
-<p>flowdroid采用保守策略 ，将框架分为四种：generation, exclude, kill, and default</p>
-<ul>
-<li>When method parameters (including the receiver object itself) or their fields are tainted, the methods in the <strong>generation</strong> type will have their receiver and the return value, as well as all their fields, tainted; no taint will be propagated for methods of the <strong>exclude</strong> type; </li>
-<li>all taints will be removed for methods of the <strong>kill</strong> type. </li>
-<li>If a method is not assigned with any of these types, the <strong>default</strong> rule will apply , propagating the taint<br>from the receiver object and its fields to the method return value and its fields. </li>
-<li>That is, only for the methods in the <strong>generation</strong> type FLOWDROID will propagate the taint from method parameters and will taint the receiver parameter and its fields; it does not taint any other method parameters in any of the conservative strategies.</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar \</span><br><span class="line">    -a &lt;APK File&gt; \</span><br><span class="line">    -p &lt;Android JAR folder&gt; \</span><br><span class="line">    -s &lt;SourcesSinks file&gt;</span><br></pre></td></tr></table></figure>
-
-<p>本电脑的命令使用：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -d -a D:\mobileForensics\apks\tests\app-realse.apk -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt -o outputs -t</span><br></pre></td></tr></table></figure>
-
-<p>java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -a D:\mobileForensics\Mixed -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt -o .&#x2F;output</p>
-<p>For FlowDroid can thus generate a main method in which every order of individual component lifecycles and callbacks is possible, it does not need to simulate all possible paths.</p>
-<p><strong>In FlowDroid, only method calls can be the original source of a taint.</strong> </p>
-<p>主要流程：</p>
-<ol>
-<li>解析文件</li>
-<li>Next, FlowDroid generates the main method from the list of lifecycle and  callback methods (see the Paragraphs Callbacks and Substitution Classes for more  information). This main method is then used to generate a call graph and an  inter-procedural control-flow graph (ICFG). </li>
-<li>Starting at the detected sources,  the taint analysis then tracks taints by traversing the ICFG as explained in  Section 4.</li>
-<li>Native Calls require a special treatment which is described below along with a  performance optimization called Taint Wrapping. </li>
-<li>At the end, FlowDroid reports  all discovered flows from sources to sinks.</li>
-</ol>
-<h1 id="Amandroid"><a href="#Amandroid" class="headerlink" title="Amandroid"></a>Amandroid</h1><p>支持native层，实现了一个流和上下文敏感的内部组件数据流分析。在一个过程间的控制流图和数据流图之上，为每一个组件构建一个数据依赖图，然后生成一个汇总表，记录可能的组件间通信连接。</p>
-<p>不能处理隐式流。</p>
-<ul>
-<li>AMANDROID precisely models a subset of Android framework methods and applies a conservative strategy for the remaining ones. </li>
-<li>Interestingly , AMANDROID’s strategy is different from that of FLOWDROID:<ul>
-<li>in addition to the receiver object and the return value of a method, AMANDROID also taints all method parameters and their fields. </li>
-<li>However, it is doing so only <strong>when the method receiver or parameters themselves</strong><br><strong>are tainted</strong>, not when one of their fields is tainted. </li>
-<li>Strategies applied by both tools lead to false positive and false negative results, albeit in different cases, as we show in our evaluation.</li>
-</ul>
-</li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220418121650.png" alt="amdroid分析流程"></p>
-<h1 id="静态分析工具的对比"><a href="#静态分析工具的对比" class="headerlink" title="静态分析工具的对比"></a>静态分析工具的对比</h1><p><img src="https://raw.githubusercontent.com/Dfault0/images/main/image-20220406161407676.png" alt="静态分析工具的对比"></p>
-]]></content>
-      <categories>
-        <category>Android</category>
-        <category>Android安全</category>
-      </categories>
-      <tags>
-        <tag>Android安全</tag>
-        <tag>taint analysis tools</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>排序</title>
-    <url>/2022/06/01/%E6%8E%92%E5%BA%8F/</url>
-    <content><![CDATA[<h1 id="Bubble-sort"><a href="#Bubble-sort" class="headerlink" title="Bubble sort"></a>Bubble sort</h1><p>分为向前冒泡，还是向后冒。</p>
-<p>原理：比较相邻得两个元素，如果前者大于后者，则交换两个得顺序，一趟遍历之后，最后一个位置得元素得值是最大的。</p>
-<p>代码：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;i&lt;nums.length-<span class="number">1</span>;i++)&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>;j&lt;nums.length-i;j++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums[j]&lt;nums[j-<span class="number">1</span>])&#123;</span><br><span class="line">			swap(nums[j],nums[j-<span class="number">1</span>]);</span><br><span class="line">		&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="selection-sort"><a href="#selection-sort" class="headerlink" title="selection sort"></a>selection sort</h1><p>原理：每一次在数组中找到一个最大的或者最小的值，放在一个特定的位置，比如数组头或者数组尾</p>
-<p>代码：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line"><span class="comment">//从前往后找到一个最大的放在i处</span></span><br><span class="line">	<span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> i;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i+<span class="number">1</span>;j&lt;nums.length;j++)&#123;</span><br><span class="line">		<span class="keyword">if</span>(nums[j]&gt;nums[index])&#123;</span><br><span class="line">			index = j;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	swap(nums[i],nums[index]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="insertion-sort"><a href="#insertion-sort" class="headerlink" title="insertion sort"></a>insertion sort</h1><p>原理：将待排序的元素插入到已经有序的元素中，也就是说，会涉及到元素的移动等问题</p>
-<p>代码：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//单个元素视为是有序的,假设整个数组需要的是升序排序</span></span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line">	<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i-<span class="number">1</span>;</span><br><span class="line">	<span class="comment">//因为值是会覆盖的，所以需要的保存下来</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">temp</span> <span class="operator">=</span> nums[i];</span><br><span class="line">	<span class="keyword">while</span>(j&gt;=<span class="number">0</span> &amp;&amp; nums[i]&gt;nums[j])&#123;</span><br><span class="line">		nums[j+<span class="number">1</span>] = nums[j];</span><br><span class="line">		j--;</span><br><span class="line">	&#125;</span><br><span class="line">	nums[j+<span class="number">1</span>] = temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="Shell-sort"><a href="#Shell-sort" class="headerlink" title="Shell sort"></a>Shell sort</h1><p>​    是简单插入排序的升级，为了减少数据移动的次数，进行了增量。又叫缩小增量排序。</p>
-<p>原理：</p>
-<ul>
-<li><p>将整个待排序的数据分为若干个子序列，然后分别进行插入排序。</p>
-</li>
-<li><p>选择一个增量序列：t1, t2, …, tk, ti&gt;tj,tk&#x3D;1  增量是从大到小，最后为1</p>
-</li>
-<li><p>对于每一趟排序，根据对应的增量，将子序列进行插入排序，</p>
-</li>
-<li><p>当增量为1的时候，是最后一趟</p>
-</li>
-</ul>
-<p>代码：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//假设需要的是升序排序</span></span><br><span class="line"><span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">gap</span> <span class="operator">=</span> Math.floor(n/<span class="number">2</span>);gap&gt;<span class="number">0</span>;gap = Math.floor(gap/<span class="number">2</span>))&#123;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> gap;i&lt;n;i++)&#123;</span><br><span class="line">		<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i;</span><br><span class="line">		<span class="type">int</span> <span class="variable">temp</span> <span class="operator">=</span> nums[i];</span><br><span class="line">		<span class="keyword">while</span>(j-gap&gt;=<span class="number">0</span> &amp;&amp; nums[j-gap] &gt; temp)&#123;</span><br><span class="line">			nums[j] = nums[j-gap];</span><br><span class="line">			j -= gap;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	nums[j] = temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="merge-sort"><a href="#merge-sort" class="headerlink" title="merge sort"></a>merge sort</h1><p>思想：分治的思想，先分后合并为有序</p>
-<p>原理：</p>
-<ul>
-<li>将待排序元素分为两半</li>
-<li>将两个子序列采用归并排序（也就是说再分）</li>
-<li>将排序好的子序列进行合并</li>
-</ul>
-<p>代码：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">mergeSort(<span class="type">int</span> []nums,<span class="type">int</span> start,<span class="type">int</span> end)&#123;</span><br><span class="line">	<span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> end-start;</span><br><span class="line">	<span class="keyword">if</span>(n&lt;<span class="number">2</span>)&#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span>satrt + n/<span class="number">2</span>;</span><br><span class="line">    mergeSort(nums,start,mid);</span><br><span class="line">    mergeSort(nums,mid+<span class="number">1</span>,end);</span><br><span class="line">	merge(nums,start,mid,end);</span><br><span class="line">&#125;</span><br><span class="line">merge(<span class="type">int</span> []nums,<span class="type">int</span> start,<span class="type">int</span> mid,<span class="type">int</span> end)&#123;</span><br><span class="line">	<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> start;</span><br><span class="line">    <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> mid+<span class="number">1</span>;</span><br><span class="line">    <span class="type">int</span> <span class="variable">k</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span>[] temp = <span class="keyword">new</span> <span class="title class_">int</span>[end-start+<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">while</span>(i&lt;=mid &amp;&amp; j&lt;=end)&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums[i]&gt;nums[j])&#123;</span><br><span class="line">            temp[k++] = nums[j++];</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            temp[k++] = nums[i++];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(i&lt;=mid)&#123;</span><br><span class="line">        temp[k++] = nums[i++];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(j&lt;=end)&#123;</span><br><span class="line">        temp[k++] = nums[j++];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> start,k=<span class="number">0</span>;i&lt;=end;i++,k++)&#123;</span><br><span class="line">        nums[i] = temp[k];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-]]></content>
-      <categories>
-        <category>code</category>
-        <category>算法</category>
-      </categories>
-      <tags>
-        <tag>code</tag>
       </tags>
   </entry>
   <entry>
@@ -2009,60 +1821,93 @@
       </tags>
   </entry>
   <entry>
-    <title>破解第一个Android程序</title>
-    <url>/2022/04/16/%E7%A0%B4%E8%A7%A3%E7%AC%AC%E4%B8%80%E4%B8%AAAndroid%E7%A8%8B%E5%BA%8F/</url>
-    <content><![CDATA[<h1 id="使用IDA进行破解分析"><a href="#使用IDA进行破解分析" class="headerlink" title="使用IDA进行破解分析"></a>使用IDA进行破解分析</h1><ul>
-<li>查找分析点<ol>
-<li>使用apktool反编译apk<ul>
-<li><code>Apktool_2.6.1.jar d app-release.apk -o outputdir</code></li>
-</ul>
-</li>
-<li>查看资源文件中的string.xml</li>
-<li>寻找相关的字符串对应的id号 比如 “unsuccessed”</li>
-</ol>
-</li>
-<li>使用7z直接解压缩目标APK</li>
-<li>提取其中的dex文件</li>
-<li>载入ida</li>
-<li>使用关键字搜索 ALT T 来搜索上面找到的id号</li>
-<li>简单分析程序，然后修改dex文件<ul>
-<li>edit - patch program -&gt; change byte -&gt; apply patches to input file</li>
-</ul>
-</li>
-</ul>
+    <title>afl fuzz libxml2</title>
+    <url>/2021/11/05/afl-fuzz-libxml2/</url>
+    <content><![CDATA[<p>模糊测试复现笔记</p>
 <span id="more"></span>
 
-<h1 id="使用dex2jar工具对dex文件进行修复"><a href="#使用dex2jar工具对dex文件进行修复" class="headerlink" title="使用dex2jar工具对dex文件进行修复"></a>使用dex2jar工具对dex文件进行修复</h1><p>主要是修复dex文件中的这两个字段：（checksum、signature）。也可以使用dexfixter工具</p>
-<ul>
-<li><code>d2j-dex-recompute-checksum.bat classes.dex -o</code></li>
-</ul>
-<p>替换apk里面的dex文件为修复之后的文件</p>
-<ul>
-<li>删除文件：<ul>
-<li><code>.\aapt r D:\tools\android\apks\crackme02.apk classes.dex</code></li>
-</ul>
-</li>
-<li>替换文件：<ul>
-<li><code>.\aapt a D:\tools\android\apks\crackme02.apk d:\tools\android\apks\classes.dex</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h1><blockquote>
-<p>签名之前需要将之前的apk文件里面原来的签名文件删除 </p>
-<p>即删除 META-INF文件夹</p>
-</blockquote>
-<ul>
-<li><code>jarsigner -keystore d:\android\android.jks -signedjar crackme02signed.apk crackme02.apk android</code></li>
-<li>其中Android.jks是由AS自动生成的签名文件，android是证书名称</li>
-</ul>
+<h1 id="使用AFL-模糊测试libxml2"><a href="#使用AFL-模糊测试libxml2" class="headerlink" title="使用AFL++模糊测试libxml2"></a>使用AFL++模糊测试libxml2</h1><h2 id="简单模糊测试"><a href="#简单模糊测试" class="headerlink" title="简单模糊测试"></a>简单模糊测试</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">在这里的时候需要用绝对路径相对路径是会报错的。</span><br><span class="line">/home/fourth/fuzz</span><br><span class="line">$ make CC=/home/fourth/fuzz/AFLplusplus/afl-clang-fast CXX=/home/fourth/fuzz/AFLplusplus/afl-clang-fast++ LD=/home/fourth/fuzz/AFLplusplus/afl-clang-fast</span><br><span class="line"></span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i ./in -o ./out -m none -d -- ./xmlint_cov @@</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│        run time : 0 days, 0 hrs, 3 min, 47 sec      │  cycles done : 0     │</span><br><span class="line">│   last new path : 0 days, 0 hrs, 0 min, 1 sec       │  total paths : 1710  │</span><br><span class="line">│ last uniq crash : none seen yet                     │ uniq crashes : 0     │</span><br><span class="line">│  last uniq hang : none seen yet                     │   uniq hangs : 0     │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│  now processing : 1558.1 (91.1%)     │    map density : 1.00% / 4.98%      │</span><br><span class="line">│ paths timed out : 0 (0.00%)          │ count coverage : 3.23 bits/tuple    │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│  now trying : havoc                  │ favored paths : 330 (19.30%)        │</span><br><span class="line">│ stage execs : 25.4k/32.8k (77.41%)   │  new edges on : 509 (29.77%)        │</span><br><span class="line">│ total execs : 1.24M                  │ total crashes : 0 (0 unique)        │</span><br><span class="line">│  exec speed : 5649/sec               │  total tmouts : 1 (1 unique)        │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│   bit flips : disabled (default, enable with -D)   │    levels : 9         │</span><br><span class="line">│  byte flips : disabled (default, enable with -D)   │   pending : 1435      │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D)   │  pend fav : 109       │</span><br><span class="line">│  known ints : disabled (default, enable with -D)   │ own finds : 1707      │</span><br><span class="line">│  dictionary : n/a                                  │  imported : 0         │</span><br><span class="line">│havoc/splice : 1173/890k, 526/285k                  │ stability : 96.68%    │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused       ├───────────────────────┘</span><br><span class="line">│    trim/eff : 18.12%/6877, disabled                │          [cpu000:150%]</span><br><span class="line">└────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h2 id="persistent-mode"><a href="#persistent-mode" class="headerlink" title="persistent mode"></a>persistent mode</h2><p>使用AFL++ 的persistent mode来加速fuzz</p>
+<p>首先需要改写我们的主程序代码xmllint.c，其中带<code>+</code>的就是需要重新添加的。一般是循环10000次，是我自己少写了一个0，并且一般就是只需要修改的是main函数，然后把原来的main函数改一个名字即可。</p>
+<p><code>__AFL_LOOP</code>就是告诉AFL，我们需要用到的是persistent mode。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ diff -u a/xmllint.c b/xmllint.c &gt; ./b/diff.patch</span><br><span class="line"></span><br><span class="line">***@ubuntu:~/fuzz/libxml2$ <span class="built_in">cat</span> ./b/diff.patch</span><br><span class="line">--- a/xmllint.c	2021-11-08 18:20:14.461467630 -0800</span><br><span class="line">+++ b/xmllint.c	2021-11-08 19:01:45.680069687 -0800</span><br><span class="line">@@ -3131,7 +3131,13 @@</span><br><span class="line">     int files = 0;</span><br><span class="line">     int version = 0;</span><br><span class="line">     const char* indent;</span><br><span class="line">-</span><br><span class="line">+    </span><br><span class="line">+    <span class="keyword">if</span>(argc&lt;2)</span><br><span class="line">+    	<span class="built_in">return</span> 1;</span><br><span class="line">+    <span class="keyword">while</span>(__AFL_LOOP(1000))</span><br><span class="line">+    	parseAndPrintFile(argv[1],NULL);</span><br><span class="line">+    <span class="built_in">return</span> 0;</span><br><span class="line">+    </span><br><span class="line">     <span class="keyword">if</span> (argc &lt;= 1) &#123;</span><br><span class="line"> 	usage(stderr, argv[0]);</span><br><span class="line"> 	<span class="built_in">return</span>(1);</span><br><span class="line"> 一般是需要改成下面的这个样子的 	</span><br><span class="line">+int main(int argc, char** argv) &#123;</span><br><span class="line">+</span><br><span class="line">+  <span class="keyword">if</span> (argc &lt; 2) <span class="built_in">return</span> 1;</span><br><span class="line">+</span><br><span class="line">+  <span class="keyword">while</span> (__AFL_LOOP(10000))</span><br><span class="line">+    parseAndPrintFile(argv[1], NULL);</span><br><span class="line">+</span><br><span class="line">+  <span class="built_in">return</span> 0;</span><br><span class="line">+</span><br><span class="line">+&#125;</span><br><span class="line">+</span><br><span class="line"> int</span><br><span class="line">-main(int argc, char **argv) &#123;</span><br><span class="line">+old_main(int argc, char **argv) &#123;</span><br><span class="line">     int i, acount;</span><br><span class="line">     int files = 0;</span><br><span class="line">     int version = 0;</span><br></pre></td></tr></table></figure>
+
+<p>记住，在编译之前一定要先 <code>make clean</code> 否则会报错。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ../fuzz</span><br><span class="line">$ <span class="built_in">rm</span> xmllint</span><br><span class="line">$ make CC=~/AFLplusplus/afl-clang-fast CXX=~/AFLplusplus/afl-clang-fast++ LD=~/AFLplusplus/afl-clang-fast</span><br><span class="line">$ <span class="built_in">cp</span> xmllint ../fuzz/xmllint_persistent</span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i <span class="keyword">in</span>/ -o out -m none -d -- ./xmllint_persistent @@</span><br></pre></td></tr></table></figure>
+
+<p>可以看到模糊测试的速度大致提升了200倍。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">               american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│        run time : 0 days, 3 hrs, 22 min, 41 sec     │  cycles done : 3     │</span><br><span class="line">│   last new path : 0 days, 0 hrs, 0 min, 48 sec      │  total paths : 4212  │</span><br><span class="line">│ last uniq crash : none seen yet                     │ uniq crashes : 0     │</span><br><span class="line">│  last uniq hang : none seen yet                     │   uniq hangs : 0     │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│  now processing : 2166.3 (51.4%)     │    map density : 1.34% / 6.66%      │</span><br><span class="line">│ paths timed out : 0 (0.00%)          │ count coverage : 4.38 bits/tuple    │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│  now trying : havoc                  │ favored paths : 508 (12.06%)        │</span><br><span class="line">│ stage execs : 1212/5299 (22.87%)     │  new edges on : 863 (20.49%)        │</span><br><span class="line">│ total execs : 35.7M                  │ total crashes : 0 (0 unique)        │</span><br><span class="line">│  exec speed : 4039/sec               │  total tmouts : 2711 (233 unique)   │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│   bit flips : disabled (default, enable with -D)   │    levels : 24        │</span><br><span class="line">│  byte flips : disabled (default, enable with -D)   │   pending : 2707      │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D)   │  pend fav : 0         │</span><br><span class="line">│  known ints : disabled (default, enable with -D)   │ own finds : 4209      │</span><br><span class="line">│  dictionary : n/a                                  │  imported : 0         │</span><br><span class="line">│havoc/splice : 2467/16.6M, 1742/18.9M               │ stability : 97.27%    │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused       ├───────────────────────┘</span><br><span class="line">│    trim/eff : 13.36%/188k, disabled                │          [cpu000:150%]</span><br><span class="line">└────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h2 id="QEMU-mode"><a href="#QEMU-mode" class="headerlink" title="QEMU mode"></a>QEMU mode</h2><p>假设我们没有源代码，所以就不能对源代码进行打补丁，所以我们就只能使用QEMU模式来对二进制文件来进行插桩。</p>
+<p>首先需要的是编译程序（需要恢复对之前源代码的操作）</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ../libxml2</span><br><span class="line">$ make clean</span><br><span class="line">$ make</span><br><span class="line">$ <span class="built_in">cp</span> xmllint ../fuzz/</span><br><span class="line">$ ../AFLplusplus/afl-fuzz -i <span class="keyword">in</span>/ -o out -m none -d -Q -- ./xmllint @@</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">           american fuzzy lop ++3.15a (default) [fast] &#123;0&#125;</span><br><span class="line">┌─ process timing ────────────────────────────────────┬─ overall results ────┐</span><br><span class="line">│ run time : 0 days, 19 hrs, 48 min, 42 sec │ cycles done : 0 │</span><br><span class="line">│ last new path : 0 days, 0 hrs, 0 min, 35 sec │ total paths : 3332 │</span><br><span class="line">│ last uniq crash : none seen yet │ uniq crashes : 0 │</span><br><span class="line">│ last uniq hang : 0 days, 0 hrs, 41 min, 25 sec │ uniq hangs : 2 │</span><br><span class="line">├─ cycle progress ─────────────────────┬─ map coverage┴──────────────────────┤</span><br><span class="line">│ now processing : 2335.9 (70.1%) │ map density : 3.47% / 11.94% │</span><br><span class="line">│ paths timed out : 0 (0.00%) │ count coverage : 3.53 bits/tuple │</span><br><span class="line">├─ stage progress ─────────────────────┼─ findings in depth ─────────────────┤</span><br><span class="line">│ now trying : splice 8 │ favored paths : 445 (13.36%) │</span><br><span class="line">│ stage execs : 51/110 (46.36%) │ new edges on : 807 (24.22%) │</span><br><span class="line">│ total execs : 10.5M │ total crashes : 0 (0 unique) │</span><br><span class="line">│ exec speed : 244.3/sec │ total tmouts : 4802 (272 unique) │</span><br><span class="line">├─ fuzzing strategy yields ────────────┴─────────────┬─ path geometry ───────┤</span><br><span class="line">│ bit flips : disabled (default, enable with -D) │ levels : 24 │</span><br><span class="line">│ byte flips : disabled (default, enable with -D) │ pending : 2401 │</span><br><span class="line">│ arithmetics : disabled (default, enable with -D) │ pend fav : 0 │</span><br><span class="line">│ known ints : disabled (default, enable with -D) │ own finds : 3329 │</span><br><span class="line">│ dictionary : n/a │ imported : 0 │</span><br><span class="line">│havoc/splice : 2147/5.38M, 1182/5.04M │ stability : 98.82% │</span><br><span class="line">│py/custom/rq : unused, unused, unused, unused ├───────────────────────┘</span><br><span class="line">│ trim/eff : 12.08%/53.4k, disabled │ [cpu000:750%]</span><br><span class="line">└────────────────────────────────────────────────────┘^C</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>git clone 不行就是因为终端没有走代理，设置一些即可</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git config –global http.proxy “192.168.1.238:1080”</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://aflplus.plus/docs/tutorials/libxml2_tutorial/">https://aflplus.plus/docs/tutorials/libxml2_tutorial/</a></p>
 ]]></content>
       <categories>
-        <category>Android</category>
-        <category>Android安全</category>
+        <category>Fuzzing</category>
+        <category>AFL</category>
       </categories>
       <tags>
-        <tag>Android安全</tag>
-        <tag>破解程序</tag>
+        <tag>Fuzzing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>安装Xposed</title>
+    <url>/2022/06/01/%E5%AE%89%E8%A3%85Xposed/</url>
+    <content><![CDATA[<span id="more"></span>
+
+<h1 id="设备解锁"><a href="#设备解锁" class="headerlink" title="设备解锁"></a>设备解锁</h1><p>devices: xiomi x6</p>
+<p>如果手机没有解锁则，需要解锁：</p>
+<ul>
+<li>解锁需要专门的工具：<a href="https://www.miui.com/unlock/index.html">https://www.miui.com/unlock/index.html</a></li>
+<li>解锁的时候，手机需要登录上小米账号，插上sim卡</li>
+<li>如果出现电脑识别不了usb，可能是因为电脑的USB驱动是2.0的，数据线也要是2.0的，如果不是，则需要安装一个3.0的驱动。<a href="https://miuiver.com/usb3-fix/">https://miuiver.com/usb3-fix/</a></li>
+<li>然后直接点击解锁即可</li>
+</ul>
+<h1 id="获取root权限"><a href="#获取root权限" class="headerlink" title="获取root权限"></a>获取root权限</h1><p>通过线刷来刷入想要的Android版本，<strong>注意需要版本相同才可以刷入Google原生的版本</strong>，但是我并没有找到，线刷步骤以及获取root权限：</p>
+<ol>
+<li>为了方便其他的需要，从新刷入了Android8.1的稳定版（先刷了一次测试版，但是测试版老是自动关机，目前稳定版没有自动关机过），这个较为简单，跟着教程来就可以了</li>
+<li>由于使用了TWRP进入recovery模式之后需要输入密码，而一般的软件并不能解锁system,所以选择的是，Magisk Manager来进行刷机</li>
+<li>手机安装上Magisk Manager，在设置里选择app的更新通道为：稳定版本（测试版本会出现手机关机后root权限消失的问题。</li>
+<li>将上面线刷的线刷包里面的boot.img移动到手机上：adb push boot.img &#x2F;sdcard&#x2F;downloads&#x2F;</li>
+<li>打开magisk 选择安装，方式可以选择并修补一个文件，然后选择上第4步的文件，进行修复，然后回生成一个img文件，在特定目录下，或者选择直接安装也是一样的</li>
+<li>将生成的文件移动到电脑，将手机启动到fastboot模式：adb reboot bootloader</li>
+<li>将上面生成的img文件刷入到手机：<strong>fastboot flash boot boot.img</strong> ,注意这里只能使用boot，不能使用别的命令，否则会失败。</li>
+<li>至此手机的root权限就得到了</li>
+</ol>
+<h1 id="安装edxposed"><a href="#安装edxposed" class="headerlink" title="安装edxposed:"></a>安装edxposed:</h1><ol>
+<li>首先需要准备的东西,magisk刷机包v24.3，riru刷机包v25.4.4，edxposed刷机包v0.5.2.2</li>
+<li>magisk刷机包，将下载的magisk.apk 后缀名修改为zip即可</li>
+<li>然后将三个文件放入手机上</li>
+<li>在magisk上面安装模块，注意安装顺序，先安装magisk.zip、然后是riru(注意版本问题，否则会识别不上)、edxposed</li>
+</ol>
+<h1 id="相关连接"><a href="#相关连接" class="headerlink" title="相关连接"></a>相关连接</h1><p>小米6x线刷包：<a href="https://xiaomirom.com/rom/mi-6x-wayne-china-fastboot-recovery-rom/">https://xiaomirom.com/rom/mi-6x-wayne-china-fastboot-recovery-rom/</a></p>
+<p>线刷教程： <a href="https://www.miui.com/shuaji-393.html">https://www.miui.com/shuaji-393.html</a></p>
+<p>xposed: <a href="https://repo.xposed.info/module/de.robv.android.xposed.installer">https://repo.xposed.info/module/de.robv.android.xposed.installer</a></p>
+<p>edxposed: <a href="https://github.com/ElderDrivers/EdXposed">https://github.com/ElderDrivers/EdXposed</a></p>
+<p>magisk: <a href="https://github.com/topjohnwu/Magisk">https://github.com/topjohnwu/Magisk</a></p>
+<p>twrp: <a href="https://twrp.me/Devices/">https://twrp.me/Devices/</a></p>
+]]></content>
+      <categories>
+        <category>Android安全</category>
+        <category>环境搭建</category>
+      </categories>
+      <tags>
+        <tag>Xposed</tag>
+        <tag>环境搭建</tag>
       </tags>
   </entry>
   <entry>
@@ -2264,6 +2109,109 @@
       </tags>
   </entry>
   <entry>
+    <title>heartbleed(CVE-2014-0160)</title>
+    <url>/2021/11/14/heartbleed-CVE-2014-0160/</url>
+    <content><![CDATA[<h1 id="心脏滴血漏洞复现（CVE-2014-0160）"><a href="#心脏滴血漏洞复现（CVE-2014-0160）" class="headerlink" title="心脏滴血漏洞复现（CVE 2014-0160）"></a>心脏滴血漏洞复现（CVE 2014-0160）</h1><p>基本信息</p>
+<p>OpenSSL版本：1.0.1</p>
+<p>fuzzer：libfuzzer</p>
+<span id="more"></span>
+
+<h2 id="编译OpenSSL"><a href="#编译OpenSSL" class="headerlink" title="编译OpenSSL"></a>编译OpenSSL</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tar xzf openssl1.0.1f.tgz</span><br><span class="line"><span class="built_in">cd</span> openssl1.0.1f/</span><br><span class="line"></span><br><span class="line">./config</span><br><span class="line">make clean</span><br><span class="line">make CC=<span class="string">&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize=address,fuzzer -fsanitize-coverage=trace-pc-guard,trace-cmp,trace-gep,trace-div&quot;</span> -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
+
+<p>首先是按照教程，但是后面会报错，因为高版本的libfuzzer并不支持了：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-fsanitize-coverage=trace-pc-guard is no longer supported by libFuzzer.</span><br></pre></td></tr></table></figure>
+
+<p>本来想的是修改libfuzzer的版本，但是，并不能成功，所以就参考libfuzzer官方的使用方法，在编译目标程序的时候命令修改成下面的形式（直接删除就好了）</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make CC=<span class="string">&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize=fuzzer -fsanitize-coverage=trace-cmp,trace-gep,trace-div&quot;</span> -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="编译fuzzer-target"><a href="#编译fuzzer-target" class="headerlink" title="编译fuzzer target"></a>编译fuzzer target</h2><p>The first step in using libFuzzer on a library is to implement a <em>fuzz target</em> – a function that accepts an array of bytes and does something interesting with these bytes using the API under test. like this:</p>
+<figure class="highlight cc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// fuzz_target.cc</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *Data, <span class="type">size_t</span> Size)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">DoSomethingInterestingWithMyAPI</span>(Data, Size);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// Non-zero return values are reserved for future use.</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//openssl_fuzzer.cc</span></span><br><span class="line"><span class="comment">// Copyright 2016 Google Inc. All Rights Reserved.</span></span><br><span class="line"><span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/ssl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/err.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stddef.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> CERT_PATH</span></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> CERT_PATH</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">SSL_CTX *<span class="title">Init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">SSL_library_init</span>();</span><br><span class="line">  <span class="built_in">SSL_load_error_strings</span>();</span><br><span class="line">  <span class="built_in">ERR_load_BIO_strings</span>();</span><br><span class="line">  <span class="built_in">OpenSSL_add_all_algorithms</span>();</span><br><span class="line">  SSL_CTX *sctx;</span><br><span class="line">  <span class="built_in">assert</span> (sctx = <span class="built_in">SSL_CTX_new</span>(<span class="built_in">TLSv1_method</span>()));</span><br><span class="line">  <span class="comment">/* These two file were created with this command:</span></span><br><span class="line"><span class="comment">      openssl req -x509 -newkey rsa:512 -keyout server.key \</span></span><br><span class="line"><span class="comment">     -out server.pem -days 9999 -nodes -subj /CN=a/</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="built_in">assert</span>(<span class="built_in">SSL_CTX_use_certificate_file</span>(sctx, CERT_PATH <span class="string">&quot;server.pem&quot;</span>,</span><br><span class="line">                                      SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="built_in">assert</span>(<span class="built_in">SSL_CTX_use_PrivateKey_file</span>(sctx, CERT_PATH <span class="string">&quot;server.key&quot;</span>,</span><br><span class="line">                                     SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="keyword">return</span> sctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *data, <span class="type">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="type">static</span> SSL_CTX *sctx = <span class="built_in">Init</span>();</span><br><span class="line">  SSL *server = <span class="built_in">SSL_new</span>(sctx);</span><br><span class="line">  BIO *sinbio = <span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_mem</span>());</span><br><span class="line">  BIO *soutbio = <span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_mem</span>());</span><br><span class="line">  <span class="built_in">SSL_set_bio</span>(server, sinbio, soutbio);</span><br><span class="line">  <span class="built_in">SSL_set_accept_state</span>(server);</span><br><span class="line">  <span class="built_in">BIO_write</span>(sinbio, data, size);</span><br><span class="line">  <span class="built_in">SSL_do_handshake</span>(server);</span><br><span class="line">  <span class="built_in">SSL_free</span>(server);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">clang++ -g openssl_fuzzer.cc -O2 -fno-omit-frame-pointer -fsanitize=address,fuzzer \</span><br><span class="line">    -fsanitize-coverage=trace-cmp,trace-gep,trace-div \</span><br><span class="line">    -Iopenssl1.0.1f/include openssl1.0.1f/libssl.a openssl1.0.1f/libcrypto.a \</span><br><span class="line">    ../../libFuzzer/libFuzzer.a -o openssl_fuzzer</span><br></pre></td></tr></table></figure>
+
+<p>然后创建一个文件夹，使用生成的<code>openssl_fuzzer</code>来测试：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> corpus1</span><br><span class="line">./openssl_fuzzer ./corpus1/</span><br></pre></td></tr></table></figure>
+
+<p>然后就可以看到程序报错了。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">=================================================================</span><br><span class="line">==4447==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x629000009748 at pc 0x000000435777 bp 0x7ffcbf76d0a0 sp 0x7ffcbf76c860</span><br><span class="line">READ of size 48384 at 0x629000009748 thread T0</span><br><span class="line">    #0 0x435776 in memcpy (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x435776)</span><br><span class="line">    #1 0x4ce5cf in tls1_process_heartbeat /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/t1_lib.c:2586:3</span><br><span class="line">    #2 0x503b43 in ssl3_read_bytes /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_pkt.c:1092:4</span><br><span class="line">    #3 0x50559b in ssl3_get_message /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:457:7</span><br><span class="line">    #4 0x4ed420 in ssl3_get_client_hello /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:941:4</span><br><span class="line">    #5 0x4eb8fe in ssl3_accept /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:357:9</span><br><span class="line">    #6 0x4c92e2 in LLVMFuzzerTestOneInput /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer.cc:39:3</span><br><span class="line">    #7 0x67f862 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:556:15</span><br><span class="line">    #8 0x67eea5 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool*) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:470:3</span><br><span class="line">    #9 0x6804b7 in fuzzer::Fuzzer::MutateAndTestOne() /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:698:19</span><br><span class="line">    #10 0x681005 in fuzzer::Fuzzer::Loop(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:830:5</span><br><span class="line">    #11 0x670076 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerDriver.cpp:824:6</span><br><span class="line">    #12 0x66b1a0 in main /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerMain.cpp:19:10</span><br><span class="line">    #13 0x7f7f3f2010b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:308:16</span><br><span class="line">    #14 0x41ea1d in _start (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x41ea1d)</span><br><span class="line"></span><br><span class="line">0x629000009748 is located 0 bytes to the right of 17736-byte region [0x629000005200,0x629000009748)</span><br><span class="line">allocated by thread T0 here:</span><br><span class="line">    #0 0x49715d in malloc (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x49715d)</span><br><span class="line">    #1 0x519b0b in CRYPTO_malloc /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/crypto/mem.c:308:8</span><br><span class="line">    #2 0x505f7b in freelist_extract /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:708:12</span><br><span class="line">    #3 0x505f7b in ssl3_setup_read_buffer /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:770:10</span><br><span class="line">    #4 0x5062ec in ssl3_setup_buffers /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:827:7</span><br><span class="line">    #5 0x4eb807 in ssl3_accept /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:292:9</span><br><span class="line">    #6 0x4c92e2 in LLVMFuzzerTestOneInput /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer.cc:39:3</span><br><span class="line">    #7 0x67f862 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:556:15</span><br><span class="line">    #8 0x6808b8 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:743:3</span><br><span class="line">    #9 0x680dd9 in fuzzer::Fuzzer::Loop(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:792:3</span><br><span class="line">    #10 0x670076 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerDriver.cpp:824:6</span><br><span class="line">    #11 0x66b1a0 in main /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerMain.cpp:19:10</span><br><span class="line">    #12 0x7f7f3f2010b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:308:16</span><br><span class="line"></span><br><span class="line">SUMMARY: AddressSanitizer: heap-buffer-overflow (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x435776) in memcpy</span><br><span class="line">Shadow bytes around the buggy address:</span><br><span class="line">  0x0c527fff9290: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">=&gt;0x0c527fff92e0: 00 00 00 00 00 00 00 00 00[fa]fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff92f0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9300: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9310: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9320: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9330: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">Shadow byte legend (one shadow byte represents 8 application bytes):</span><br><span class="line">  Addressable:           00</span><br><span class="line">  Partially addressable: 01 02 03 04 05 06 07 </span><br><span class="line">  Heap left redzone:       fa</span><br><span class="line">  Freed heap region:       fd</span><br><span class="line">  Stack left redzone:      f1</span><br><span class="line">  Stack mid redzone:       f2</span><br><span class="line">  Stack right redzone:     f3</span><br><span class="line">  Stack after return:      f5</span><br><span class="line">  Stack use after scope:   f8</span><br><span class="line">  Global redzone:          f9</span><br><span class="line">  Global init order:       f6</span><br><span class="line">  Poisoned by user:        f7</span><br><span class="line">  Container overflow:      fc</span><br><span class="line">  Array cookie:            ac</span><br><span class="line">  Intra object redzone:    bb</span><br><span class="line">  ASan internal:           fe</span><br><span class="line">  Left alloca redzone:     ca</span><br><span class="line">  Right alloca redzone:    cb</span><br><span class="line">  Shadow gap:              cc</span><br><span class="line">==4447==ABORTING</span><br><span class="line">MS: 2 InsertByte-InsertByte-; base unit: 6409fc1658e8c93af3744d90dd4f7eb4dbc6e488</span><br><span class="line">0x18,0x3,0xff,0x0,0xd,0x1,0xbd,0x0,0x0,0xb3,0x0,0x0,0x0,0x0,0x0,0xd,0xd,0xd,0xd,0xd,0xd,0x0,0x0,0x0,</span><br><span class="line">\x18\x03\xff\x00\x0d\x01\xbd\x00\x00\xb3\x00\x00\x00\x00\x00\x0d\x0d\x0d\x0d\x0d\x0d\x00\x00\x00</span><br><span class="line">artifact_prefix=&#x27;./&#x27;; Test unit written to ./crash-052a0bf2b9eddd783de293aa5452c3212975c9c1</span><br><span class="line">Base64: GAP/AA0BvQAAswAAAAAADQ0NDQ0NAAAA</span><br></pre></td></tr></table></figure>
+
+<p>SUMMARY: AddressSanitizer: heap-buffer-overflow (&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;libfuzzer-workshop-master&#x2F;lessons&#x2F;05&#x2F;openssl_fuzzer+0x435776) in memcpy</p>
+<p>可以看到就是tls1_process_heartbeat这里出错了。</p>
+<h2 id="crash分析"><a href="#crash分析" class="headerlink" title="crash分析"></a>crash分析</h2><p>在gdb中使用GEF来复现</p>
+<p>注意，需要使用代理才可以使用该工具（或者你换一种使用方法也是可以的），使用的文件是上面fuzzing出来的crash文件（以id开头的文件）</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">proxychains gdb -Q target</span><br><span class="line"></span><br><span class="line">(gdb)pi import urllib.request as u, tempfile as t; g=t.NamedTemporaryFile(suffix=<span class="string">&#x27;-gef.py&#x27;</span>); open(g.name, <span class="string">&#x27;wb+&#x27;</span>).write(u.urlopen(<span class="string">&#x27;https://tinyurl.com/gef-master&#x27;</span>).<span class="built_in">read</span>()); gdb.execute(<span class="string">&#x27;source %s&#x27;</span> % g.name)</span><br><span class="line"></span><br><span class="line">gef&gt; r &gt; <span class="built_in">id</span>:000000,sig:06,src:000004+000003,time:27696,op:splice,rep:4</span><br><span class="line"></span><br><span class="line">exploitable</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm">https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm</a></p>
+<p><a href="https://github.com/Dor1s/libfuzzer-workshop">https://github.com/Dor1s/libfuzzer-workshop</a></p>
+<p><a href="https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/">https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/</a></p>
+]]></content>
+      <categories>
+        <category>Fuzzing</category>
+        <category>libfuzzer</category>
+      </categories>
+      <tags>
+        <tag>Fuzzing</tag>
+        <tag>漏洞复现</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>排序</title>
+    <url>/2022/06/01/%E6%8E%92%E5%BA%8F/</url>
+    <content><![CDATA[<span id="more"></span>
+
+<h1 id="Bubble-sort"><a href="#Bubble-sort" class="headerlink" title="Bubble sort"></a>Bubble sort</h1><p>分为向前冒泡，还是向后冒。</p>
+<p>原理：比较相邻得两个元素，如果前者大于后者，则交换两个得顺序，一趟遍历之后，最后一个位置得元素得值是最大的。</p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;i&lt;nums.length-<span class="number">1</span>;i++)&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>;j&lt;nums.length-i;j++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums[j]&lt;nums[j-<span class="number">1</span>])&#123;</span><br><span class="line">			swap(nums[j],nums[j-<span class="number">1</span>]);</span><br><span class="line">		&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="selection-sort"><a href="#selection-sort" class="headerlink" title="selection sort"></a>selection sort</h1><p>原理：每一次在数组中找到一个最大的或者最小的值，放在一个特定的位置，比如数组头或者数组尾</p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line"><span class="comment">//从前往后找到一个最大的放在i处</span></span><br><span class="line">	<span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> i;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i+<span class="number">1</span>;j&lt;nums.length;j++)&#123;</span><br><span class="line">		<span class="keyword">if</span>(nums[j]&gt;nums[index])&#123;</span><br><span class="line">			index = j;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	swap(nums[i],nums[index]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="insertion-sort"><a href="#insertion-sort" class="headerlink" title="insertion sort"></a>insertion sort</h1><p>原理：将待排序的元素插入到已经有序的元素中，也就是说，会涉及到元素的移动等问题</p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//单个元素视为是有序的,假设整个数组需要的是升序排序</span></span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line">	<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i-<span class="number">1</span>;</span><br><span class="line">	<span class="comment">//因为值是会覆盖的，所以需要的保存下来</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">temp</span> <span class="operator">=</span> nums[i];</span><br><span class="line">	<span class="keyword">while</span>(j&gt;=<span class="number">0</span> &amp;&amp; nums[i]&gt;nums[j])&#123;</span><br><span class="line">		nums[j+<span class="number">1</span>] = nums[j];</span><br><span class="line">		j--;</span><br><span class="line">	&#125;</span><br><span class="line">	nums[j+<span class="number">1</span>] = temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Shell-sort"><a href="#Shell-sort" class="headerlink" title="Shell sort"></a>Shell sort</h1><p>​    是简单插入排序的升级，为了减少数据移动的次数，进行了增量。又叫缩小增量排序。</p>
+<p>原理：</p>
+<ul>
+<li><p>将整个待排序的数据分为若干个子序列，然后分别进行插入排序。</p>
+</li>
+<li><p>选择一个增量序列：t1, t2, …, tk, ti&gt;tj,tk&#x3D;1  增量是从大到小，最后为1</p>
+</li>
+<li><p>对于每一趟排序，根据对应的增量，将子序列进行插入排序，</p>
+</li>
+<li><p>当增量为1的时候，是最后一趟</p>
+</li>
+</ul>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//假设需要的是升序排序</span></span><br><span class="line"><span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">gap</span> <span class="operator">=</span> Math.floor(n/<span class="number">2</span>);gap&gt;<span class="number">0</span>;gap = Math.floor(gap/<span class="number">2</span>))&#123;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> gap;i&lt;n;i++)&#123;</span><br><span class="line">		<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i;</span><br><span class="line">		<span class="type">int</span> <span class="variable">temp</span> <span class="operator">=</span> nums[i];</span><br><span class="line">		<span class="keyword">while</span>(j-gap&gt;=<span class="number">0</span> &amp;&amp; nums[j-gap] &gt; temp)&#123;</span><br><span class="line">			nums[j] = nums[j-gap];</span><br><span class="line">			j -= gap;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	nums[j] = temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="merge-sort"><a href="#merge-sort" class="headerlink" title="merge sort"></a>merge sort</h1><p>思想：分治的思想，先分后合并为有序</p>
+<p>原理：</p>
+<ul>
+<li>将待排序元素分为两半</li>
+<li>将两个子序列采用归并排序（也就是说再分）</li>
+<li>将排序好的子序列进行合并</li>
+</ul>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">mergeSort(<span class="type">int</span> []nums,<span class="type">int</span> start,<span class="type">int</span> end)&#123;</span><br><span class="line">	<span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> end-start;</span><br><span class="line">	<span class="keyword">if</span>(n&lt;<span class="number">2</span>)&#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span>satrt + n/<span class="number">2</span>;</span><br><span class="line">    mergeSort(nums,start,mid);</span><br><span class="line">    mergeSort(nums,mid+<span class="number">1</span>,end);</span><br><span class="line">	merge(nums,start,mid,end);</span><br><span class="line">&#125;</span><br><span class="line">merge(<span class="type">int</span> []nums,<span class="type">int</span> start,<span class="type">int</span> mid,<span class="type">int</span> end)&#123;</span><br><span class="line">	<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> start;</span><br><span class="line">    <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> mid+<span class="number">1</span>;</span><br><span class="line">    <span class="type">int</span> <span class="variable">k</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span>[] temp = <span class="keyword">new</span> <span class="title class_">int</span>[end-start+<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">while</span>(i&lt;=mid &amp;&amp; j&lt;=end)&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums[i]&gt;nums[j])&#123;</span><br><span class="line">            temp[k++] = nums[j++];</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            temp[k++] = nums[i++];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(i&lt;=mid)&#123;</span><br><span class="line">        temp[k++] = nums[i++];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(j&lt;=end)&#123;</span><br><span class="line">        temp[k++] = nums[j++];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> start,k=<span class="number">0</span>;i&lt;=end;i++,k++)&#123;</span><br><span class="line">        nums[i] = temp[k];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>code</category>
+        <category>算法</category>
+      </categories>
+      <tags>
+        <tag>code</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>模糊测试相关论文笔记</title>
     <url>/2021/07/25/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E7%9B%B8%E5%85%B3%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<h1 id="1-IOTFUZZER-Discovering-Memory-Corruptions-in-IoT-Through-App-based-Fuzzing"><a href="#1-IOTFUZZER-Discovering-Memory-Corruptions-in-IoT-Through-App-based-Fuzzing" class="headerlink" title="1.IOTFUZZER: Discovering Memory Corruptions in IoT Through App-based Fuzzing"></a>1.IOTFUZZER: Discovering Memory Corruptions in IoT Through App-based Fuzzing</h1><h2 id="摘要："><a href="#摘要：" class="headerlink" title="摘要："></a>摘要：</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Existing binary analysis based approaches only work on firmware, which is less accessible except for those equipped with special tools for extracting the code from the device.</span><br><span class="line">现有的二进制分析的方法只能在固件上面工作，但是除了配备特殊工具的设备外，固件的获取具有一定的难度。</span><br><span class="line"> IOTFUZZER：自动fuzzing框架，目的是查找物联网设备中的内存损坏漏洞（不需要获取其固件镜像）</span><br><span class="line"> </span><br><span class="line">The key idea ：most IoT devices are controlled through their official mobile apps, and such an app often contains rich information about the protocol it uses to communicate with its device. </span><br><span class="line">主要思想：大多数的物联网设备是由APP控制的，这些APP中有与其交互的各种协议</span><br><span class="line"></span><br><span class="line"> Therefore, by identifying and reusing program-specific logic (e.g., encryption) to mutate the test case (particularly message fields), we are able to effectively probe IoT targets without relying on any knowledge about its protocol specifications. </span><br><span class="line"> 通过识别和重用APP特定的逻辑来变异测试用例，我们就可以有效得探测物联网目标，而不依赖于任何关于其协议规范的知识</span><br></pre></td></tr></table></figure>
@@ -2351,6 +2299,63 @@
       <tags>
         <tag>Fuzzing</tag>
         <tag>paper</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>破解第一个Android程序</title>
+    <url>/2022/04/16/%E7%A0%B4%E8%A7%A3%E7%AC%AC%E4%B8%80%E4%B8%AAAndroid%E7%A8%8B%E5%BA%8F/</url>
+    <content><![CDATA[<h1 id="使用IDA进行破解分析"><a href="#使用IDA进行破解分析" class="headerlink" title="使用IDA进行破解分析"></a>使用IDA进行破解分析</h1><ul>
+<li>查找分析点<ol>
+<li>使用apktool反编译apk<ul>
+<li><code>Apktool_2.6.1.jar d app-release.apk -o outputdir</code></li>
+</ul>
+</li>
+<li>查看资源文件中的string.xml</li>
+<li>寻找相关的字符串对应的id号 比如 “unsuccessed”</li>
+</ol>
+</li>
+<li>使用7z直接解压缩目标APK</li>
+<li>提取其中的dex文件</li>
+<li>载入ida</li>
+<li>使用关键字搜索 ALT T 来搜索上面找到的id号</li>
+<li>简单分析程序，然后修改dex文件<ul>
+<li>edit - patch program -&gt; change byte -&gt; apply patches to input file</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="使用dex2jar工具对dex文件进行修复"><a href="#使用dex2jar工具对dex文件进行修复" class="headerlink" title="使用dex2jar工具对dex文件进行修复"></a>使用dex2jar工具对dex文件进行修复</h1><p>主要是修复dex文件中的这两个字段：（checksum、signature）。也可以使用dexfixter工具</p>
+<ul>
+<li><code>d2j-dex-recompute-checksum.bat classes.dex -o</code></li>
+</ul>
+<p>替换apk里面的dex文件为修复之后的文件</p>
+<ul>
+<li>删除文件：<ul>
+<li><code>.\aapt r D:\tools\android\apks\crackme02.apk classes.dex</code></li>
+</ul>
+</li>
+<li>替换文件：<ul>
+<li><code>.\aapt a D:\tools\android\apks\crackme02.apk d:\tools\android\apks\classes.dex</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h1><blockquote>
+<p>签名之前需要将之前的apk文件里面原来的签名文件删除 </p>
+<p>即删除 META-INF文件夹</p>
+</blockquote>
+<ul>
+<li><code>jarsigner -keystore d:\android\android.jks -signedjar crackme02signed.apk crackme02.apk android</code></li>
+<li>其中Android.jks是由AS自动生成的签名文件，android是证书名称</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Android</category>
+        <category>Android安全</category>
+      </categories>
+      <tags>
+        <tag>Android安全</tag>
+        <tag>破解程序</tag>
       </tags>
   </entry>
   <entry>
