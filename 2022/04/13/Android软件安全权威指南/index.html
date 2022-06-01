@@ -23,7 +23,7 @@
     <meta name="description" content="逆向一个app的常规步骤 使用apktool反编译apk  Apktool_2.6.1.jar d app-release.apk -o outputdir   查看资源文件中的string.xml  寻找相关的字符串对应的id号  搜索整个反编译文件内容 id号  继续分析  找到smali文件，然后查看逻辑，并破解apk  回编译apk、签名  验证">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android软件安全权威指南-学习笔记">
-<meta property="og:url" content="http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:url" content="http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97/index.html">
 <meta property="og:site_name" content="Dfault0&#39;s blog">
 <meta property="og:description" content="逆向一个app的常规步骤 使用apktool反编译apk  Apktool_2.6.1.jar d app-release.apk -o outputdir   查看资源文件中的string.xml  寻找相关的字符串对应的id号  搜索整个反编译文件内容 id号  继续分析  找到smali文件，然后查看逻辑，并破解apk  回编译apk、签名  验证">
 <meta property="og:locale" content="en_US">
@@ -38,11 +38,11 @@
 <meta name="twitter:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220413185118.png">
 
 
-<link rel="canonical" href="http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+<link rel="canonical" href="http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/","path":"2022/04/13/Android软件安全权威指南-学习笔记/","title":"Android软件安全权威指南-学习笔记"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97/","path":"2022/04/13/Android软件安全权威指南/","title":"Android软件安全权威指南-学习笔记"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>Android软件安全权威指南-学习笔记 | Dfault0's blog</title>
@@ -141,18 +141,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">26</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -191,7 +191,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -447,8 +447,8 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/04/11/APP%E5%8A%A0%E5%A3%B3%E8%84%B1%E5%A3%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="prev" title="APP加壳脱壳学习笔记">
-                  <i class="fa fa-chevron-left"></i> APP加壳脱壳学习笔记
+                <a href="/2022/04/11/APP%E5%8A%A0%E5%A3%B3%E8%84%B1%E5%A3%B3/" rel="prev" title="APP加壳脱壳">
+                  <i class="fa fa-chevron-left"></i> APP加壳脱壳
                 </a>
             </div>
             <div class="post-nav-item">

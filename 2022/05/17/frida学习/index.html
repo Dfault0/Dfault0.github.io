@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="linux实用小工具 htop：可以查看当前活跃的、占用高的进程 jnettop：流量查看工具，可以查看下载和安装进度  arm64-v8a   手机的架构 frida安装https:&#x2F;&#x2F;github.com&#x2F;frida&#x2F;frida 基本上每一次打开虚拟机都需要运行一下 ~&#x2F;.bashrc 将会添加环境变量，为了方便python env等  设定特定的python版本 ： pyenv l">
+<meta property="og:type" content="article">
+<meta property="og:title" content="frida学习">
+<meta property="og:url" content="http://dfault0.github.io/2022/05/17/frida%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="linux实用小工具 htop：可以查看当前活跃的、占用高的进程 jnettop：流量查看工具，可以查看下载和安装进度  arm64-v8a   手机的架构 frida安装https:&#x2F;&#x2F;github.com&#x2F;frida&#x2F;frida 基本上每一次打开虚拟机都需要运行一下 ~&#x2F;.bashrc 将会添加环境变量，为了方便python env等  设定特定的python版本 ： pyenv l">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-05-17T08:47:59.000Z">
+<meta property="article:modified_time" content="2022-05-31T05:23:54.836Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="Android安全">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/05/17/frida%E5%AD%A6%E4%B9%A0/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/05/17/frida%E5%AD%A6%E4%B9%A0/","path":"2022/05/17/frida学习/","title":"frida学习"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>frida学习 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#linux%E5%AE%9E%E7%94%A8%E5%B0%8F%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">linux实用小工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#frida%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">frida安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85objection%EF%BC%8C%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">安装objection，使用方法：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#frida%E5%9F%BA%E7%A1%80"><span class="nav-number">4.</span> <span class="nav-text">frida基础</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RPC-remote-procedure-call"><span class="nav-number">5.</span> <span class="nav-text">RPC[remote procedure call]</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NPS%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.</span> <span class="nav-text">NPS连接</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E7%94%9F%E6%88%90dex%E6%96%87%E4%BB%B6"><span class="nav-number">7.</span> <span class="nav-text">使用工具生成dex文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AS-build"><span class="nav-number">8.</span> <span class="nav-text">AS build</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5"><span class="nav-number">9.</span> <span class="nav-text">相关链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/05/17/frida%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="frida学习 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          frida学习
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-05-17 16:47:59" itemprop="dateCreated datePublished" datetime="2022-05-17T16:47:59+08:00">2022-05-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-05-31 13:23:54" itemprop="dateModified" datetime="2022-05-31T13:23:54+08:00">2022-05-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/frida/" itemprop="url" rel="index"><span itemprop="name">frida</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="linux实用小工具"><a href="#linux实用小工具" class="headerlink" title="linux实用小工具"></a>linux实用小工具</h1><ul>
+<li>htop：可以查看当前活跃的、占用高的进程</li>
+<li>jnettop：流量查看工具，可以查看下载和安装进度</li>
+</ul>
+<p>arm64-v8a   手机的架构</p>
+<h1 id="frida安装"><a href="#frida安装" class="headerlink" title="frida安装"></a>frida安装</h1><p><a target="_blank" rel="noopener" href="https://github.com/frida/frida">https://github.com/frida/frida</a></p>
+<p>基本上每一次打开虚拟机都需要运行一下 ~&#x2F;.bashrc 将会添加环境变量，为了方便python env等</p>
+<ul>
+<li><p>设定特定的python版本 ： pyenv local 3.8.0</p>
+</li>
+<li><p>安装nodejs：sudo apt install -y nodejs</p>
+</li>
+<li><p>下载adb：wget <a target="_blank" rel="noopener" href="https://dl.google.com/android/repository/platform-tools-latest-linux.zip%EF%BC%8C%E5%B9%B6%E6%B7%BB%E5%8A%A0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">https://dl.google.com/android/repository/platform-tools-latest-linux.zip，并添加环境变量</a> export PATH&#x3D;”&#x2F;root&#x2F;Downloads&#x2F;platform-tools:$PATH”</p>
+</li>
+<li><p>安装 npm: npm install</p>
+</li>
+<li><p>安装frida、frida-tools、下载frida-server,注意版本问题</p>
+<ul>
+<li>proxychains wget <a target="_blank" rel="noopener" href="https://github.com/frida/frida/releases/download/12.8.0/frida-server-12.8.0-android-arm64.xz">https://github.com/frida/frida/releases/download/12.8.0/frida-server-12.8.0-android-arm64.xz</a></li>
+<li>pip install frida&#x3D;&#x3D;12.8.0</li>
+<li>proxychains pip install frida-tools &#x3D;&#x3D;5.3.0</li>
+</ul>
+</li>
+<li><p>使用Frida的时候需要开启服务</p>
+<ul>
+<li>手机开启服务器： &#x2F;data&#x2F;local&#x2F;tmp&#x2F;fs1280arm64 -l 0.0.0.0:8888</li>
+</ul>
+</li>
+</ul>
+<h1 id="安装objection，使用方法："><a href="#安装objection，使用方法：" class="headerlink" title="安装objection，使用方法："></a>安装objection，使用方法：</h1><p><strong>objection -N -h 192.168.3.131 -p 8888 -g com.miui.weather2 explore</strong></p>
+<ul>
+<li><p>objection 常用指令</p>
+<ul>
+<li>查看内存中加载的库：memory list modules</li>
+<li>查看某个库的导出函数：memory list exports libssl.so</li>
+<li>在内存堆中搜索：android heap search instances com.android.settings.DisplaySettings</li>
+<li>执行：android heap execute handleID handleID中的某个函数名</li>
+<li>查看当前可用activity：android hooking list activities</li>
+<li>直接启动某个activity：android intent launch_activity com.android.settings.DisplaySettings。这个可以用来绕过某些activity</li>
+<li>查看包含关键字的类： android hooking list classes</li>
+<li>查看指定类里面的方法：android hooking list class_methods com.android.settings.DisplaySettings</li>
+<li>查看某个类的动态信息：android  hooking  watch class android.bluetooth.BluetoothDevice</li>
+<li>在找到相关的某些信息之后，堆设备进行相关的操作会得到打印出一些有用的信息</li>
+<li>动态查看某个类下面的某个函数的参数，返回值，调用栈：android hooking watch class_method android.bluetooth.BluetoothDevice.getName –dump-args –dump-return –dump-backtrace</li>
+<li>在hook单个函数的时候会HOOK所有的重载（函数名相同，参数不同）：android hooking watch class_method java.io.File.$init –dump-args</li>
+<li>加载插件：有两种方式，一种是在objection里面：plugin load 插件的具体位置；另一种是直接在使用objection的时候就加载插件：objection -N -h 192.168.3.131 -p 5555 -g com.android.settings explore -P ~&#x2F;.objection&#x2F;plugins</li>
+<li>加载插件wallbreaker ,查看某个类中的变量函数签名等信息：<ul>
+<li>plugin wallbreaker classdump –fullname android.bluetooth.BluetoothDevice</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="frida基础"><a href="#frida基础" class="headerlink" title="frida基础"></a>frida基础</h1><p>打印调用栈的js</p>
+<p><code>console.log(Java.use(&quot;android.util.Log&quot;).getStackTraceString(Java.use(&quot;java.lang.Throwable&quot;).$new()));</code></p>
+<p><strong>一般Java里面怎么写，那么用JS实现的时候，里面就同样这么写</strong></p>
+<p><strong>基本操作步骤：</strong></p>
+<ol>
+<li>获取：参数，调用栈，返回值</li>
+<li>方法重载，参数构造，动静态函数的处理（动态函数需要获取类的instance之后调用，静态函数可以直接调用)</li>
+<li>主动调用，不管具体实现，因为中间可能会涉及到jni，直接返回结果</li>
+<li>hook,invoke,rpc</li>
+</ol>
+<p>注意，主动调用是不需要，由脚本返回其返回值的，</p>
+<p>简单示例：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">main</span>(<span class="params"></span>)&#123;</span><br><span class="line"></span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">        <span class="comment">//有重载需要指定函数的参数</span></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.lesson4one.MainActivity&quot;</span>).<span class="property">fun</span>.<span class="title function_">overload</span>(<span class="string">&#x27;int&#x27;</span>, <span class="string">&#x27;int&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">arg1,arg2</span>)&#123;</span><br><span class="line">            <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">fun</span>(arg1,arg2);</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;android.util.Log&quot;</span>).<span class="title function_">getStackTraceString</span>(<span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.Throwable&quot;</span>).$new()));</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg1,arg2,result&quot;</span>,arg1,arg2,result)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">800</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.lesson4one.MainActivity&quot;</span>).<span class="property">fun</span>.<span class="title function_">overload</span>(<span class="string">&quot;java.lang.String&quot;</span>).<span class="property">implementation</span> =<span class="keyword">function</span>(<span class="params">arg1</span>)&#123;</span><br><span class="line">			<span class="comment">//实例化一个字符串的方式</span></span><br><span class="line">            <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">fun</span>(<span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.String&quot;</span>).$new(<span class="string">&quot;NIHAOYA!&quot;</span>))</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg1,result&quot;</span>,arg1,result)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;result&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//因为是动态的方法，所以需要获取到instance之后再进行调用</span></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">choose</span>(<span class="string">&quot;com.example.lesson4one.MainActivity&quot;</span>,&#123;</span><br><span class="line">            <span class="attr">onMatch</span>:<span class="keyword">function</span>(<span class="params">instance</span>)&#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;found instance:&quot;</span>,instance)</span><br><span class="line">                instance.<span class="title function_">secret</span>();</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;instance secret:&quot;</span>,instance.<span class="title function_">secret</span>())</span><br><span class="line">            &#125;,<span class="attr">onComplete</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;&#125;</span><br><span class="line">        &#125;)</span><br><span class="line">		<span class="comment">//如果某个函数是静态的方法的话，就可以直接嗲用该函数即可，</span></span><br><span class="line">        <span class="keyword">var</span> result = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.lesson4one.MainActivity&quot;</span>).<span class="title function_">secret2</span>()</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;secret2:&quot;</span>,result);</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">setImmediate</span>(main)</span><br></pre></td></tr></table></figure>
+
+<p>frida使用js脚本</p>
+<p>frida -H 192.168.3.131:8888 -f  com.example.lesson4one -l lesson5.js  –no-pause</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">─<span class="comment"># frida --help                                                                    </span></span><br><span class="line">Usage: frida [options] target</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">  --version             show program<span class="string">&#x27;s version number and exit</span></span><br><span class="line"><span class="string">  -h, --help            show this help message and exit</span></span><br><span class="line"><span class="string">  -D ID, --device=ID    connect to device with the given ID</span></span><br><span class="line"><span class="string">  -U, --usb             connect to USB device</span></span><br><span class="line"><span class="string">  -R, --remote          connect to remote frida-server</span></span><br><span class="line"><span class="string">  -H HOST, --host=HOST  connect to remote frida-server on HOST</span></span><br><span class="line"><span class="string">  -f FILE, --file=FILE  spawn FILE（启动app）</span></span><br><span class="line"><span class="string">  -F, --attach-frontmost</span></span><br><span class="line"><span class="string">                        attach to frontmost application</span></span><br><span class="line"><span class="string">  -n NAME, --attach-name=NAME</span></span><br><span class="line"><span class="string">                        attach to NAME</span></span><br><span class="line"><span class="string">  -p PID, --attach-pid=PID</span></span><br><span class="line"><span class="string">                        attach to PID</span></span><br><span class="line"><span class="string">  --stdio=inherit|pipe  stdio behavior when spawning (defaults to “inherit”)</span></span><br><span class="line"><span class="string">  --runtime=duk|v8      script runtime to use (defaults to “duk”)</span></span><br><span class="line"><span class="string">  --debug               enable the Node.js compatible script debugger</span></span><br><span class="line"><span class="string">  -l SCRIPT, --load=SCRIPT</span></span><br><span class="line"><span class="string">                        load SCRIPT</span></span><br><span class="line"><span class="string">  -P PARAMETERS_JSON, --parameters=PARAMETERS_JSON</span></span><br><span class="line"><span class="string">                        Parameters as JSON, same as Gadget</span></span><br><span class="line"><span class="string">  -C CMODULE, --cmodule=CMODULE</span></span><br><span class="line"><span class="string">                        load CMODULE</span></span><br><span class="line"><span class="string">  -c CODESHARE_URI, --codeshare=CODESHARE_URI</span></span><br><span class="line"><span class="string">                        load CODESHARE_URI</span></span><br><span class="line"><span class="string">  -e CODE, --eval=CODE  evaluate CODE</span></span><br><span class="line"><span class="string">  -q                    quiet mode (no prompt) and quit after -l and -e</span></span><br><span class="line"><span class="string">  --no-pause            automatically start main thread after startup </span></span><br><span class="line"><span class="string">  -o LOGFILE, --output=LOGFILE</span></span><br><span class="line"><span class="string">                        output to log file</span></span><br><span class="line"><span class="string">  --exit-on-error       exit with code 1 after encountering any exception in</span></span><br><span class="line"><span class="string">                        the SCRIPT</span></span><br></pre></td></tr></table></figure>
+
+<p>打印出对象的值 </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">openClassFile</span>(<span class="string">&quot;/data/local/tmp/r0gson.dex&quot;</span>).<span class="title function_">load</span>();</span><br><span class="line"><span class="keyword">const</span> gson = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;com.r0ysue.gson.Gson&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;x&quot;</span>,gson.$new().<span class="title function_">toJson</span>(x))</span><br><span class="line"><span class="comment">//或者使用下面的这种方法</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;or , x,result&quot;</span>,<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(x),result)</span><br></pre></td></tr></table></figure>
+
+<p>构造数组</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> charArray = <span class="title class_">Java</span>.<span class="title function_">array</span>(<span class="string">&#x27;char&#x27;</span>,[<span class="string">&quot;a&quot;</span>,<span class="string">&#x27;b&#x27;</span>,<span class="string">&#x27;c&#x27;</span>])</span><br></pre></td></tr></table></figure>
+
+<p>子类对象转成父类对象(注意，父类不能转换成子类)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">var</span> <span class="variable">fatherHandle</span> <span class="operator">=</span> Java.cast(sonHandle,Java.use(<span class="string">&quot;father.packageName&quot;</span>))</span><br><span class="line">console.log(<span class="string">&quot;father invoke method: &quot;</span>,fatherHandle.method()) </span><br><span class="line"></span><br><span class="line"><span class="comment">//然而子类是可以转成父类的，类似于Java中的泛型，编译看左边运行看右边的那个</span></span><br><span class="line"><span class="type">var</span> <span class="variable">Juicehandle</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">Java.choose(<span class="string">&quot;com.r0ysue.a0526printout.Juice&quot;</span>,&#123;</span><br><span class="line">     onMatch:function(instance)&#123;</span><br><span class="line">          console.log(<span class="string">&quot;found instance:&quot;</span>,instance)</span><br><span class="line">          console.log(<span class="string">&quot;juice instance call fillEnergy:&quot;</span>,instance.fillEnergy());</span><br><span class="line">          Juicehandle = instance;</span><br><span class="line">    &#125;,onComplete:function()&#123;console.log(<span class="string">&quot;search complemented!&quot;</span>)&#125;</span><br><span class="line">&#125;)</span><br><span class="line">           </span><br><span class="line"><span class="type">var</span> <span class="variable">Waterhandle</span> <span class="operator">=</span> Java.cast(Juicehandle,Java.use(<span class="string">&quot;com.r0ysue.a0526printout.Water&quot;</span>))</span><br><span class="line">console.log(<span class="string">&quot;water still method: &quot;</span>,Juicehandle.still(Waterhandle))</span><br></pre></td></tr></table></figure>
+
+<p>注册类，还可以实现接口</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> beer = <span class="title class_">Java</span>.<span class="title function_">registerClass</span>(&#123;</span><br><span class="line">     <span class="attr">name</span>:<span class="string">&#x27;com.r0ysue.a0526printout.Beer&#x27;</span>,</span><br><span class="line">     <span class="attr">implements</span>:[<span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;com.r0ysue.a0526printout.liquid&#x27;</span>)],</span><br><span class="line">     <span class="attr">methods</span>:&#123;</span><br><span class="line">          <span class="attr">flow</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">          		<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;i am beer!&quot;</span>)</span><br><span class="line">                <span class="keyword">var</span> result = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.String&quot;</span>).$new(<span class="string">&quot;test good&quot;</span>)</span><br><span class="line">                <span class="keyword">return</span> result</span><br><span class="line">          &#125;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">//可以直接new</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;neer.flow:&quot;</span>,beer.$new().<span class="title function_">flow</span>())</span><br></pre></td></tr></table></figure>
+
+<p>hookHashmap</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// setImmediate(main)</span></span><br><span class="line"></span><br><span class="line">function <span class="title function_">hookHashMap</span><span class="params">()</span>&#123;</span><br><span class="line">    Java.perform(function()&#123;</span><br><span class="line">       </span><br><span class="line">        Java.choose(<span class="string">&quot;java.util.HashMap&quot;</span>,&#123;</span><br><span class="line">            onMatch:function(instance)&#123;</span><br><span class="line">                <span class="keyword">if</span>(instance.toString().indexOf(<span class="string">&quot;key words&quot;</span>)!=-<span class="number">1</span>)&#123;</span><br><span class="line">                    <span class="comment">//zhaodaole </span></span><br><span class="line">                    console.log(<span class="string">&quot;found instance:&quot;</span>,instance)</span><br><span class="line">                    console.log(<span class="string">&quot;invoke toString:&quot;</span>,instance.toString())</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">            &#125;,onComplete:function()&#123;console.log(<span class="string">&quot;search completed!&quot;</span>)&#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="comment">//hook到了put方法</span></span><br><span class="line">        Java.use(<span class="string">&#x27;java.util.HashMap&#x27;</span>).put.implementation = function(x,y)&#123;</span><br><span class="line">            <span class="type">var</span> <span class="variable">result</span> <span class="operator">=</span> <span class="built_in">this</span>.put(x,y)</span><br><span class="line">            console.log(<span class="string">&quot;x,y,result&quot;</span>,x,y,result)</span><br><span class="line">            <span class="keyword">return</span> result</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>设置成员变量的值，修改成员变量的值</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.androiddemo.Activity.FridaActivity2&quot;</span>).<span class="title function_">setStatic_bool_var</span>();</span><br><span class="line"><span class="comment">//如果是静态变量和静态方法，可以直接利用类名就可以修改</span></span><br><span class="line"><span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.androiddemo.Activity.FridaActivity3&quot;</span>).<span class="property">static_bool_var</span>.<span class="property">value</span>=<span class="literal">true</span>;</span><br><span class="line"><span class="keyword">var</span> fridaActivity3Handle = <span class="literal">null</span></span><br><span class="line"><span class="title class_">Java</span>.<span class="title function_">choose</span>(<span class="string">&quot;com.example.androiddemo.Activity.FridaActivity3&quot;</span>,&#123;</span><br><span class="line">     <span class="attr">onMatch</span>:<span class="keyword">function</span>(<span class="params">instance</span>)&#123;</span><br><span class="line">         <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;found instance:&quot;</span>,instance)</span><br><span class="line">         fridaActivity3Handle = instance</span><br><span class="line">         <span class="comment">//如果是非静态的，则需要获取他的类的handle才可以修改</span></span><br><span class="line">         fridaActivity3Handle.<span class="property">bool_var</span>.<span class="property">value</span> = <span class="literal">true</span></span><br><span class="line">         <span class="comment">//同名变量需要加一个下划线（成员变量名和函数名子一样）</span></span><br><span class="line">         fridaActivity3Handle.<span class="property">_same_name_bool_var</span>.<span class="property">value</span> = <span class="literal">true</span></span><br><span class="line">      &#125;,<span class="attr">onComplete</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;searc completed!&quot;</span>)&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>获取内部类的所有方法，这里和Java反射一样的</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">     <span class="keyword">var</span> class_name = <span class="string">&quot;com.example.androiddemo.Activity.FridaActivity4$InnerClasses&quot;</span></span><br><span class="line">     <span class="keyword">var</span> clazz = <span class="title class_">Java</span>.<span class="title function_">use</span>(class_name)</span><br><span class="line">     <span class="keyword">var</span> methods = clazz.<span class="property">class</span>.<span class="title function_">getDeclaredMethods</span>()</span><br><span class="line">     <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>;i&lt;methods.<span class="property">length</span>;i++)&#123;</span><br><span class="line">          <span class="keyword">var</span> method = methods[i]</span><br><span class="line">          <span class="comment">// console.log(method)</span></span><br><span class="line">          <span class="comment">//得到去除类名的函数的签名</span></span><br><span class="line">         <span class="keyword">var</span> subString = method.<span class="title function_">toString</span>().<span class="title function_">substr</span>(method.<span class="title function_">toString</span>().<span class="title function_">indexOf</span>(class_name)+class_name.<span class="property">length</span>+<span class="number">1</span>)</span><br><span class="line">         <span class="comment">//得到类的方法名</span></span><br><span class="line">         <span class="keyword">var</span> finalMethodString = subString.<span class="title function_">substr</span>(<span class="number">0</span>,subString.<span class="title function_">indexOf</span>(<span class="string">&#x27;(&#x27;</span>))</span><br><span class="line">         <span class="variable language_">console</span>.<span class="title function_">log</span>(finalMethodString)</span><br><span class="line">         clazz[finalMethodString].<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="keyword">return</span> <span class="literal">true</span>&#125;</span><br><span class="line">      &#125; </span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>如果某个方法是动态加载了另一个dex文件里面的，则hook的时候需要注意时机，</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">enumerateClassLoaders</span>(&#123;</span><br><span class="line">     <span class="attr">onMatch</span>:<span class="keyword">function</span>(<span class="params">loader</span>)&#123;</span><br><span class="line">          <span class="keyword">try</span> &#123;</span><br><span class="line">              <span class="comment">//找到类名</span></span><br><span class="line">          	<span class="keyword">if</span>(loader.<span class="title function_">findClass</span>(<span class="string">&quot;com.example.androiddemo.Dynamic.DynamicCheck&quot;</span>))&#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Succefully found loader!&quot;</span>,loader);</span><br><span class="line">                 <span class="title class_">Java</span>.<span class="property">classFactory</span>.<span class="property">loader</span> = loader;</span><br><span class="line">           	&#125;</span><br><span class="line">          &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">               <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;found error &quot;</span>+error)</span><br><span class="line">          &#125;</span><br><span class="line">     &#125;,<span class="attr">onComplete</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="string">&quot;enum completed!&quot;</span>&#125;</span><br><span class="line">&#125;)     <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.androiddemo.Dynamic.DynamicCheck&quot;</span>).<span class="property">check</span>.<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="keyword">return</span> <span class="literal">true</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>另一种方法找到目标函数，这个还可以得到该类的handle</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">enumerateLoadedClasses</span>(&#123;</span><br><span class="line">     <span class="attr">onMatch</span>:<span class="keyword">function</span>(<span class="params">name,handle</span>)&#123;</span><br><span class="line">	<span class="keyword">if</span>(name.<span class="title function_">toString</span>().<span class="title function_">indexOf</span>(<span class="string">&quot;com.example.androiddemo.Activity.Frida6.Frida6&quot;</span>)&gt;=<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;name&quot;</span>,name)</span><br><span class="line">           <span class="title class_">Java</span>.<span class="title function_">use</span>(name).<span class="property">check</span>.<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="keyword">return</span> <span class="literal">true</span>&#125;</span><br><span class="line">	&#125;</span><br><span class="line">    &#125;,<span class="title function_">onComplete</span>(<span class="params"></span>)&#123;&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h1 id="RPC-remote-procedure-call"><a href="#RPC-remote-procedure-call" class="headerlink" title="RPC[remote procedure call]"></a>RPC[remote procedure call]</h1><p><u><strong>RPC的顺序很重要：先hook到函数，然后能够对其进行主动调用，最后才上到rpc上</strong></u></p>
+<p>获取设备：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#  设备启动frida在特定的端口：/data/local/tmp/fs1280arm64 -l 0.0.0.0:8888</span></span><br><span class="line"></span><br><span class="line">str_host = <span class="string">&#x27;192.168.3.131:8888&#x27;</span></span><br><span class="line">manager = frida.get_device_manager()</span><br><span class="line">device = manager.add_remote_device(str_host)</span><br><span class="line"><span class="comment"># device = frida.get_usb_device()</span></span><br><span class="line"><span class="comment"># pid = device.spawn([&quot;com.example.lesson4one&quot;])</span></span><br><span class="line"><span class="comment"># device.resume</span></span><br><span class="line"><span class="comment"># time.sleep(1)e</span></span><br><span class="line"><span class="comment"># session = device.attach(pid)</span></span><br><span class="line">session = device.attach(<span class="string">&quot;com.example.lesson4one&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>获取设备并调用js脚本,</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#python脚本</span></span><br><span class="line"><span class="keyword">from</span> os <span class="keyword">import</span> scandir</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> frida</span><br><span class="line"><span class="keyword">from</span> requests <span class="keyword">import</span> session</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_message_handler</span>(<span class="params">message,payload</span>):</span><br><span class="line">    <span class="built_in">print</span>(message)</span><br><span class="line">    <span class="built_in">print</span>(payload)</span><br><span class="line"></span><br><span class="line">str_host = <span class="string">&#x27;192.168.3.131:8888&#x27;</span></span><br><span class="line">manager = frida.get_device_manager()</span><br><span class="line">device = manager.add_remote_device(str_host)</span><br><span class="line">session = device.attach(<span class="string">&quot;com.example.lesson4one&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;lesson7lesson4.js&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    script = session.create_script(f.read())</span><br><span class="line">script.on(<span class="string">&quot;message&quot;</span>,my_message_handler)</span><br><span class="line">script.load()</span><br><span class="line"></span><br><span class="line">command = <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    command = <span class="built_in">input</span>(<span class="string">&quot;enter command:&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> command ==<span class="string">&#x27;1&#x27;</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">elif</span> command == <span class="string">&#x27;2&#x27;</span>:</span><br><span class="line">        script.exports.invokefunc()</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>设备和js和python交互，并修改相关信息</strong></p>
+<p>首先js hook到相关函数信息，然后将数据发送到python脚本，使用python脚本对数据进行处理之后，再发送给js脚本，然后使用js脚本修改app当中的信息</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> os <span class="keyword">import</span> scandir</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> frida</span><br><span class="line"><span class="keyword">from</span> requests <span class="keyword">import</span> session</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_message_handler</span>(<span class="params">message,payload</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;message&quot;</span>,message)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;payload&quot;</span>,payload)</span><br><span class="line">    <span class="keyword">if</span> message[<span class="string">&#x27;type&#x27;</span>] == <span class="string">&#x27;send&#x27;</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;message[&#x27;payload&#x27;]&quot;</span>,message[<span class="string">&#x27;payload&#x27;</span>])</span><br><span class="line">        data = message[<span class="string">&#x27;payload&#x27;</span>].split(<span class="string">&#x27;:&#x27;</span>)[<span class="number">1</span>].strip()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;message:&quot;</span>,message)</span><br><span class="line">        data = <span class="built_in">str</span>(base64.b64decode(data))</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;data:&#x27;</span>,data)</span><br><span class="line">        <span class="comment">#得到原来的用户名密码</span></span><br><span class="line">        usr,pwd = data.split(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;pw:&#x27;</span>,pwd)</span><br><span class="line">        <span class="comment">#不管用户输入的用户名是什么，都会将其用户名修改为admin,然后使用自己的原来的密码就可以进行登录</span></span><br><span class="line">        data = <span class="built_in">str</span>(base64.b64encode((<span class="string">&quot;admin&quot;</span>+<span class="string">&quot;:&quot;</span>+pwd).encode()))</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;encode data:&quot;</span>,data)</span><br><span class="line">        script.post(&#123;<span class="string">&quot;mydata&quot;</span>:data&#125;)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;Modified data sent!&#x27;</span>)</span><br><span class="line"><span class="comment">#获取设备</span></span><br><span class="line">str_host = <span class="string">&#x27;192.168.3.131:8888&#x27;</span></span><br><span class="line">manager = frida.get_device_manager()</span><br><span class="line">device = manager.add_remote_device(str_host)</span><br><span class="line"><span class="comment">#建立会话</span></span><br><span class="line">session = device.attach(<span class="string">&quot;com.example.lesson7sec&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;lesson7sec.js&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    script = session.create_script(f.read())</span><br><span class="line">script.on(<span class="string">&quot;message&quot;</span>,my_message_handler)</span><br><span class="line">script.load()</span><br><span class="line"><span class="comment">#让程序持续运行，不要退出，如果输入任意字符，则会导致程序退出</span></span><br><span class="line"><span class="built_in">input</span>()</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//js脚本</span></span><br><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;    <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;android.widget.TextView&quot;</span>).<span class="property">setText</span>.<span class="title function_">overload</span>(<span class="string">&quot;java.lang.CharSequence&quot;</span>).<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">x</span>)&#123;</span><br><span class="line">        <span class="keyword">var</span> string_to_send_x = x.<span class="title function_">toString</span>()</span><br><span class="line">        <span class="keyword">var</span> string_to_recv;</span><br><span class="line">    <span class="comment">//将参数发送给python</span></span><br><span class="line">        <span class="title function_">send</span>(string_to_send_x)</span><br><span class="line">    <span class="comment">//接受python传回来的数据</span></span><br><span class="line">        <span class="title function_">recv</span>(<span class="keyword">function</span>(<span class="params">recv_json_objection</span>)&#123;</span><br><span class="line">            <span class="comment">//这里取决于传回来的数据的格式</span></span><br><span class="line">            string_to_recv = recv_json_objection.<span class="property">mydata</span>                </span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;string_to_recv:&quot;</span>.<span class="property">string_to_recv</span>)</span><br><span class="line">        &#125;)</span><br><span class="line">    <span class="comment">//将字符串转换成Java的字符串</span></span><br><span class="line">        <span class="keyword">var</span> javaStringRecv = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.String&quot;</span>).$new(string_to_recv)</span><br><span class="line">	<span class="comment">//设置app上面的结果，需要根据逻辑进行相关的变通</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">setText</span>(javaStringRecv)</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;x.toString(),result:&quot;</span>,x.<span class="title function_">toString</span>())</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h1 id="NPS连接"><a href="#NPS连接" class="headerlink" title="NPS连接"></a>NPS连接</h1><p>nps是<strong>内网穿透</strong>代理服务器。支持<strong>tcp、udp流量转发</strong>等</p>
+<p>nps服务器、npc客户端</p>
+<p>这里的主要目的是将手机的frida映射到电脑上。由于虚拟机ip地址等原因，这里选择的是，在主机上进行安装服务器</p>
+<p>环境配置：</p>
+<ol>
+<li>首先需要电脑主机安装上nps服务器:<a target="_blank" rel="noopener" href="https://github.com/ehang-io/nps">https://github.com/ehang-io/nps</a></li>
+<li>在服务器上：添加一个客户端（登录：localhost:8080 admin 123）</li>
+<li>获得客户端连接命令：<code>./npc.exe -server=localhost:8024 -vkey=o3d69gc4zpj8u5df -type=tcp</code></li>
+<li>然后需要将手机安装上一个nps客户端，使用linux_arm_64即可，将其解压到和frida相同得目录，修改权限</li>
+<li>运行客户端得npc: <code>/data/local/tmp/linux_arm64_client/npc  -server=192.168.3.125:8024 -vkey=o3d69gc4zpj8u5df -type=tcp</code></li>
+<li>在服务端添加一个tcp隧道，设置服务端58888，目标端口：8888，<strong>这样连接服务器得58888端口就可以映射到手机上得frida程序8888端口</strong></li>
+<li>然后再使用python脚本得时候，获取得设备得时候，其设备得ip地址就不是原来得手机得IP地址，而是服务器的ip地址和58888端口了：<code>str_host = &#39;192.168.3.131:8888&#39;   改为  str_host = &#39;192.168.3.125:58888&#39;</code></li>
+</ol>
+<h1 id="使用工具生成dex文件"><a href="#使用工具生成dex文件" class="headerlink" title="使用工具生成dex文件"></a>使用工具生成dex文件</h1><p>自己制作dex文件，方便再同样的Java环境下，对一些数据进行解码等操作</p>
+<ol>
+<li><p>使用AS编写Java文件，build,在app\build\intermediates\javac\debug\classes\下找到相关的class文件</p>
+</li>
+<li><p>D:\Android\Sdk\build-tools\29.0.3&gt;d8 target.class</p>
+</li>
+<li><p>adb push classes.dex &#x2F;data&#x2F;loal&#x2F;tmp&#x2F;</p>
+</li>
+<li><p>chmod 777  &#x2F;data&#x2F;local&#x2F;tmp&#x2F;classes.dex</p>
+</li>
+</ol>
+<p>使用js调用dex文件并使用</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">openClassFile</span>(<span class="string">&quot;/data/local/tmp/classes.dex&quot;</span>).<span class="title function_">load</span>();</span><br><span class="line">        <span class="keyword">const</span> reverse = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;类的签名&#x27;</span>)</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;method1:&quot;</span>,reverse.<span class="title function_">method1</span>())</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;method2:&#x27;</span>,reverse.<span class="title function_">method2</span>())</span><br><span class="line">)&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用adb 输入字符串到edittext</strong></p>
+<ol>
+<li>adb shell</li>
+<li>input text “text “</li>
+</ol>
+<h1 id="AS-build"><a href="#AS-build" class="headerlink" title="AS build"></a>AS build</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">repositories &#123;</span><br><span class="line">    maven &#123; url &quot;https://maven.aliyun.com/repository/public&quot; &#125;</span><br><span class="line">    maven &#123; url &quot;https://repo.huaweicloud.com/repository/maven&quot; &#125;</span><br><span class="line">    mavenLocal()</span><br><span class="line">    mavenCentral()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h1><p>frp: <a target="_blank" rel="noopener" href="https://github.com/fatedier/frp">https://github.com/fatedier/frp</a></p>
+<p>nps: <a target="_blank" rel="noopener" href="https://github.com/ehang-io/nps">https://github.com/ehang-io/nps</a></p>
+<p>frida：<a target="_blank" rel="noopener" href="https://github.com/frida/frida">https://github.com/frida/frida</a></p>
+<p>objection:<a target="_blank" rel="noopener" href="https://github.com/sensepost/objection">https://github.com/sensepost/objection</a></p>
+<p>frida教程：<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/197657#h3-8">https://www.anquanke.com/post/id/197657#h3-8</a></p>
+<p>zentracer:<a target="_blank" rel="noopener" href="https://github.com/hluwa/ZenTracer">https://github.com/hluwa/ZenTracer</a></p>
+<p>frida-dexdump:<a target="_blank" rel="noopener" href="https://github.com/hluwa/frida-dexdump">https://github.com/hluwa/frida-dexdump</a></p>
+<p>wallbreak:<a target="_blank" rel="noopener" href="https://github.com/hluwa/Wallbreaker">https://github.com/hluwa/Wallbreaker</a></p>
+<p>z3: <a target="_blank" rel="noopener" href="https://github.com/Z3Prover/z3">https://github.com/Z3Prover/z3</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android%E5%AE%89%E5%85%A8/" rel="tag"># Android安全</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/05/10/HOOK%E4%B8%8E%E6%B3%A8%E5%85%A5/" rel="prev" title="HOOK与注入">
+                  <i class="fa fa-chevron-left"></i> HOOK与注入
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/05/31/Xposed%E5%9F%BA%E7%A1%80/" rel="next" title="Xposed基础">
+                  Xposed基础 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

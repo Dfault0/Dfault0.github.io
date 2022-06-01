@@ -1,43 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Android 存储相关信息</title>
-    <url>/2022/03/23/Android-%E5%AD%98%E5%82%A8%E7%9B%B8%E5%85%B3%E4%BF%A1%E6%81%AF/</url>
-    <content><![CDATA[<h1 id="从物理结构上来区分："><a href="#从物理结构上来区分：" class="headerlink" title="从物理结构上来区分："></a>从物理结构上来区分：</h1><ul>
-<li>Android 4.4<ul>
-<li>内部存储 internal storage</li>
-<li>外部存储 external storage （sdCard）</li>
+    <title>AFL fuzz whitepaper</title>
+    <url>/2021/11/08/AFL-fuzz-whitepaper/</url>
+    <content><![CDATA[<h1 id="Technical-“whitepaper”-for-afl-fuzz"><a href="#Technical-“whitepaper”-for-afl-fuzz" class="headerlink" title="Technical “whitepaper” for afl-fuzz"></a>Technical “whitepaper” for afl-fuzz</h1><h2 id="Design-statement"><a href="#Design-statement" class="headerlink" title="Design statement"></a>Design statement</h2><p>该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。</p>
+<p>原则：速度、可靠性、易使用</p>
+<span id="more"></span>
+
+<h2 id="Coverage-measurements"><a href="#Coverage-measurements" class="headerlink" title="Coverage measurements"></a>Coverage measurements</h2><p>这个插桩注入到编译好的程序来获取分支覆盖率</p>
+<p>注入点：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cur_location = &lt;COMPILE_TIME_RANDOM&gt;;</span><br><span class="line">shared_mem[cur_location ^ prev_location]++; </span><br><span class="line">prev_location = cur_location &gt;&gt; 1;</span><br></pre></td></tr></table></figure>
+
+<p>cur_location是随机生成来简化链接复杂项目的并且保持XOR输出均匀分布。</p>
+<p>shared_mem[]是64KB的一个共享内存区域，被调用者传递给插桩二进制</p>
+<p>输出映射中设置的每个字节都可以看作是插入指令的代码中特定（branch_src，branch_dst）元组的命中</p>
+<p>coverage的形式：元组</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A -&gt; B -&gt; C -&gt; D -&gt; E (tuples: AB, BC, CD, DE)</span><br><span class="line">A -&gt; B -&gt; D -&gt; C -&gt; E (tuples: AB, BD, DC, CE)</span><br></pre></td></tr></table></figure>
+
+<p>这有助于发现底层代码中的细微故障条件，因为安全漏洞通常与意外或不正确的状态转换相关，而不仅仅是与到达新的基本块相关。</p>
+<h2 id="Detecting-new-behaviors"><a href="#Detecting-new-behaviors" class="headerlink" title="Detecting new behaviors"></a>Detecting new behaviors</h2><p>fuzzer维护在以前的执行中看到的元组的全局映射，可以与单路径进行快速比较，并且使用简单的循环和几条简单的之类就可以进行更新。</p>
+<p>当一个变异之后的输入的执行路径包含新的元组的时候，该输入便会被保留下来。否则将会被丢弃，即使他们的控制流图是唯一的。</p>
+<p>这种方法允许对程序状态进行非常细粒度和长期的探索，而不必对复杂的执行跟踪执行任何计算密集和脆弱的全局比较，同时避免了路径爆炸。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#1: A -&gt; B -&gt; C -&gt; D -&gt; E</span><br><span class="line">#2: A -&gt; B -&gt; C -&gt; A -&gt; E</span><br><span class="line">#2包含了新的元组（CA, AE），所以他是新的</span><br><span class="line">#3: A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; D -&gt; E</span><br><span class="line">但是#3不是unique的</span><br></pre></td></tr></table></figure>
+
+<p>此外除了考虑新的元组外，AFL还粗略统计了到达的元组数目，他们被分到下面的几个区间bucket：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1, 2, 3, 4-7, 8-15, 16-31, 32-127, 128+</span><br></pre></td></tr></table></figure>
+
+<p>bucket的数量是一个实现工件：它允许将插装生成的8位计数器就地映射到fuzzer可执行文件依赖的8位位图，以跟踪每个元组已经看到的执行计数。bucket之内的变化会被忽略。</p>
+<h2 id="Evolving-the-input-queue"><a href="#Evolving-the-input-queue" class="headerlink" title="Evolving the input queue"></a>Evolving the input queue</h2><p>已经变异了的测试用例，如果产生一个新的状态，就会被添加到输入队列中，并且作为将来的fuzzing的一个开始点。</p>
+<p>这个方法主要是为了让AFL探索分散的和尽可能多不可比的数据格式特点。</p>
+<h2 id="Culling-the-corpus"><a href="#Culling-the-corpus" class="headerlink" title="Culling the corpus"></a>Culling the corpus</h2><p>AFL为了保证效率，AFL会定期重新评估输入队列，选出测试用例的一个子集，同时可以保证任然可以覆盖每个元组。</p>
+<p>算法原理：为每个队列分配一个于其执行文件大小成比例的分数，然后为每个元组选择得分最低的候选项。</p>
+<p>元组的处理流程：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1) Find next tuple not yet in the temporary working set,</span><br><span class="line"></span><br><span class="line">2) Locate the winning queue entry for this tuple,</span><br><span class="line"></span><br><span class="line">3) Register *all* tuples present in that entry&#x27;s trace in the working set,</span><br><span class="line"></span><br><span class="line">4) Go to #1 if there are any missing tuples in the set.</span><br></pre></td></tr></table></figure>
+
+<p>被判断成favored的实体，通常比原始数据集小5-10倍。被判断成non-favored的实体不会被丢弃，只是当遇见的时候会有一定的概率跳过：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">- If there are new, yet-to-be-fuzzed favorites present in the queue, 99% of non-favored entries will be skipped to get to the favored ones.</span><br><span class="line"></span><br><span class="line">- If there are no new favorites:</span><br><span class="line"></span><br><span class="line">  - If the current non-favored entry was fuzzed before, it will be skipped 95% of the time.</span><br><span class="line"></span><br><span class="line">  - If it hasn&#x27;t gone through any fuzzing rounds yet, the odds of skipping drop down to 75%.</span><br></pre></td></tr></table></figure>
+
+<p>this provides a reasonable balance between queue cycling speed and test case diversity.</p>
+<p>afl-cmin: 稍微有点复杂，但是更慢的一个缩减方法。</p>
+<h2 id="Trimming-input-files"><a href="#Trimming-input-files" class="headerlink" title="Trimming input files"></a>Trimming input files</h2><p>有些类型的变异策略可能会迭代增加生成文件的大小。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">trimmer </span><br></pre></td></tr></table></figure>
+
+<p>afl-tmin：是独立运行的，使用更详尽的迭代算法，还尝试对修剪过的文件执行字母表规范化。</p>
+<p>他的操作如下：</p>
+<ul>
+<li>首先，这个工具自动选择工作模式。如果初始化输入让目标二进制文件崩溃，afl-min将会使用未插桩的模式，并且简单对输入进行调整（产生更加简单的文件，但是任然是可以产生crash）；如果目标没有崩溃，他就会使用插桩的模式，并且保持调整（产生同样的执行路径）。</li>
 </ul>
-</li>
-<li>Android 4.4以上<ul>
-<li>手机自身存储结构<ul>
-<li>内部存储 internal storage</li>
-<li>内置的外部存储</li>
-</ul>
-</li>
-<li>外部存储 external storage （sdCard）<span id="more"></span></li>
-</ul>
-</li>
-</ul>
-<h1 id="internal-storage"><a href="#internal-storage" class="headerlink" title="internal storage"></a>internal storage</h1><ul>
-<li>app目录：手机已安装的app的apk存放目录</li>
-<li>data目录：是各个APP存放自己私有数据的位置：shared preference, sqlite, cach。这些数据别人无法访问</li>
-</ul>
-<h1 id="external-storage"><a href="#external-storage" class="headerlink" title="external storage"></a>external storage</h1><ul>
-<li>data目录：存放非系统app的对应包名的数据，也是私有数据。</li>
-</ul>
+<p>实际的算法是：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1) Attempt to zero large blocks of data with large stepovers. Empirically, this is shown to reduce the number of execs by preempting finer-grained efforts later on.</span><br><span class="line"></span><br><span class="line">2) Perform a block deletion pass with decreasing block sizes and stepovers, binary-search-style. </span><br><span class="line"></span><br><span class="line">3) Perform alphabet normalization by counting unique characters and trying to bulk-replace each with a zero value.</span><br><span class="line"></span><br><span class="line">4) As a last result, perform byte-by-byte normalization on non-zero bytes.</span><br><span class="line">- Sequential bit flips with varying lengths and stepovers,</span><br><span class="line"></span><br><span class="line">- Sequential addition and subtraction of small integers,</span><br><span class="line"></span><br><span class="line">- Sequential insertion of known interesting integers (0, 1, INT_MAX, etc),</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>Android</category>
-        <category>基础知识</category>
+        <category>Fuzzing</category>
+        <category>AFL</category>
       </categories>
       <tags>
-        <tag>Android</tag>
+        <tag>Fuzzing</tag>
       </tags>
   </entry>
   <entry>
-    <title>APP加壳脱壳学习笔记</title>
-    <url>/2022/04/11/APP%E5%8A%A0%E5%A3%B3%E8%84%B1%E5%A3%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <title>APP加壳脱壳</title>
+    <url>/2022/04/11/APP%E5%8A%A0%E5%A3%B3%E8%84%B1%E5%A3%B3/</url>
     <content><![CDATA[<h1 id="APP壳相关知识"><a href="#APP壳相关知识" class="headerlink" title="APP壳相关知识"></a>APP壳相关知识</h1><p>app运行流程：</p>
 <ol>
 <li>BootClassLoader加载系统核心库</li>
@@ -115,10 +138,10 @@
 <li>将手机弄到bootloader模式：adb reboot bootloader</li>
 <li>将img刷到手机上 ：fastboot [-s 864155433723779] flash system system.img</li>
 <li>然后启动手机，点开app，就可以看到脱下来的dex文件</li>
+<li>查看手机或者模拟器的架构：adb shell getprop ro.product.cpu.abi</li>
 </ul>
 </li>
 </ul>
-<p>​     </p>
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a href="https://bbs.pediy.com/thread-252630.htm">https://bbs.pediy.com/thread-252630.htm</a></p>
 <p>Android源码：<a href="http://aospxref.com/">http://aospxref.com/</a></p>
 ]]></content>
@@ -129,6 +152,41 @@
       <tags>
         <tag>Android安全</tag>
         <tag>加壳脱壳</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Android 存储相关信息</title>
+    <url>/2022/03/23/Android-%E5%AD%98%E5%82%A8%E7%9B%B8%E5%85%B3%E4%BF%A1%E6%81%AF/</url>
+    <content><![CDATA[<h1 id="从物理结构上来区分："><a href="#从物理结构上来区分：" class="headerlink" title="从物理结构上来区分："></a>从物理结构上来区分：</h1><ul>
+<li>Android 4.4<ul>
+<li>内部存储 internal storage</li>
+<li>外部存储 external storage （sdCard）</li>
+</ul>
+</li>
+<li>Android 4.4以上<ul>
+<li>手机自身存储结构<ul>
+<li>内部存储 internal storage</li>
+<li>内置的外部存储</li>
+</ul>
+</li>
+<li>外部存储 external storage （sdCard）<span id="more"></span></li>
+</ul>
+</li>
+</ul>
+<h1 id="internal-storage"><a href="#internal-storage" class="headerlink" title="internal storage"></a>internal storage</h1><ul>
+<li>app目录：手机已安装的app的apk存放目录</li>
+<li>data目录：是各个APP存放自己私有数据的位置：shared preference, sqlite, cach。这些数据别人无法访问</li>
+</ul>
+<h1 id="external-storage"><a href="#external-storage" class="headerlink" title="external storage"></a>external storage</h1><ul>
+<li>data目录：存放非系统app的对应包名的数据，也是私有数据。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Android</category>
+        <category>基础知识</category>
+      </categories>
+      <tags>
+        <tag>Android</tag>
       </tags>
   </entry>
   <entry>
@@ -175,7 +233,7 @@
   </entry>
   <entry>
     <title>Android软件安全权威指南-学习笔记</title>
-    <url>/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <url>/2022/04/13/Android%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97/</url>
     <content><![CDATA[<h1 id="逆向一个app的常规步骤"><a href="#逆向一个app的常规步骤" class="headerlink" title="逆向一个app的常规步骤"></a>逆向一个app的常规步骤</h1><ol>
 <li><p>使用apktool反编译apk</p>
 <ul>
@@ -477,68 +535,6 @@
       </tags>
   </entry>
   <entry>
-    <title>TaintAnalysis tools study</title>
-    <url>/2022/03/24/TaintAnalysis-tools-study/</url>
-    <content><![CDATA[<h1 id="污点分析"><a href="#污点分析" class="headerlink" title="污点分析"></a>污点分析</h1><p>sources and sinks</p>
-<blockquote>
-<p><strong>sources</strong>: the information we want to protect on a mobile device (e.g., phone number, contacts, location, and unique device identifiers) </p>
-<p><strong>sinks</strong>: points of unwanted information release (e.g., methods related to the Internet and SMS transmission). </p>
-<p>If data from a sensitive source reaches a sink, taint tracking identifies the path from the source to the sink as an instance of data leakage.</p>
-</blockquote>
-<span id="more"></span>
-
-<h1 id="Flowdroid"><a href="#Flowdroid" class="headerlink" title="Flowdroid"></a>Flowdroid</h1><p>从2.0版本之后就可以处理ICC了</p>
-<blockquote>
-<p>使用这些污点分析工具的时候并不一定非要在源代码的基础上面修改，也可以直接使用他们的库，只要能够达到我的目的即可。</p>
-</blockquote>
-<p><a href="https://github.com/secure-software-engineering/FlowDroid">https://github.com/secure-software-engineering/FlowDroid</a></p>
-<p>flowdroid采用保守策略 ，将框架分为四种：generation, exclude, kill, and default</p>
-<ul>
-<li>When method parameters (including the receiver object itself) or their fields are tainted, the methods in the <strong>generation</strong> type will have their receiver and the return value, as well as all their fields, tainted; no taint will be propagated for methods of the <strong>exclude</strong> type; </li>
-<li>all taints will be removed for methods of the <strong>kill</strong> type. </li>
-<li>If a method is not assigned with any of these types, the <strong>default</strong> rule will apply , propagating the taint<br>from the receiver object and its fields to the method return value and its fields. </li>
-<li>That is, only for the methods in the <strong>generation</strong> type FLOWDROID will propagate the taint from method parameters and will taint the receiver parameter and its fields; it does not taint any other method parameters in any of the conservative strategies.</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar \</span><br><span class="line">    -a &lt;APK File&gt; \</span><br><span class="line">    -p &lt;Android JAR folder&gt; \</span><br><span class="line">    -s &lt;SourcesSinks file&gt;</span><br></pre></td></tr></table></figure>
-
-<p>本电脑的命令使用：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -d -a D:\mobileForensics\apks\tests\app-realse.apk -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt -o outputs -t</span><br></pre></td></tr></table></figure>
-
-<p>java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -a D:\mobileForensics\Mixed -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt -o .&#x2F;output</p>
-<p>For FlowDroid can thus generate a main method in which every order of individual component lifecycles and callbacks is possible, it does not need to simulate all possible paths.</p>
-<p><strong>In FlowDroid, only method calls can be the original source of a taint.</strong> </p>
-<p>主要流程：</p>
-<ol>
-<li>解析文件</li>
-<li>Next, FlowDroid generates the main method from the list of lifecycle and  callback methods (see the Paragraphs Callbacks and Substitution Classes for more  information). This main method is then used to generate a call graph and an  inter-procedural control-flow graph (ICFG). </li>
-<li>Starting at the detected sources,  the taint analysis then tracks taints by traversing the ICFG as explained in  Section 4.</li>
-<li>Native Calls require a special treatment which is described below along with a  performance optimization called Taint Wrapping. </li>
-<li>At the end, FlowDroid reports  all discovered flows from sources to sinks.</li>
-</ol>
-<h1 id="Amandroid"><a href="#Amandroid" class="headerlink" title="Amandroid"></a>Amandroid</h1><p>支持native层，实现了一个流和上下文敏感的内部组件数据流分析。在一个过程间的控制流图和数据流图之上，为每一个组件构建一个数据依赖图，然后生成一个汇总表，记录可能的组件间通信连接。</p>
-<p>不能处理隐式流。</p>
-<ul>
-<li>AMANDROID precisely models a subset of Android framework methods and applies a conservative strategy for the remaining ones. </li>
-<li>Interestingly , AMANDROID’s strategy is different from that of FLOWDROID:<ul>
-<li>in addition to the receiver object and the return value of a method, AMANDROID also taints all method parameters and their fields. </li>
-<li>However, it is doing so only <strong>when the method receiver or parameters themselves</strong><br><strong>are tainted</strong>, not when one of their fields is tainted. </li>
-<li>Strategies applied by both tools lead to false positive and false negative results, albeit in different cases, as we show in our evaluation.</li>
-</ul>
-</li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220418121650.png" alt="amdroid分析流程"></p>
-<h1 id="静态分析工具的对比"><a href="#静态分析工具的对比" class="headerlink" title="静态分析工具的对比"></a>静态分析工具的对比</h1><p><img src="https://raw.githubusercontent.com/Dfault0/images/main/image-20220406161407676.png" alt="静态分析工具的对比"></p>
-]]></content>
-      <categories>
-        <category>Android</category>
-        <category>Android安全</category>
-      </categories>
-      <tags>
-        <tag>Android安全</tag>
-        <tag>taint analysis tools</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NDK开发</title>
     <url>/2022/05/09/NDK%E5%BC%80%E5%8F%91/</url>
     <content><![CDATA[<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><p>静态方法可以直接由类名来进行调用</p>
@@ -634,6 +630,15 @@
 
 <p>在函数开头的时候加上，就可以更进一步保护app，在ida中函数名就不是原来的那个了，</p>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">__attribute__ ((<span class="built_in">visibility</span> (<span class="string">&quot;hidden&quot;</span>))) <span class="function">jstring <span class="title">stringFromJNI</span><span class="params">(JNIEnv* env,jobject <span class="comment">/* this */</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>jin执行顺序:</p>
+<ul>
+<li>最先执行<code>_init</code></li>
+<li>后执行<code>initArrays_xx</code>(可以设置执行顺序)</li>
+<li>再执行<code>JNI_OnLoad</code></li>
+<li>最后执行的是普通函数</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="type">void</span> _init(<span class="type">void</span>)&#123;</span><br><span class="line">    __android_log_print(<span class="number">4</span>,<span class="string">&quot;nativetest&quot;</span>, <span class="string">&quot;_init&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//原本的优先级是从上到下，但是如果设置了constructor的参数，就会按照参数来执行，数字越小就先执行</span></span><br><span class="line">__attribute__((<span class="built_in">constructor</span>(<span class="number">2</span>),<span class="built_in">visibility</span>(<span class="string">&quot;hidden&quot;</span>))) <span class="function"><span class="type">void</span> <span class="title">initArrays_1</span><span class="params">(<span class="type">void</span>)</span></span>&#123;</span><br><span class="line">    __android_log_print(<span class="number">4</span>,<span class="string">&quot;nativetest&quot;</span>, <span class="string">&quot;initArrays_1&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">__attribute__((<span class="built_in">constructor</span>(<span class="number">1</span>),<span class="built_in">visibility</span>(<span class="string">&quot;hidden&quot;</span>))) <span class="function"><span class="type">void</span> <span class="title">initArrays_2</span><span class="params">(<span class="type">void</span>)</span></span>&#123;</span><br><span class="line">    __android_log_print(<span class="number">4</span>,<span class="string">&quot;nativetest&quot;</span>, <span class="string">&quot;initArrays_2&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">JNIEXPORT jint <span class="title">JNI_OnLoad</span><span class="params">(JavaVM* vm, <span class="type">void</span>* reserved)</span></span>&#123;</span><br><span class="line">    __android_log_print(<span class="number">4</span>, <span class="string">&quot;nativetest&quot;</span>, <span class="string">&quot;onload&quot;</span>);</span><br><span class="line">    JNIEnv *env = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="keyword">if</span>(vm-&gt;<span class="built_in">GetEnv</span>((<span class="type">void</span> **)(&amp;env), JNI_VERSION_1_6)==JNI_OK)&#123;</span><br><span class="line">        __android_log_print(<span class="number">4</span>,<span class="string">&quot;nativetest&quot;</span>, <span class="string">&quot;vm-&gt;GetEnv(reinterpret_cast&lt;void **&gt;(&amp;env), JNI_VERSION_1_6==JNI_OK):SUCCESS&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    jint result = JNI_VERSION_1_6;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">2022-05-14 15:11:27.617 4395-4395/com.example.nativetest I/nativetest: _init</span></span><br><span class="line"><span class="comment">2022-05-14 15:11:27.617 4395-4395/com.example.nativetest I/nativetest: initArrays_2</span></span><br><span class="line"><span class="comment">2022-05-14 15:11:27.617 4395-4395/com.example.nativetest I/nativetest: initArrays_1</span></span><br><span class="line"><span class="comment">2022-05-14 15:11:27.617 4395-4395/com.example.nativetest I/nativetest: onload</span></span><br><span class="line"><span class="comment">/</span></span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
@@ -853,50 +858,51 @@
       </tags>
   </entry>
   <entry>
-    <title>heartbleed(CVE-2014-0160)</title>
-    <url>/2021/11/14/heartbleed-CVE-2014-0160/</url>
-    <content><![CDATA[<h1 id="心脏滴血漏洞复现（CVE-2014-0160）"><a href="#心脏滴血漏洞复现（CVE-2014-0160）" class="headerlink" title="心脏滴血漏洞复现（CVE 2014-0160）"></a>心脏滴血漏洞复现（CVE 2014-0160）</h1><p>基本信息</p>
-<p>OpenSSL版本：1.0.1</p>
-<p>fuzzer：libfuzzer</p>
-<span id="more"></span>
+    <title>Xposed基础</title>
+    <url>/2022/05/31/Xposed%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>官方的xposed只更新到了Android8.1（sdk 27）,以后的版本如果要安装xposed框架需要安装别的扩展框架，比如：Edxposed</p>
+<h1 id="Xposed框架原理"><a href="#Xposed框架原理" class="headerlink" title="Xposed框架原理"></a>Xposed框架原理</h1><ul>
+<li><p>init 进程负责创建 zygote 进程。</p>
+</li>
+<li><p>控制zygote进程：通过替换&#x2F;system&#x2F;bin&#x2F;app_precesss程序（zygote的可执行程序）控制zygote进程，</p>
+</li>
+<li><p>使得它在系统启动的过程种 会加载Xposed framework的一个jar文件，即XposedBridge.jar，</p>
+</li>
+<li><p>从而完成对Zygote进程及其创建的Dalivik&#x2F;ART虚拟机的劫持，并且能够允许开发者独立的替换任何class文件，比如framework本身，系统UI又或者随意的一个app。</p>
+</li>
+</ul>
+<h1 id="hook测试"><a href="#hook测试" class="headerlink" title="hook测试"></a>hook测试</h1><p>基本流程：</p>
+<ol>
+<li><p>copy XposedBridgeApi.jar到项目得libs目录，在app下面得build.gradle中添加依赖</p>
+<p><code>compileOnly files(&#39;libs/XposedBridgeApi-54.jar&#39;)</code></p>
+</li>
+<li><p>修改app目录下的build.gradle，并在AndroidManifest.xml文件中增加Xposed相关内容</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:name</span>=<span class="string">&quot;xposedmodule&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:value</span>=<span class="string">&quot;true&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">&quot;xposeddescription&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:value</span>=<span class="string">&quot;插件描述信息&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">&quot;xposedminversion&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:value</span>=<span class="string">&quot;54&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>新建Hook类，编写hook代码 必须是public得</p>
+</li>
+<li><p><strong>在project模式下得main目录下新建assets文件夹</strong>，然后再assets目录下新建文件xposed_init，在里面写上hook类得完整路径，比如：com.example.xposed01.hookConstructors，否则会找不到</p>
+</li>
+</ol>
+<p>hook类构造其器</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">hookConstructors</span> <span class="keyword">implements</span> <span class="title class_">IXposedHookLoadPackage</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleLoadPackage</span><span class="params">(XC_LoadPackage.LoadPackageParam loadPackageParam)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        Log.i(<span class="string">&quot;Xposed01 - packagename:&quot;</span>,loadPackageParam.packageName);</span><br><span class="line">        <span class="comment">//包名符合</span></span><br><span class="line">        <span class="keyword">if</span>(loadPackageParam.packageName.equals(<span class="string">&quot;com.kanxue.xposedhook01&quot;</span>)) &#123;</span><br><span class="line">			<span class="comment">/*</span></span><br><span class="line"><span class="comment">			主要得两个函数</span></span><br><span class="line"><span class="comment">	public static Unhook findAndHookMethod(Class&lt;?&gt; clazz, String methodName, Object... parameterTypesAndCallback);</span></span><br><span class="line"><span class="comment">    public static Unhook findAndHookMethod(String className, ClassLoader classLoader, String methodName, Object... parameterTypesAndCallback);</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">			*/</span></span><br><span class="line">            <span class="type">ClassLoader</span> <span class="variable">classLoader</span> <span class="operator">=</span> loadPackageParam.classLoader;</span><br><span class="line">            <span class="type">Class</span> <span class="variable">StrudentClazz</span> <span class="operator">=</span> classLoader.loadClass(<span class="string">&quot;com.kanxue.xposedhook01.Student&quot;</span>);</span><br><span class="line">            XposedHelpers.findAndHookConstructor(StrudentClazz, <span class="keyword">new</span> <span class="title class_">XC_MethodHook</span>() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                    <span class="built_in">super</span>.beforeHookedMethod(param);</span><br><span class="line">                    XposedBridge.log(<span class="string">&quot;com.kanxue.xposedhook01.Student is hooked beforeHookedMethod!!!!&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                    <span class="built_in">super</span>.afterHookedMethod(param);</span><br><span class="line">                    XposedBridge.log(<span class="string">&quot;com.kanxue.xposedhook01.Student is hooked afterHookedMethod!!!!&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="comment">/*hook带参数得构造函数</span></span><br><span class="line"><span class="comment">                public Student(String name)  ，注意参数是.class</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            </span><br><span class="line">            XposedHelpers.findAndHookConstructor(StrudentClazz, String.class,<span class="keyword">new</span> <span class="title class_">XC_MethodHook</span>() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                    <span class="built_in">super</span>.beforeHookedMethod(param);</span><br><span class="line">                    java.lang.Object[] argsObj = param.args;</span><br><span class="line">                    <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> (String) argsObj[<span class="number">0</span>];</span><br><span class="line">                    <span class="comment">//可以直接对其进行修改</span></span><br><span class="line">                    argsObj[<span class="number">0</span>] = <span class="string">&quot;12345678&quot;</span>;</span><br><span class="line">                    XposedBridge.log(<span class="string">&quot;com.kanxue.xposedhook01.Student(String) is hooked beforeHookedMethod!!!! name:&quot;</span>+name);</span><br><span class="line">                    XposedBridge.log(<span class="string">&quot;args:&quot;</span>+param);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                    <span class="built_in">super</span>.afterHookedMethod(param);</span><br><span class="line">                    XposedBridge.log(<span class="string">&quot;com.kanxue.xposedhook01.Student(String) is hooked afterHookedMethod!!!!&quot;</span>);</span><br><span class="line">                    XposedBridge.log(<span class="string">&quot;args:&quot;</span>+param);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="编译OpenSSL"><a href="#编译OpenSSL" class="headerlink" title="编译OpenSSL"></a>编译OpenSSL</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tar xzf openssl1.0.1f.tgz</span><br><span class="line"><span class="built_in">cd</span> openssl1.0.1f/</span><br><span class="line"></span><br><span class="line">./config</span><br><span class="line">make clean</span><br><span class="line">make CC=<span class="string">&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize=address,fuzzer -fsanitize-coverage=trace-pc-guard,trace-cmp,trace-gep,trace-div&quot;</span> -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
-
-<p>首先是按照教程，但是后面会报错，因为高版本的libfuzzer并不支持了：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-fsanitize-coverage=trace-pc-guard is no longer supported by libFuzzer.</span><br></pre></td></tr></table></figure>
-
-<p>本来想的是修改libfuzzer的版本，但是，并不能成功，所以就参考libfuzzer官方的使用方法，在编译目标程序的时候命令修改成下面的形式（直接删除就好了）</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make CC=<span class="string">&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize=fuzzer -fsanitize-coverage=trace-cmp,trace-gep,trace-div&quot;</span> -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
-
-<h2 id="编译fuzzer-target"><a href="#编译fuzzer-target" class="headerlink" title="编译fuzzer target"></a>编译fuzzer target</h2><p>The first step in using libFuzzer on a library is to implement a <em>fuzz target</em> – a function that accepts an array of bytes and does something interesting with these bytes using the API under test. like this:</p>
-<figure class="highlight cc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// fuzz_target.cc</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *Data, <span class="type">size_t</span> Size)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">DoSomethingInterestingWithMyAPI</span>(Data, Size);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// Non-zero return values are reserved for future use.</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//openssl_fuzzer.cc</span></span><br><span class="line"><span class="comment">// Copyright 2016 Google Inc. All Rights Reserved.</span></span><br><span class="line"><span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/ssl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/err.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stddef.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> CERT_PATH</span></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> CERT_PATH</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">SSL_CTX *<span class="title">Init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">SSL_library_init</span>();</span><br><span class="line">  <span class="built_in">SSL_load_error_strings</span>();</span><br><span class="line">  <span class="built_in">ERR_load_BIO_strings</span>();</span><br><span class="line">  <span class="built_in">OpenSSL_add_all_algorithms</span>();</span><br><span class="line">  SSL_CTX *sctx;</span><br><span class="line">  <span class="built_in">assert</span> (sctx = <span class="built_in">SSL_CTX_new</span>(<span class="built_in">TLSv1_method</span>()));</span><br><span class="line">  <span class="comment">/* These two file were created with this command:</span></span><br><span class="line"><span class="comment">      openssl req -x509 -newkey rsa:512 -keyout server.key \</span></span><br><span class="line"><span class="comment">     -out server.pem -days 9999 -nodes -subj /CN=a/</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="built_in">assert</span>(<span class="built_in">SSL_CTX_use_certificate_file</span>(sctx, CERT_PATH <span class="string">&quot;server.pem&quot;</span>,</span><br><span class="line">                                      SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="built_in">assert</span>(<span class="built_in">SSL_CTX_use_PrivateKey_file</span>(sctx, CERT_PATH <span class="string">&quot;server.key&quot;</span>,</span><br><span class="line">                                     SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="keyword">return</span> sctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *data, <span class="type">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="type">static</span> SSL_CTX *sctx = <span class="built_in">Init</span>();</span><br><span class="line">  SSL *server = <span class="built_in">SSL_new</span>(sctx);</span><br><span class="line">  BIO *sinbio = <span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_mem</span>());</span><br><span class="line">  BIO *soutbio = <span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_mem</span>());</span><br><span class="line">  <span class="built_in">SSL_set_bio</span>(server, sinbio, soutbio);</span><br><span class="line">  <span class="built_in">SSL_set_accept_state</span>(server);</span><br><span class="line">  <span class="built_in">BIO_write</span>(sinbio, data, size);</span><br><span class="line">  <span class="built_in">SSL_do_handshake</span>(server);</span><br><span class="line">  <span class="built_in">SSL_free</span>(server);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>编译：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">clang++ -g openssl_fuzzer.cc -O2 -fno-omit-frame-pointer -fsanitize=address,fuzzer \</span><br><span class="line">    -fsanitize-coverage=trace-cmp,trace-gep,trace-div \</span><br><span class="line">    -Iopenssl1.0.1f/include openssl1.0.1f/libssl.a openssl1.0.1f/libcrypto.a \</span><br><span class="line">    ../../libFuzzer/libFuzzer.a -o openssl_fuzzer</span><br></pre></td></tr></table></figure>
-
-<p>然后创建一个文件夹，使用生成的<code>openssl_fuzzer</code>来测试：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> corpus1</span><br><span class="line">./openssl_fuzzer ./corpus1/</span><br></pre></td></tr></table></figure>
-
-<p>然后就可以看到程序报错了。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">=================================================================</span><br><span class="line">==4447==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x629000009748 at pc 0x000000435777 bp 0x7ffcbf76d0a0 sp 0x7ffcbf76c860</span><br><span class="line">READ of size 48384 at 0x629000009748 thread T0</span><br><span class="line">    #0 0x435776 in memcpy (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x435776)</span><br><span class="line">    #1 0x4ce5cf in tls1_process_heartbeat /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/t1_lib.c:2586:3</span><br><span class="line">    #2 0x503b43 in ssl3_read_bytes /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_pkt.c:1092:4</span><br><span class="line">    #3 0x50559b in ssl3_get_message /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:457:7</span><br><span class="line">    #4 0x4ed420 in ssl3_get_client_hello /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:941:4</span><br><span class="line">    #5 0x4eb8fe in ssl3_accept /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:357:9</span><br><span class="line">    #6 0x4c92e2 in LLVMFuzzerTestOneInput /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer.cc:39:3</span><br><span class="line">    #7 0x67f862 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:556:15</span><br><span class="line">    #8 0x67eea5 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool*) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:470:3</span><br><span class="line">    #9 0x6804b7 in fuzzer::Fuzzer::MutateAndTestOne() /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:698:19</span><br><span class="line">    #10 0x681005 in fuzzer::Fuzzer::Loop(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:830:5</span><br><span class="line">    #11 0x670076 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerDriver.cpp:824:6</span><br><span class="line">    #12 0x66b1a0 in main /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerMain.cpp:19:10</span><br><span class="line">    #13 0x7f7f3f2010b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:308:16</span><br><span class="line">    #14 0x41ea1d in _start (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x41ea1d)</span><br><span class="line"></span><br><span class="line">0x629000009748 is located 0 bytes to the right of 17736-byte region [0x629000005200,0x629000009748)</span><br><span class="line">allocated by thread T0 here:</span><br><span class="line">    #0 0x49715d in malloc (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x49715d)</span><br><span class="line">    #1 0x519b0b in CRYPTO_malloc /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/crypto/mem.c:308:8</span><br><span class="line">    #2 0x505f7b in freelist_extract /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:708:12</span><br><span class="line">    #3 0x505f7b in ssl3_setup_read_buffer /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:770:10</span><br><span class="line">    #4 0x5062ec in ssl3_setup_buffers /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:827:7</span><br><span class="line">    #5 0x4eb807 in ssl3_accept /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:292:9</span><br><span class="line">    #6 0x4c92e2 in LLVMFuzzerTestOneInput /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer.cc:39:3</span><br><span class="line">    #7 0x67f862 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:556:15</span><br><span class="line">    #8 0x6808b8 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:743:3</span><br><span class="line">    #9 0x680dd9 in fuzzer::Fuzzer::Loop(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:792:3</span><br><span class="line">    #10 0x670076 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerDriver.cpp:824:6</span><br><span class="line">    #11 0x66b1a0 in main /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerMain.cpp:19:10</span><br><span class="line">    #12 0x7f7f3f2010b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:308:16</span><br><span class="line"></span><br><span class="line">SUMMARY: AddressSanitizer: heap-buffer-overflow (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x435776) in memcpy</span><br><span class="line">Shadow bytes around the buggy address:</span><br><span class="line">  0x0c527fff9290: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">=&gt;0x0c527fff92e0: 00 00 00 00 00 00 00 00 00[fa]fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff92f0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9300: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9310: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9320: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9330: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">Shadow byte legend (one shadow byte represents 8 application bytes):</span><br><span class="line">  Addressable:           00</span><br><span class="line">  Partially addressable: 01 02 03 04 05 06 07 </span><br><span class="line">  Heap left redzone:       fa</span><br><span class="line">  Freed heap region:       fd</span><br><span class="line">  Stack left redzone:      f1</span><br><span class="line">  Stack mid redzone:       f2</span><br><span class="line">  Stack right redzone:     f3</span><br><span class="line">  Stack after return:      f5</span><br><span class="line">  Stack use after scope:   f8</span><br><span class="line">  Global redzone:          f9</span><br><span class="line">  Global init order:       f6</span><br><span class="line">  Poisoned by user:        f7</span><br><span class="line">  Container overflow:      fc</span><br><span class="line">  Array cookie:            ac</span><br><span class="line">  Intra object redzone:    bb</span><br><span class="line">  ASan internal:           fe</span><br><span class="line">  Left alloca redzone:     ca</span><br><span class="line">  Right alloca redzone:    cb</span><br><span class="line">  Shadow gap:              cc</span><br><span class="line">==4447==ABORTING</span><br><span class="line">MS: 2 InsertByte-InsertByte-; base unit: 6409fc1658e8c93af3744d90dd4f7eb4dbc6e488</span><br><span class="line">0x18,0x3,0xff,0x0,0xd,0x1,0xbd,0x0,0x0,0xb3,0x0,0x0,0x0,0x0,0x0,0xd,0xd,0xd,0xd,0xd,0xd,0x0,0x0,0x0,</span><br><span class="line">\x18\x03\xff\x00\x0d\x01\xbd\x00\x00\xb3\x00\x00\x00\x00\x00\x0d\x0d\x0d\x0d\x0d\x0d\x00\x00\x00</span><br><span class="line">artifact_prefix=&#x27;./&#x27;; Test unit written to ./crash-052a0bf2b9eddd783de293aa5452c3212975c9c1</span><br><span class="line">Base64: GAP/AA0BvQAAswAAAAAADQ0NDQ0NAAAA</span><br></pre></td></tr></table></figure>
-
-<p>SUMMARY: AddressSanitizer: heap-buffer-overflow (&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;libfuzzer-workshop-master&#x2F;lessons&#x2F;05&#x2F;openssl_fuzzer+0x435776) in memcpy</p>
-<p>可以看到就是tls1_process_heartbeat这里出错了。</p>
-<h2 id="crash分析"><a href="#crash分析" class="headerlink" title="crash分析"></a>crash分析</h2><p>在gdb中使用GEF来复现</p>
-<p>注意，需要使用代理才可以使用该工具（或者你换一种使用方法也是可以的），使用的文件是上面fuzzing出来的crash文件（以id开头的文件）</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">proxychains gdb -Q target</span><br><span class="line"></span><br><span class="line">(gdb)pi import urllib.request as u, tempfile as t; g=t.NamedTemporaryFile(suffix=<span class="string">&#x27;-gef.py&#x27;</span>); open(g.name, <span class="string">&#x27;wb+&#x27;</span>).write(u.urlopen(<span class="string">&#x27;https://tinyurl.com/gef-master&#x27;</span>).<span class="built_in">read</span>()); gdb.execute(<span class="string">&#x27;source %s&#x27;</span> % g.name)</span><br><span class="line"></span><br><span class="line">gef&gt; r &gt; <span class="built_in">id</span>:000000,sig:06,src:000004+000003,time:27696,op:splice,rep:4</span><br><span class="line"></span><br><span class="line">exploitable</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm">https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm</a></p>
-<p><a href="https://github.com/Dor1s/libfuzzer-workshop">https://github.com/Dor1s/libfuzzer-workshop</a></p>
-<p><a href="https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/">https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/</a></p>
+<p>注意构造函数生成的对象：</p>
+<ul>
+<li>afterHookedMethod函数中：<code>Object thisobj = param.thisObject;</code></li>
+<li>可以多看看XposedHelpers类，他可以调用很多得静态方法，一般在AS里面会有提示</li>
+</ul>
+<h1 id="相关连接"><a href="#相关连接" class="headerlink" title="相关连接"></a>相关连接</h1><p>xposed: <a href="https://repo.xposed.info/module/de.robv.android.xposed.installer">https://repo.xposed.info/module/de.robv.android.xposed.installer</a></p>
+<p>edxposed: <a href="https://github.com/ElderDrivers/EdXposed">https://github.com/ElderDrivers/EdXposed</a></p>
+<p>magisk: <a href="https://github.com/topjohnwu/Magisk">https://github.com/topjohnwu/Magisk</a></p>
+<p>twrp: <a href="https://twrp.me/Devices/">https://twrp.me/Devices/</a></p>
 ]]></content>
       <categories>
-        <category>Fuzzing</category>
-        <category>libfuzzer</category>
+        <category>Android安全</category>
+        <category>Xposed</category>
       </categories>
       <tags>
-        <tag>Fuzzing</tag>
-        <tag>漏洞复现</tag>
+        <tag>Android安全</tag>
       </tags>
   </entry>
   <entry>
@@ -941,6 +947,221 @@
       </categories>
       <tags>
         <tag>Fuzzing</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>frida学习</title>
+    <url>/2022/05/17/frida%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<h1 id="linux实用小工具"><a href="#linux实用小工具" class="headerlink" title="linux实用小工具"></a>linux实用小工具</h1><ul>
+<li>htop：可以查看当前活跃的、占用高的进程</li>
+<li>jnettop：流量查看工具，可以查看下载和安装进度</li>
+</ul>
+<p>arm64-v8a   手机的架构</p>
+<h1 id="frida安装"><a href="#frida安装" class="headerlink" title="frida安装"></a>frida安装</h1><p><a href="https://github.com/frida/frida">https://github.com/frida/frida</a></p>
+<p>基本上每一次打开虚拟机都需要运行一下 ~&#x2F;.bashrc 将会添加环境变量，为了方便python env等</p>
+<ul>
+<li><p>设定特定的python版本 ： pyenv local 3.8.0</p>
+</li>
+<li><p>安装nodejs：sudo apt install -y nodejs</p>
+</li>
+<li><p>下载adb：wget <a href="https://dl.google.com/android/repository/platform-tools-latest-linux.zip%EF%BC%8C%E5%B9%B6%E6%B7%BB%E5%8A%A0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">https://dl.google.com/android/repository/platform-tools-latest-linux.zip，并添加环境变量</a> export PATH&#x3D;”&#x2F;root&#x2F;Downloads&#x2F;platform-tools:$PATH”</p>
+</li>
+<li><p>安装 npm: npm install</p>
+</li>
+<li><p>安装frida、frida-tools、下载frida-server,注意版本问题</p>
+<ul>
+<li>proxychains wget <a href="https://github.com/frida/frida/releases/download/12.8.0/frida-server-12.8.0-android-arm64.xz">https://github.com/frida/frida/releases/download/12.8.0/frida-server-12.8.0-android-arm64.xz</a></li>
+<li>pip install frida&#x3D;&#x3D;12.8.0</li>
+<li>proxychains pip install frida-tools &#x3D;&#x3D;5.3.0</li>
+</ul>
+</li>
+<li><p>使用Frida的时候需要开启服务</p>
+<ul>
+<li>手机开启服务器： &#x2F;data&#x2F;local&#x2F;tmp&#x2F;fs1280arm64 -l 0.0.0.0:8888</li>
+</ul>
+</li>
+</ul>
+<h1 id="安装objection，使用方法："><a href="#安装objection，使用方法：" class="headerlink" title="安装objection，使用方法："></a>安装objection，使用方法：</h1><p><strong>objection -N -h 192.168.3.131 -p 8888 -g com.miui.weather2 explore</strong></p>
+<ul>
+<li><p>objection 常用指令</p>
+<ul>
+<li>查看内存中加载的库：memory list modules</li>
+<li>查看某个库的导出函数：memory list exports libssl.so</li>
+<li>在内存堆中搜索：android heap search instances com.android.settings.DisplaySettings</li>
+<li>执行：android heap execute handleID handleID中的某个函数名</li>
+<li>查看当前可用activity：android hooking list activities</li>
+<li>直接启动某个activity：android intent launch_activity com.android.settings.DisplaySettings。这个可以用来绕过某些activity</li>
+<li>查看包含关键字的类： android hooking list classes</li>
+<li>查看指定类里面的方法：android hooking list class_methods com.android.settings.DisplaySettings</li>
+<li>查看某个类的动态信息：android  hooking  watch class android.bluetooth.BluetoothDevice</li>
+<li>在找到相关的某些信息之后，堆设备进行相关的操作会得到打印出一些有用的信息</li>
+<li>动态查看某个类下面的某个函数的参数，返回值，调用栈：android hooking watch class_method android.bluetooth.BluetoothDevice.getName –dump-args –dump-return –dump-backtrace</li>
+<li>在hook单个函数的时候会HOOK所有的重载（函数名相同，参数不同）：android hooking watch class_method java.io.File.$init –dump-args</li>
+<li>加载插件：有两种方式，一种是在objection里面：plugin load 插件的具体位置；另一种是直接在使用objection的时候就加载插件：objection -N -h 192.168.3.131 -p 5555 -g com.android.settings explore -P ~&#x2F;.objection&#x2F;plugins</li>
+<li>加载插件wallbreaker ,查看某个类中的变量函数签名等信息：<ul>
+<li>plugin wallbreaker classdump –fullname android.bluetooth.BluetoothDevice</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="frida基础"><a href="#frida基础" class="headerlink" title="frida基础"></a>frida基础</h1><p>打印调用栈的js</p>
+<p><code>console.log(Java.use(&quot;android.util.Log&quot;).getStackTraceString(Java.use(&quot;java.lang.Throwable&quot;).$new()));</code></p>
+<p><strong>一般Java里面怎么写，那么用JS实现的时候，里面就同样这么写</strong></p>
+<p><strong>基本操作步骤：</strong></p>
+<ol>
+<li>获取：参数，调用栈，返回值</li>
+<li>方法重载，参数构造，动静态函数的处理（动态函数需要获取类的instance之后调用，静态函数可以直接调用)</li>
+<li>主动调用，不管具体实现，因为中间可能会涉及到jni，直接返回结果</li>
+<li>hook,invoke,rpc</li>
+</ol>
+<p>注意，主动调用是不需要，由脚本返回其返回值的，</p>
+<p>简单示例：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">main</span>(<span class="params"></span>)&#123;</span><br><span class="line"></span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">        <span class="comment">//有重载需要指定函数的参数</span></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.lesson4one.MainActivity&quot;</span>).<span class="property">fun</span>.<span class="title function_">overload</span>(<span class="string">&#x27;int&#x27;</span>, <span class="string">&#x27;int&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">arg1,arg2</span>)&#123;</span><br><span class="line">            <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">fun</span>(arg1,arg2);</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;android.util.Log&quot;</span>).<span class="title function_">getStackTraceString</span>(<span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.Throwable&quot;</span>).$new()));</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg1,arg2,result&quot;</span>,arg1,arg2,result)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">800</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.lesson4one.MainActivity&quot;</span>).<span class="property">fun</span>.<span class="title function_">overload</span>(<span class="string">&quot;java.lang.String&quot;</span>).<span class="property">implementation</span> =<span class="keyword">function</span>(<span class="params">arg1</span>)&#123;</span><br><span class="line">			<span class="comment">//实例化一个字符串的方式</span></span><br><span class="line">            <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">fun</span>(<span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.String&quot;</span>).$new(<span class="string">&quot;NIHAOYA!&quot;</span>))</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg1,result&quot;</span>,arg1,result)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;result&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//因为是动态的方法，所以需要获取到instance之后再进行调用</span></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">choose</span>(<span class="string">&quot;com.example.lesson4one.MainActivity&quot;</span>,&#123;</span><br><span class="line">            <span class="attr">onMatch</span>:<span class="keyword">function</span>(<span class="params">instance</span>)&#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;found instance:&quot;</span>,instance)</span><br><span class="line">                instance.<span class="title function_">secret</span>();</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;instance secret:&quot;</span>,instance.<span class="title function_">secret</span>())</span><br><span class="line">            &#125;,<span class="attr">onComplete</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;&#125;</span><br><span class="line">        &#125;)</span><br><span class="line">		<span class="comment">//如果某个函数是静态的方法的话，就可以直接嗲用该函数即可，</span></span><br><span class="line">        <span class="keyword">var</span> result = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.lesson4one.MainActivity&quot;</span>).<span class="title function_">secret2</span>()</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;secret2:&quot;</span>,result);</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">setImmediate</span>(main)</span><br></pre></td></tr></table></figure>
+
+<p>frida使用js脚本</p>
+<p>frida -H 192.168.3.131:8888 -f  com.example.lesson4one -l lesson5.js  –no-pause</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">─<span class="comment"># frida --help                                                                    </span></span><br><span class="line">Usage: frida [options] target</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">  --version             show program<span class="string">&#x27;s version number and exit</span></span><br><span class="line"><span class="string">  -h, --help            show this help message and exit</span></span><br><span class="line"><span class="string">  -D ID, --device=ID    connect to device with the given ID</span></span><br><span class="line"><span class="string">  -U, --usb             connect to USB device</span></span><br><span class="line"><span class="string">  -R, --remote          connect to remote frida-server</span></span><br><span class="line"><span class="string">  -H HOST, --host=HOST  connect to remote frida-server on HOST</span></span><br><span class="line"><span class="string">  -f FILE, --file=FILE  spawn FILE（启动app）</span></span><br><span class="line"><span class="string">  -F, --attach-frontmost</span></span><br><span class="line"><span class="string">                        attach to frontmost application</span></span><br><span class="line"><span class="string">  -n NAME, --attach-name=NAME</span></span><br><span class="line"><span class="string">                        attach to NAME</span></span><br><span class="line"><span class="string">  -p PID, --attach-pid=PID</span></span><br><span class="line"><span class="string">                        attach to PID</span></span><br><span class="line"><span class="string">  --stdio=inherit|pipe  stdio behavior when spawning (defaults to “inherit”)</span></span><br><span class="line"><span class="string">  --runtime=duk|v8      script runtime to use (defaults to “duk”)</span></span><br><span class="line"><span class="string">  --debug               enable the Node.js compatible script debugger</span></span><br><span class="line"><span class="string">  -l SCRIPT, --load=SCRIPT</span></span><br><span class="line"><span class="string">                        load SCRIPT</span></span><br><span class="line"><span class="string">  -P PARAMETERS_JSON, --parameters=PARAMETERS_JSON</span></span><br><span class="line"><span class="string">                        Parameters as JSON, same as Gadget</span></span><br><span class="line"><span class="string">  -C CMODULE, --cmodule=CMODULE</span></span><br><span class="line"><span class="string">                        load CMODULE</span></span><br><span class="line"><span class="string">  -c CODESHARE_URI, --codeshare=CODESHARE_URI</span></span><br><span class="line"><span class="string">                        load CODESHARE_URI</span></span><br><span class="line"><span class="string">  -e CODE, --eval=CODE  evaluate CODE</span></span><br><span class="line"><span class="string">  -q                    quiet mode (no prompt) and quit after -l and -e</span></span><br><span class="line"><span class="string">  --no-pause            automatically start main thread after startup </span></span><br><span class="line"><span class="string">  -o LOGFILE, --output=LOGFILE</span></span><br><span class="line"><span class="string">                        output to log file</span></span><br><span class="line"><span class="string">  --exit-on-error       exit with code 1 after encountering any exception in</span></span><br><span class="line"><span class="string">                        the SCRIPT</span></span><br></pre></td></tr></table></figure>
+
+<p>打印出对象的值 </p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">openClassFile</span>(<span class="string">&quot;/data/local/tmp/r0gson.dex&quot;</span>).<span class="title function_">load</span>();</span><br><span class="line"><span class="keyword">const</span> gson = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;com.r0ysue.gson.Gson&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;x&quot;</span>,gson.$new().<span class="title function_">toJson</span>(x))</span><br><span class="line"><span class="comment">//或者使用下面的这种方法</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;or , x,result&quot;</span>,<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(x),result)</span><br></pre></td></tr></table></figure>
+
+<p>构造数组</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> charArray = <span class="title class_">Java</span>.<span class="title function_">array</span>(<span class="string">&#x27;char&#x27;</span>,[<span class="string">&quot;a&quot;</span>,<span class="string">&#x27;b&#x27;</span>,<span class="string">&#x27;c&#x27;</span>])</span><br></pre></td></tr></table></figure>
+
+<p>子类对象转成父类对象(注意，父类不能转换成子类)</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">var</span> <span class="variable">fatherHandle</span> <span class="operator">=</span> Java.cast(sonHandle,Java.use(<span class="string">&quot;father.packageName&quot;</span>))</span><br><span class="line">console.log(<span class="string">&quot;father invoke method: &quot;</span>,fatherHandle.method()) </span><br><span class="line"></span><br><span class="line"><span class="comment">//然而子类是可以转成父类的，类似于Java中的泛型，编译看左边运行看右边的那个</span></span><br><span class="line"><span class="type">var</span> <span class="variable">Juicehandle</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">Java.choose(<span class="string">&quot;com.r0ysue.a0526printout.Juice&quot;</span>,&#123;</span><br><span class="line">     onMatch:function(instance)&#123;</span><br><span class="line">          console.log(<span class="string">&quot;found instance:&quot;</span>,instance)</span><br><span class="line">          console.log(<span class="string">&quot;juice instance call fillEnergy:&quot;</span>,instance.fillEnergy());</span><br><span class="line">          Juicehandle = instance;</span><br><span class="line">    &#125;,onComplete:function()&#123;console.log(<span class="string">&quot;search complemented!&quot;</span>)&#125;</span><br><span class="line">&#125;)</span><br><span class="line">           </span><br><span class="line"><span class="type">var</span> <span class="variable">Waterhandle</span> <span class="operator">=</span> Java.cast(Juicehandle,Java.use(<span class="string">&quot;com.r0ysue.a0526printout.Water&quot;</span>))</span><br><span class="line">console.log(<span class="string">&quot;water still method: &quot;</span>,Juicehandle.still(Waterhandle))</span><br></pre></td></tr></table></figure>
+
+<p>注册类，还可以实现接口</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> beer = <span class="title class_">Java</span>.<span class="title function_">registerClass</span>(&#123;</span><br><span class="line">     <span class="attr">name</span>:<span class="string">&#x27;com.r0ysue.a0526printout.Beer&#x27;</span>,</span><br><span class="line">     <span class="attr">implements</span>:[<span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;com.r0ysue.a0526printout.liquid&#x27;</span>)],</span><br><span class="line">     <span class="attr">methods</span>:&#123;</span><br><span class="line">          <span class="attr">flow</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">          		<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;i am beer!&quot;</span>)</span><br><span class="line">                <span class="keyword">var</span> result = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.String&quot;</span>).$new(<span class="string">&quot;test good&quot;</span>)</span><br><span class="line">                <span class="keyword">return</span> result</span><br><span class="line">          &#125;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">//可以直接new</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;neer.flow:&quot;</span>,beer.$new().<span class="title function_">flow</span>())</span><br></pre></td></tr></table></figure>
+
+<p>hookHashmap</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// setImmediate(main)</span></span><br><span class="line"></span><br><span class="line">function <span class="title function_">hookHashMap</span><span class="params">()</span>&#123;</span><br><span class="line">    Java.perform(function()&#123;</span><br><span class="line">       </span><br><span class="line">        Java.choose(<span class="string">&quot;java.util.HashMap&quot;</span>,&#123;</span><br><span class="line">            onMatch:function(instance)&#123;</span><br><span class="line">                <span class="keyword">if</span>(instance.toString().indexOf(<span class="string">&quot;key words&quot;</span>)!=-<span class="number">1</span>)&#123;</span><br><span class="line">                    <span class="comment">//zhaodaole </span></span><br><span class="line">                    console.log(<span class="string">&quot;found instance:&quot;</span>,instance)</span><br><span class="line">                    console.log(<span class="string">&quot;invoke toString:&quot;</span>,instance.toString())</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">            &#125;,onComplete:function()&#123;console.log(<span class="string">&quot;search completed!&quot;</span>)&#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="comment">//hook到了put方法</span></span><br><span class="line">        Java.use(<span class="string">&#x27;java.util.HashMap&#x27;</span>).put.implementation = function(x,y)&#123;</span><br><span class="line">            <span class="type">var</span> <span class="variable">result</span> <span class="operator">=</span> <span class="built_in">this</span>.put(x,y)</span><br><span class="line">            console.log(<span class="string">&quot;x,y,result&quot;</span>,x,y,result)</span><br><span class="line">            <span class="keyword">return</span> result</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>设置成员变量的值，修改成员变量的值</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.androiddemo.Activity.FridaActivity2&quot;</span>).<span class="title function_">setStatic_bool_var</span>();</span><br><span class="line"><span class="comment">//如果是静态变量和静态方法，可以直接利用类名就可以修改</span></span><br><span class="line"><span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.androiddemo.Activity.FridaActivity3&quot;</span>).<span class="property">static_bool_var</span>.<span class="property">value</span>=<span class="literal">true</span>;</span><br><span class="line"><span class="keyword">var</span> fridaActivity3Handle = <span class="literal">null</span></span><br><span class="line"><span class="title class_">Java</span>.<span class="title function_">choose</span>(<span class="string">&quot;com.example.androiddemo.Activity.FridaActivity3&quot;</span>,&#123;</span><br><span class="line">     <span class="attr">onMatch</span>:<span class="keyword">function</span>(<span class="params">instance</span>)&#123;</span><br><span class="line">         <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;found instance:&quot;</span>,instance)</span><br><span class="line">         fridaActivity3Handle = instance</span><br><span class="line">         <span class="comment">//如果是非静态的，则需要获取他的类的handle才可以修改</span></span><br><span class="line">         fridaActivity3Handle.<span class="property">bool_var</span>.<span class="property">value</span> = <span class="literal">true</span></span><br><span class="line">         <span class="comment">//同名变量需要加一个下划线（成员变量名和函数名子一样）</span></span><br><span class="line">         fridaActivity3Handle.<span class="property">_same_name_bool_var</span>.<span class="property">value</span> = <span class="literal">true</span></span><br><span class="line">      &#125;,<span class="attr">onComplete</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;searc completed!&quot;</span>)&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>获取内部类的所有方法，这里和Java反射一样的</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">     <span class="keyword">var</span> class_name = <span class="string">&quot;com.example.androiddemo.Activity.FridaActivity4$InnerClasses&quot;</span></span><br><span class="line">     <span class="keyword">var</span> clazz = <span class="title class_">Java</span>.<span class="title function_">use</span>(class_name)</span><br><span class="line">     <span class="keyword">var</span> methods = clazz.<span class="property">class</span>.<span class="title function_">getDeclaredMethods</span>()</span><br><span class="line">     <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>;i&lt;methods.<span class="property">length</span>;i++)&#123;</span><br><span class="line">          <span class="keyword">var</span> method = methods[i]</span><br><span class="line">          <span class="comment">// console.log(method)</span></span><br><span class="line">          <span class="comment">//得到去除类名的函数的签名</span></span><br><span class="line">         <span class="keyword">var</span> subString = method.<span class="title function_">toString</span>().<span class="title function_">substr</span>(method.<span class="title function_">toString</span>().<span class="title function_">indexOf</span>(class_name)+class_name.<span class="property">length</span>+<span class="number">1</span>)</span><br><span class="line">         <span class="comment">//得到类的方法名</span></span><br><span class="line">         <span class="keyword">var</span> finalMethodString = subString.<span class="title function_">substr</span>(<span class="number">0</span>,subString.<span class="title function_">indexOf</span>(<span class="string">&#x27;(&#x27;</span>))</span><br><span class="line">         <span class="variable language_">console</span>.<span class="title function_">log</span>(finalMethodString)</span><br><span class="line">         clazz[finalMethodString].<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="keyword">return</span> <span class="literal">true</span>&#125;</span><br><span class="line">      &#125; </span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>如果某个方法是动态加载了另一个dex文件里面的，则hook的时候需要注意时机，</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">enumerateClassLoaders</span>(&#123;</span><br><span class="line">     <span class="attr">onMatch</span>:<span class="keyword">function</span>(<span class="params">loader</span>)&#123;</span><br><span class="line">          <span class="keyword">try</span> &#123;</span><br><span class="line">              <span class="comment">//找到类名</span></span><br><span class="line">          	<span class="keyword">if</span>(loader.<span class="title function_">findClass</span>(<span class="string">&quot;com.example.androiddemo.Dynamic.DynamicCheck&quot;</span>))&#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Succefully found loader!&quot;</span>,loader);</span><br><span class="line">                 <span class="title class_">Java</span>.<span class="property">classFactory</span>.<span class="property">loader</span> = loader;</span><br><span class="line">           	&#125;</span><br><span class="line">          &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">               <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;found error &quot;</span>+error)</span><br><span class="line">          &#125;</span><br><span class="line">     &#125;,<span class="attr">onComplete</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="string">&quot;enum completed!&quot;</span>&#125;</span><br><span class="line">&#125;)     <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.androiddemo.Dynamic.DynamicCheck&quot;</span>).<span class="property">check</span>.<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="keyword">return</span> <span class="literal">true</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>另一种方法找到目标函数，这个还可以得到该类的handle</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">enumerateLoadedClasses</span>(&#123;</span><br><span class="line">     <span class="attr">onMatch</span>:<span class="keyword">function</span>(<span class="params">name,handle</span>)&#123;</span><br><span class="line">	<span class="keyword">if</span>(name.<span class="title function_">toString</span>().<span class="title function_">indexOf</span>(<span class="string">&quot;com.example.androiddemo.Activity.Frida6.Frida6&quot;</span>)&gt;=<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;name&quot;</span>,name)</span><br><span class="line">           <span class="title class_">Java</span>.<span class="title function_">use</span>(name).<span class="property">check</span>.<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="keyword">return</span> <span class="literal">true</span>&#125;</span><br><span class="line">	&#125;</span><br><span class="line">    &#125;,<span class="title function_">onComplete</span>(<span class="params"></span>)&#123;&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h1 id="RPC-remote-procedure-call"><a href="#RPC-remote-procedure-call" class="headerlink" title="RPC[remote procedure call]"></a>RPC[remote procedure call]</h1><p><u><strong>RPC的顺序很重要：先hook到函数，然后能够对其进行主动调用，最后才上到rpc上</strong></u></p>
+<p>获取设备：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#  设备启动frida在特定的端口：/data/local/tmp/fs1280arm64 -l 0.0.0.0:8888</span></span><br><span class="line"></span><br><span class="line">str_host = <span class="string">&#x27;192.168.3.131:8888&#x27;</span></span><br><span class="line">manager = frida.get_device_manager()</span><br><span class="line">device = manager.add_remote_device(str_host)</span><br><span class="line"><span class="comment"># device = frida.get_usb_device()</span></span><br><span class="line"><span class="comment"># pid = device.spawn([&quot;com.example.lesson4one&quot;])</span></span><br><span class="line"><span class="comment"># device.resume</span></span><br><span class="line"><span class="comment"># time.sleep(1)e</span></span><br><span class="line"><span class="comment"># session = device.attach(pid)</span></span><br><span class="line">session = device.attach(<span class="string">&quot;com.example.lesson4one&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>获取设备并调用js脚本,</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#python脚本</span></span><br><span class="line"><span class="keyword">from</span> os <span class="keyword">import</span> scandir</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> frida</span><br><span class="line"><span class="keyword">from</span> requests <span class="keyword">import</span> session</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_message_handler</span>(<span class="params">message,payload</span>):</span><br><span class="line">    <span class="built_in">print</span>(message)</span><br><span class="line">    <span class="built_in">print</span>(payload)</span><br><span class="line"></span><br><span class="line">str_host = <span class="string">&#x27;192.168.3.131:8888&#x27;</span></span><br><span class="line">manager = frida.get_device_manager()</span><br><span class="line">device = manager.add_remote_device(str_host)</span><br><span class="line">session = device.attach(<span class="string">&quot;com.example.lesson4one&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;lesson7lesson4.js&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    script = session.create_script(f.read())</span><br><span class="line">script.on(<span class="string">&quot;message&quot;</span>,my_message_handler)</span><br><span class="line">script.load()</span><br><span class="line"></span><br><span class="line">command = <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    command = <span class="built_in">input</span>(<span class="string">&quot;enter command:&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> command ==<span class="string">&#x27;1&#x27;</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">elif</span> command == <span class="string">&#x27;2&#x27;</span>:</span><br><span class="line">        script.exports.invokefunc()</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>设备和js和python交互，并修改相关信息</strong></p>
+<p>首先js hook到相关函数信息，然后将数据发送到python脚本，使用python脚本对数据进行处理之后，再发送给js脚本，然后使用js脚本修改app当中的信息</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> os <span class="keyword">import</span> scandir</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> frida</span><br><span class="line"><span class="keyword">from</span> requests <span class="keyword">import</span> session</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_message_handler</span>(<span class="params">message,payload</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;message&quot;</span>,message)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;payload&quot;</span>,payload)</span><br><span class="line">    <span class="keyword">if</span> message[<span class="string">&#x27;type&#x27;</span>] == <span class="string">&#x27;send&#x27;</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;message[&#x27;payload&#x27;]&quot;</span>,message[<span class="string">&#x27;payload&#x27;</span>])</span><br><span class="line">        data = message[<span class="string">&#x27;payload&#x27;</span>].split(<span class="string">&#x27;:&#x27;</span>)[<span class="number">1</span>].strip()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;message:&quot;</span>,message)</span><br><span class="line">        data = <span class="built_in">str</span>(base64.b64decode(data))</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;data:&#x27;</span>,data)</span><br><span class="line">        <span class="comment">#得到原来的用户名密码</span></span><br><span class="line">        usr,pwd = data.split(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;pw:&#x27;</span>,pwd)</span><br><span class="line">        <span class="comment">#不管用户输入的用户名是什么，都会将其用户名修改为admin,然后使用自己的原来的密码就可以进行登录</span></span><br><span class="line">        data = <span class="built_in">str</span>(base64.b64encode((<span class="string">&quot;admin&quot;</span>+<span class="string">&quot;:&quot;</span>+pwd).encode()))</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;encode data:&quot;</span>,data)</span><br><span class="line">        script.post(&#123;<span class="string">&quot;mydata&quot;</span>:data&#125;)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;Modified data sent!&#x27;</span>)</span><br><span class="line"><span class="comment">#获取设备</span></span><br><span class="line">str_host = <span class="string">&#x27;192.168.3.131:8888&#x27;</span></span><br><span class="line">manager = frida.get_device_manager()</span><br><span class="line">device = manager.add_remote_device(str_host)</span><br><span class="line"><span class="comment">#建立会话</span></span><br><span class="line">session = device.attach(<span class="string">&quot;com.example.lesson7sec&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;lesson7sec.js&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    script = session.create_script(f.read())</span><br><span class="line">script.on(<span class="string">&quot;message&quot;</span>,my_message_handler)</span><br><span class="line">script.load()</span><br><span class="line"><span class="comment">#让程序持续运行，不要退出，如果输入任意字符，则会导致程序退出</span></span><br><span class="line"><span class="built_in">input</span>()</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//js脚本</span></span><br><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;    <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;android.widget.TextView&quot;</span>).<span class="property">setText</span>.<span class="title function_">overload</span>(<span class="string">&quot;java.lang.CharSequence&quot;</span>).<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">x</span>)&#123;</span><br><span class="line">        <span class="keyword">var</span> string_to_send_x = x.<span class="title function_">toString</span>()</span><br><span class="line">        <span class="keyword">var</span> string_to_recv;</span><br><span class="line">    <span class="comment">//将参数发送给python</span></span><br><span class="line">        <span class="title function_">send</span>(string_to_send_x)</span><br><span class="line">    <span class="comment">//接受python传回来的数据</span></span><br><span class="line">        <span class="title function_">recv</span>(<span class="keyword">function</span>(<span class="params">recv_json_objection</span>)&#123;</span><br><span class="line">            <span class="comment">//这里取决于传回来的数据的格式</span></span><br><span class="line">            string_to_recv = recv_json_objection.<span class="property">mydata</span>                </span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;string_to_recv:&quot;</span>.<span class="property">string_to_recv</span>)</span><br><span class="line">        &#125;)</span><br><span class="line">    <span class="comment">//将字符串转换成Java的字符串</span></span><br><span class="line">        <span class="keyword">var</span> javaStringRecv = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.String&quot;</span>).$new(string_to_recv)</span><br><span class="line">	<span class="comment">//设置app上面的结果，需要根据逻辑进行相关的变通</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">setText</span>(javaStringRecv)</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;x.toString(),result:&quot;</span>,x.<span class="title function_">toString</span>())</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h1 id="NPS连接"><a href="#NPS连接" class="headerlink" title="NPS连接"></a>NPS连接</h1><p>nps是<strong>内网穿透</strong>代理服务器。支持<strong>tcp、udp流量转发</strong>等</p>
+<p>nps服务器、npc客户端</p>
+<p>这里的主要目的是将手机的frida映射到电脑上。由于虚拟机ip地址等原因，这里选择的是，在主机上进行安装服务器</p>
+<p>环境配置：</p>
+<ol>
+<li>首先需要电脑主机安装上nps服务器:<a href="https://github.com/ehang-io/nps">https://github.com/ehang-io/nps</a></li>
+<li>在服务器上：添加一个客户端（登录：localhost:8080 admin 123）</li>
+<li>获得客户端连接命令：<code>./npc.exe -server=localhost:8024 -vkey=o3d69gc4zpj8u5df -type=tcp</code></li>
+<li>然后需要将手机安装上一个nps客户端，使用linux_arm_64即可，将其解压到和frida相同得目录，修改权限</li>
+<li>运行客户端得npc: <code>/data/local/tmp/linux_arm64_client/npc  -server=192.168.3.125:8024 -vkey=o3d69gc4zpj8u5df -type=tcp</code></li>
+<li>在服务端添加一个tcp隧道，设置服务端58888，目标端口：8888，<strong>这样连接服务器得58888端口就可以映射到手机上得frida程序8888端口</strong></li>
+<li>然后再使用python脚本得时候，获取得设备得时候，其设备得ip地址就不是原来得手机得IP地址，而是服务器的ip地址和58888端口了：<code>str_host = &#39;192.168.3.131:8888&#39;   改为  str_host = &#39;192.168.3.125:58888&#39;</code></li>
+</ol>
+<h1 id="使用工具生成dex文件"><a href="#使用工具生成dex文件" class="headerlink" title="使用工具生成dex文件"></a>使用工具生成dex文件</h1><p>自己制作dex文件，方便再同样的Java环境下，对一些数据进行解码等操作</p>
+<ol>
+<li><p>使用AS编写Java文件，build,在app\build\intermediates\javac\debug\classes\下找到相关的class文件</p>
+</li>
+<li><p>D:\Android\Sdk\build-tools\29.0.3&gt;d8 target.class</p>
+</li>
+<li><p>adb push classes.dex &#x2F;data&#x2F;loal&#x2F;tmp&#x2F;</p>
+</li>
+<li><p>chmod 777  &#x2F;data&#x2F;local&#x2F;tmp&#x2F;classes.dex</p>
+</li>
+</ol>
+<p>使用js调用dex文件并使用</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">openClassFile</span>(<span class="string">&quot;/data/local/tmp/classes.dex&quot;</span>).<span class="title function_">load</span>();</span><br><span class="line">        <span class="keyword">const</span> reverse = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;类的签名&#x27;</span>)</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;method1:&quot;</span>,reverse.<span class="title function_">method1</span>())</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;method2:&#x27;</span>,reverse.<span class="title function_">method2</span>())</span><br><span class="line">)&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用adb 输入字符串到edittext</strong></p>
+<ol>
+<li>adb shell</li>
+<li>input text “text “</li>
+</ol>
+<h1 id="AS-build"><a href="#AS-build" class="headerlink" title="AS build"></a>AS build</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">repositories &#123;</span><br><span class="line">    maven &#123; url &quot;https://maven.aliyun.com/repository/public&quot; &#125;</span><br><span class="line">    maven &#123; url &quot;https://repo.huaweicloud.com/repository/maven&quot; &#125;</span><br><span class="line">    mavenLocal()</span><br><span class="line">    mavenCentral()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h1><p>frp: <a href="https://github.com/fatedier/frp">https://github.com/fatedier/frp</a></p>
+<p>nps: <a href="https://github.com/ehang-io/nps">https://github.com/ehang-io/nps</a></p>
+<p>frida：<a href="https://github.com/frida/frida">https://github.com/frida/frida</a></p>
+<p>objection:<a href="https://github.com/sensepost/objection">https://github.com/sensepost/objection</a></p>
+<p>frida教程：<a href="https://www.anquanke.com/post/id/197657#h3-8">https://www.anquanke.com/post/id/197657#h3-8</a></p>
+<p>zentracer:<a href="https://github.com/hluwa/ZenTracer">https://github.com/hluwa/ZenTracer</a></p>
+<p>frida-dexdump:<a href="https://github.com/hluwa/frida-dexdump">https://github.com/hluwa/frida-dexdump</a></p>
+<p>wallbreak:<a href="https://github.com/hluwa/Wallbreaker">https://github.com/hluwa/Wallbreaker</a></p>
+<p>z3: <a href="https://github.com/Z3Prover/z3">https://github.com/Z3Prover/z3</a></p>
+]]></content>
+      <categories>
+        <category>Android安全</category>
+        <category>frida</category>
+      </categories>
+      <tags>
+        <tag>Android安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>heartbleed(CVE-2014-0160)</title>
+    <url>/2021/11/14/heartbleed-CVE-2014-0160/</url>
+    <content><![CDATA[<h1 id="心脏滴血漏洞复现（CVE-2014-0160）"><a href="#心脏滴血漏洞复现（CVE-2014-0160）" class="headerlink" title="心脏滴血漏洞复现（CVE 2014-0160）"></a>心脏滴血漏洞复现（CVE 2014-0160）</h1><p>基本信息</p>
+<p>OpenSSL版本：1.0.1</p>
+<p>fuzzer：libfuzzer</p>
+<span id="more"></span>
+
+<h2 id="编译OpenSSL"><a href="#编译OpenSSL" class="headerlink" title="编译OpenSSL"></a>编译OpenSSL</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tar xzf openssl1.0.1f.tgz</span><br><span class="line"><span class="built_in">cd</span> openssl1.0.1f/</span><br><span class="line"></span><br><span class="line">./config</span><br><span class="line">make clean</span><br><span class="line">make CC=<span class="string">&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize=address,fuzzer -fsanitize-coverage=trace-pc-guard,trace-cmp,trace-gep,trace-div&quot;</span> -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
+
+<p>首先是按照教程，但是后面会报错，因为高版本的libfuzzer并不支持了：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-fsanitize-coverage=trace-pc-guard is no longer supported by libFuzzer.</span><br></pre></td></tr></table></figure>
+
+<p>本来想的是修改libfuzzer的版本，但是，并不能成功，所以就参考libfuzzer官方的使用方法，在编译目标程序的时候命令修改成下面的形式（直接删除就好了）</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">make CC=<span class="string">&quot;clang -O2 -fno-omit-frame-pointer -g -fsanitize=fuzzer -fsanitize-coverage=trace-cmp,trace-gep,trace-div&quot;</span> -j$(<span class="built_in">nproc</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="编译fuzzer-target"><a href="#编译fuzzer-target" class="headerlink" title="编译fuzzer target"></a>编译fuzzer target</h2><p>The first step in using libFuzzer on a library is to implement a <em>fuzz target</em> – a function that accepts an array of bytes and does something interesting with these bytes using the API under test. like this:</p>
+<figure class="highlight cc"><table><tr><td class="code"><pre><span class="line"><span class="comment">// fuzz_target.cc</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *Data, <span class="type">size_t</span> Size)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">DoSomethingInterestingWithMyAPI</span>(Data, Size);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// Non-zero return values are reserved for future use.</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//openssl_fuzzer.cc</span></span><br><span class="line"><span class="comment">// Copyright 2016 Google Inc. All Rights Reserved.</span></span><br><span class="line"><span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/ssl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;openssl/err.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;assert.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stddef.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> CERT_PATH</span></span><br><span class="line"><span class="meta"># <span class="keyword">define</span> CERT_PATH</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function">SSL_CTX *<span class="title">Init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">SSL_library_init</span>();</span><br><span class="line">  <span class="built_in">SSL_load_error_strings</span>();</span><br><span class="line">  <span class="built_in">ERR_load_BIO_strings</span>();</span><br><span class="line">  <span class="built_in">OpenSSL_add_all_algorithms</span>();</span><br><span class="line">  SSL_CTX *sctx;</span><br><span class="line">  <span class="built_in">assert</span> (sctx = <span class="built_in">SSL_CTX_new</span>(<span class="built_in">TLSv1_method</span>()));</span><br><span class="line">  <span class="comment">/* These two file were created with this command:</span></span><br><span class="line"><span class="comment">      openssl req -x509 -newkey rsa:512 -keyout server.key \</span></span><br><span class="line"><span class="comment">     -out server.pem -days 9999 -nodes -subj /CN=a/</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="built_in">assert</span>(<span class="built_in">SSL_CTX_use_certificate_file</span>(sctx, CERT_PATH <span class="string">&quot;server.pem&quot;</span>,</span><br><span class="line">                                      SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="built_in">assert</span>(<span class="built_in">SSL_CTX_use_PrivateKey_file</span>(sctx, CERT_PATH <span class="string">&quot;server.key&quot;</span>,</span><br><span class="line">                                     SSL_FILETYPE_PEM));</span><br><span class="line">  <span class="keyword">return</span> sctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *data, <span class="type">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  <span class="type">static</span> SSL_CTX *sctx = <span class="built_in">Init</span>();</span><br><span class="line">  SSL *server = <span class="built_in">SSL_new</span>(sctx);</span><br><span class="line">  BIO *sinbio = <span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_mem</span>());</span><br><span class="line">  BIO *soutbio = <span class="built_in">BIO_new</span>(<span class="built_in">BIO_s_mem</span>());</span><br><span class="line">  <span class="built_in">SSL_set_bio</span>(server, sinbio, soutbio);</span><br><span class="line">  <span class="built_in">SSL_set_accept_state</span>(server);</span><br><span class="line">  <span class="built_in">BIO_write</span>(sinbio, data, size);</span><br><span class="line">  <span class="built_in">SSL_do_handshake</span>(server);</span><br><span class="line">  <span class="built_in">SSL_free</span>(server);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">clang++ -g openssl_fuzzer.cc -O2 -fno-omit-frame-pointer -fsanitize=address,fuzzer \</span><br><span class="line">    -fsanitize-coverage=trace-cmp,trace-gep,trace-div \</span><br><span class="line">    -Iopenssl1.0.1f/include openssl1.0.1f/libssl.a openssl1.0.1f/libcrypto.a \</span><br><span class="line">    ../../libFuzzer/libFuzzer.a -o openssl_fuzzer</span><br></pre></td></tr></table></figure>
+
+<p>然后创建一个文件夹，使用生成的<code>openssl_fuzzer</code>来测试：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> corpus1</span><br><span class="line">./openssl_fuzzer ./corpus1/</span><br></pre></td></tr></table></figure>
+
+<p>然后就可以看到程序报错了。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">=================================================================</span><br><span class="line">==4447==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x629000009748 at pc 0x000000435777 bp 0x7ffcbf76d0a0 sp 0x7ffcbf76c860</span><br><span class="line">READ of size 48384 at 0x629000009748 thread T0</span><br><span class="line">    #0 0x435776 in memcpy (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x435776)</span><br><span class="line">    #1 0x4ce5cf in tls1_process_heartbeat /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/t1_lib.c:2586:3</span><br><span class="line">    #2 0x503b43 in ssl3_read_bytes /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_pkt.c:1092:4</span><br><span class="line">    #3 0x50559b in ssl3_get_message /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:457:7</span><br><span class="line">    #4 0x4ed420 in ssl3_get_client_hello /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:941:4</span><br><span class="line">    #5 0x4eb8fe in ssl3_accept /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:357:9</span><br><span class="line">    #6 0x4c92e2 in LLVMFuzzerTestOneInput /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer.cc:39:3</span><br><span class="line">    #7 0x67f862 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:556:15</span><br><span class="line">    #8 0x67eea5 in fuzzer::Fuzzer::RunOne(unsigned char const*, unsigned long, bool, fuzzer::InputInfo*, bool*) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:470:3</span><br><span class="line">    #9 0x6804b7 in fuzzer::Fuzzer::MutateAndTestOne() /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:698:19</span><br><span class="line">    #10 0x681005 in fuzzer::Fuzzer::Loop(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:830:5</span><br><span class="line">    #11 0x670076 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerDriver.cpp:824:6</span><br><span class="line">    #12 0x66b1a0 in main /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerMain.cpp:19:10</span><br><span class="line">    #13 0x7f7f3f2010b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:308:16</span><br><span class="line">    #14 0x41ea1d in _start (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x41ea1d)</span><br><span class="line"></span><br><span class="line">0x629000009748 is located 0 bytes to the right of 17736-byte region [0x629000005200,0x629000009748)</span><br><span class="line">allocated by thread T0 here:</span><br><span class="line">    #0 0x49715d in malloc (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x49715d)</span><br><span class="line">    #1 0x519b0b in CRYPTO_malloc /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/crypto/mem.c:308:8</span><br><span class="line">    #2 0x505f7b in freelist_extract /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:708:12</span><br><span class="line">    #3 0x505f7b in ssl3_setup_read_buffer /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:770:10</span><br><span class="line">    #4 0x5062ec in ssl3_setup_buffers /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_both.c:827:7</span><br><span class="line">    #5 0x4eb807 in ssl3_accept /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl1.0.1f/ssl/s3_srvr.c:292:9</span><br><span class="line">    #6 0x4c92e2 in LLVMFuzzerTestOneInput /home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer.cc:39:3</span><br><span class="line">    #7 0x67f862 in fuzzer::Fuzzer::ExecuteCallback(unsigned char const*, unsigned long) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:556:15</span><br><span class="line">    #8 0x6808b8 in fuzzer::Fuzzer::ReadAndExecuteSeedCorpora(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:743:3</span><br><span class="line">    #9 0x680dd9 in fuzzer::Fuzzer::Loop(std::vector&lt;fuzzer::SizedFile, fuzzer::fuzzer_allocator&lt;fuzzer::SizedFile&gt; &gt;&amp;) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerLoop.cpp:792:3</span><br><span class="line">    #10 0x670076 in fuzzer::FuzzerDriver(int*, char***, int (*)(unsigned char const*, unsigned long)) /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerDriver.cpp:824:6</span><br><span class="line">    #11 0x66b1a0 in main /home/fourth/fuzz/libfuzzer-workshop-master/libFuzzer/Fuzzer/FuzzerMain.cpp:19:10</span><br><span class="line">    #12 0x7f7f3f2010b2 in __libc_start_main /build/glibc-eX1tMB/glibc-2.31/csu/../csu/libc-start.c:308:16</span><br><span class="line"></span><br><span class="line">SUMMARY: AddressSanitizer: heap-buffer-overflow (/home/fourth/fuzz/libfuzzer-workshop-master/lessons/05/openssl_fuzzer+0x435776) in memcpy</span><br><span class="line">Shadow bytes around the buggy address:</span><br><span class="line">  0x0c527fff9290: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">  0x0c527fff92d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</span><br><span class="line">=&gt;0x0c527fff92e0: 00 00 00 00 00 00 00 00 00[fa]fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff92f0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9300: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9310: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9320: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">  0x0c527fff9330: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa</span><br><span class="line">Shadow byte legend (one shadow byte represents 8 application bytes):</span><br><span class="line">  Addressable:           00</span><br><span class="line">  Partially addressable: 01 02 03 04 05 06 07 </span><br><span class="line">  Heap left redzone:       fa</span><br><span class="line">  Freed heap region:       fd</span><br><span class="line">  Stack left redzone:      f1</span><br><span class="line">  Stack mid redzone:       f2</span><br><span class="line">  Stack right redzone:     f3</span><br><span class="line">  Stack after return:      f5</span><br><span class="line">  Stack use after scope:   f8</span><br><span class="line">  Global redzone:          f9</span><br><span class="line">  Global init order:       f6</span><br><span class="line">  Poisoned by user:        f7</span><br><span class="line">  Container overflow:      fc</span><br><span class="line">  Array cookie:            ac</span><br><span class="line">  Intra object redzone:    bb</span><br><span class="line">  ASan internal:           fe</span><br><span class="line">  Left alloca redzone:     ca</span><br><span class="line">  Right alloca redzone:    cb</span><br><span class="line">  Shadow gap:              cc</span><br><span class="line">==4447==ABORTING</span><br><span class="line">MS: 2 InsertByte-InsertByte-; base unit: 6409fc1658e8c93af3744d90dd4f7eb4dbc6e488</span><br><span class="line">0x18,0x3,0xff,0x0,0xd,0x1,0xbd,0x0,0x0,0xb3,0x0,0x0,0x0,0x0,0x0,0xd,0xd,0xd,0xd,0xd,0xd,0x0,0x0,0x0,</span><br><span class="line">\x18\x03\xff\x00\x0d\x01\xbd\x00\x00\xb3\x00\x00\x00\x00\x00\x0d\x0d\x0d\x0d\x0d\x0d\x00\x00\x00</span><br><span class="line">artifact_prefix=&#x27;./&#x27;; Test unit written to ./crash-052a0bf2b9eddd783de293aa5452c3212975c9c1</span><br><span class="line">Base64: GAP/AA0BvQAAswAAAAAADQ0NDQ0NAAAA</span><br></pre></td></tr></table></figure>
+
+<p>SUMMARY: AddressSanitizer: heap-buffer-overflow (&#x2F;home&#x2F;fourth&#x2F;fuzz&#x2F;libfuzzer-workshop-master&#x2F;lessons&#x2F;05&#x2F;openssl_fuzzer+0x435776) in memcpy</p>
+<p>可以看到就是tls1_process_heartbeat这里出错了。</p>
+<h2 id="crash分析"><a href="#crash分析" class="headerlink" title="crash分析"></a>crash分析</h2><p>在gdb中使用GEF来复现</p>
+<p>注意，需要使用代理才可以使用该工具（或者你换一种使用方法也是可以的），使用的文件是上面fuzzing出来的crash文件（以id开头的文件）</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">proxychains gdb -Q target</span><br><span class="line"></span><br><span class="line">(gdb)pi import urllib.request as u, tempfile as t; g=t.NamedTemporaryFile(suffix=<span class="string">&#x27;-gef.py&#x27;</span>); open(g.name, <span class="string">&#x27;wb+&#x27;</span>).write(u.urlopen(<span class="string">&#x27;https://tinyurl.com/gef-master&#x27;</span>).<span class="built_in">read</span>()); gdb.execute(<span class="string">&#x27;source %s&#x27;</span> % g.name)</span><br><span class="line"></span><br><span class="line">gef&gt; r &gt; <span class="built_in">id</span>:000000,sig:06,src:000004+000003,time:27696,op:splice,rep:4</span><br><span class="line"></span><br><span class="line">exploitable</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm">https://releases.llvm.org/5.0.0/docs/LibFuzzer.html#fuzzing-components-of-llvm</a></p>
+<p><a href="https://github.com/Dor1s/libfuzzer-workshop">https://github.com/Dor1s/libfuzzer-workshop</a></p>
+<p><a href="https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/">https://trustfoundry.net/introduction-to-triaging-fuzzer-generated-crashes/</a></p>
+]]></content>
+      <categories>
+        <category>Fuzzing</category>
+        <category>libfuzzer</category>
+      </categories>
+      <tags>
+        <tag>Fuzzing</tag>
+        <tag>漏洞复现</tag>
       </tags>
   </entry>
   <entry>
@@ -1284,6 +1505,51 @@
       </tags>
   </entry>
   <entry>
+    <title>linux-基础知识</title>
+    <url>/2022/04/01/linux-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
+    <content><![CDATA[<h1 id="vim"><a href="#vim" class="headerlink" title="vim"></a>vim</h1><p>vim是vi的升级</p>
+<p>vim有三种模式：普通模式、插入模式、命令模式</p>
+<p>&lt; !– more –&gt;</p>
+<ol>
+<li><p>普通模式-&gt;插入模式：</p>
+<ul>
+<li>i 光标不动，在原光标的前面插入数据</li>
+<li>a光标后移一位，在光标后面插入数据</li>
+<li>I在本行的开始位置插入数据</li>
+<li>A在本行的结束位置处插入数据</li>
+<li>o 在本行下面创建一个空行</li>
+<li>O 在本行的上一行创建一个空行</li>
+</ul>
+</li>
+<li><p>普通模式下的命令较多</p>
+</li>
+<li><p>命令模式下的命令：</p>
+<ul>
+<li>wq 保存并退出文件</li>
+<li>q 退出文件</li>
+<li>q! 强制退出</li>
+</ul>
+</li>
+</ol>
+<span id="more"></span>
+
+<h1 id="查看文件的方式"><a href="#查看文件的方式" class="headerlink" title="查看文件的方式"></a>查看文件的方式</h1><ol>
+<li>cat [-n -b ] filename </li>
+<li>tac 倒叙查看文件内容 （从最后一行开始）</li>
+<li>head [-n] filename直接查看,默认前10行</li>
+<li>tail [-n] filename 倒叙查看，默认前10行</li>
+<li>more filename 文件过大，分页显示内容，空格建翻页</li>
+<li>wc 文件名 统计一个文件中各种数据的数量计算文件的byte 数，字数，列数等</li>
+</ol>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>libFuzzer workshop study</title>
     <url>/2021/11/15/libFuzzer-workshop-study/</url>
     <content><![CDATA[<h1 id="libFuzzer-workshop-study"><a href="#libFuzzer-workshop-study" class="headerlink" title="libFuzzer workshop study"></a>libFuzzer workshop study</h1><h2 id="libfuzzer-基本使用方法（官方）"><a href="#libfuzzer-基本使用方法（官方）" class="headerlink" title="libfuzzer 基本使用方法（官方）"></a>libfuzzer 基本使用方法（官方）</h2><p>The first step in using libFuzzer on a library is to implement a <em>fuzz target</em> – a function that accepts an array of bytes and does something interesting with these bytes using the API under test. Like this:</p>
@@ -1331,51 +1597,6 @@
       </tags>
   </entry>
   <entry>
-    <title>linux-基础知识</title>
-    <url>/2022/04/01/linux-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/</url>
-    <content><![CDATA[<h1 id="vim"><a href="#vim" class="headerlink" title="vim"></a>vim</h1><p>vim是vi的升级</p>
-<p>vim有三种模式：普通模式、插入模式、命令模式</p>
-<p>&lt; !– more –&gt;</p>
-<ol>
-<li><p>普通模式-&gt;插入模式：</p>
-<ul>
-<li>i 光标不动，在原光标的前面插入数据</li>
-<li>a光标后移一位，在光标后面插入数据</li>
-<li>I在本行的开始位置插入数据</li>
-<li>A在本行的结束位置处插入数据</li>
-<li>o 在本行下面创建一个空行</li>
-<li>O 在本行的上一行创建一个空行</li>
-</ul>
-</li>
-<li><p>普通模式下的命令较多</p>
-</li>
-<li><p>命令模式下的命令：</p>
-<ul>
-<li>wq 保存并退出文件</li>
-<li>q 退出文件</li>
-<li>q! 强制退出</li>
-</ul>
-</li>
-</ol>
-<span id="more"></span>
-
-<h1 id="查看文件的方式"><a href="#查看文件的方式" class="headerlink" title="查看文件的方式"></a>查看文件的方式</h1><ol>
-<li>cat [-n -b ] filename </li>
-<li>tac 倒叙查看文件内容 （从最后一行开始）</li>
-<li>head [-n] filename直接查看,默认前10行</li>
-<li>tail [-n] filename 倒叙查看，默认前10行</li>
-<li>more filename 文件过大，分页显示内容，空格建翻页</li>
-<li>wc 文件名 统计一个文件中各种数据的数量计算文件的byte 数，字数，列数等</li>
-</ol>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>the fuzzing book study notes</title>
     <url>/2021/11/15/the-fuzzing-book-study-notes/</url>
     <content><![CDATA[<h1 id="The-Researcher-Tour"><a href="#The-Researcher-Tour" class="headerlink" title="The Researcher Tour"></a>The Researcher Tour</h1><p><a href="https://www.fuzzingbook.org/">https://www.fuzzingbook.org</a></p>
@@ -1398,19 +1619,6 @@
       <tags>
         <tag>Fuzzing</tag>
       </tags>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/2022/03/28/%E5%B7%A5%E4%BD%9C%E5%B2%97%E4%BD%8D/</url>
-    <content><![CDATA[<p>自己可以做的目前有意向的岗位：</p>
-<p>渗透测试工程师、Android安全工程师、测试开发工程师。</p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191227360.png" alt="image-20220328191227360"></p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191249768.png" alt="image-20220328191249768"></p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191311381.png" alt="image-20220328191311381"></p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191336271.png" alt="image-20220328191336271"></p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191433981.png" alt="image-20220328191433981"></p>
-<p><img src="C:\Users\Yuhui\AppData\Roaming\Typora\typora-user-images\image-20220328191451671.png" alt="image-20220328191451671"></p>
-]]></content>
   </entry>
   <entry>
     <title>xiaodiPenetration</title>
@@ -1476,52 +1684,101 @@
       </tags>
   </entry>
   <entry>
-    <title>破解第一个Android程序</title>
-    <url>/2022/04/16/%E7%A0%B4%E8%A7%A3%E7%AC%AC%E4%B8%80%E4%B8%AAAndroid%E7%A8%8B%E5%BA%8F/</url>
-    <content><![CDATA[<h1 id="使用IDA进行破解分析"><a href="#使用IDA进行破解分析" class="headerlink" title="使用IDA进行破解分析"></a>使用IDA进行破解分析</h1><ul>
-<li>查找分析点<ol>
-<li>使用apktool反编译apk<ul>
-<li><code>Apktool_2.6.1.jar d app-release.apk -o outputdir</code></li>
+    <title>安装Xposed</title>
+    <url>/2022/06/01/%E5%AE%89%E8%A3%85Xposed/</url>
+    <content><![CDATA[<h1 id="设备解锁"><a href="#设备解锁" class="headerlink" title="设备解锁"></a>设备解锁</h1><p>devices: xiomi x6</p>
+<p>如果手机没有解锁则，需要解锁：</p>
+<ul>
+<li>解锁需要专门的工具：<a href="https://www.miui.com/unlock/index.html">https://www.miui.com/unlock/index.html</a></li>
+<li>解锁的时候，手机需要登录上小米账号，插上sim卡</li>
+<li>如果出现电脑识别不了usb，可能是因为电脑的USB驱动是2.0的，数据线也要是2.0的，如果不是，则需要安装一个3.0的驱动。<a href="https://miuiver.com/usb3-fix/">https://miuiver.com/usb3-fix/</a></li>
+<li>然后直接点击解锁即可</li>
 </ul>
-</li>
-<li>查看资源文件中的string.xml</li>
-<li>寻找相关的字符串对应的id号 比如 “unsuccessed”</li>
+<h1 id="获取root权限"><a href="#获取root权限" class="headerlink" title="获取root权限"></a>获取root权限</h1><p>通过线刷来刷入想要的Android版本，<strong>注意需要版本相同才可以刷入Google原生的版本</strong>，但是我并没有找到，线刷步骤以及获取root权限：</p>
+<ol>
+<li>为了方便其他的需要，从新刷入了Android8.1的稳定版（先刷了一次测试版，但是测试版老是自动关机，目前稳定版没有自动关机过），这个较为简单，跟着教程来就可以了</li>
+<li>由于使用了TWRP进入recovery模式之后需要输入密码，而一般的软件并不能解锁system,所以选择的是，Magisk Manager来进行刷机</li>
+<li>手机安装上Magisk Manager，在设置里选择app的更新通道为：稳定版本（测试版本会出现手机关机后root权限消失的问题。</li>
+<li>将上面线刷的线刷包里面的boot.img移动到手机上：adb push boot.img &#x2F;sdcard&#x2F;downloads&#x2F;</li>
+<li>打开magisk 选择安装，方式可以选择并修补一个文件，然后选择上第4步的文件，进行修复，然后回生成一个img文件，在特定目录下，或者选择直接安装也是一样的</li>
+<li>将生成的文件移动到电脑，将手机启动到fastboot模式：adb reboot bootloader</li>
+<li>将上面生成的img文件刷入到手机：<strong>fastboot flash boot boot.img</strong> ,注意这里只能使用boot，不能使用别的命令，否则会失败。</li>
+<li>至此手机的root权限就得到了</li>
 </ol>
-</li>
-<li>使用7z直接解压缩目标APK</li>
-<li>提取其中的dex文件</li>
-<li>载入ida</li>
-<li>使用关键字搜索 ALT T 来搜索上面找到的id号</li>
-<li>简单分析程序，然后修改dex文件<ul>
-<li>edit - patch program -&gt; change byte -&gt; apply patches to input file</li>
-</ul>
-</li>
-</ul>
+<h1 id="安装edxposed"><a href="#安装edxposed" class="headerlink" title="安装edxposed:"></a>安装edxposed:</h1><ol>
+<li>首先需要准备的东西,magisk刷机包v24.3，riru刷机包v25.4.4，edxposed刷机包v0.5.2.2</li>
+<li>magisk刷机包，将下载的magisk.apk 后缀名修改为zip即可</li>
+<li>然后将三个文件放入手机上</li>
+<li>在magisk上面安装模块，注意安装顺序，先安装magisk.zip、然后是riru(注意版本问题，否则会识别不上)、edxposed</li>
+</ol>
+<h1 id="相关连接"><a href="#相关连接" class="headerlink" title="相关连接"></a>相关连接</h1><p>小米6x线刷包：<a href="https://xiaomirom.com/rom/mi-6x-wayne-china-fastboot-recovery-rom/">https://xiaomirom.com/rom/mi-6x-wayne-china-fastboot-recovery-rom/</a></p>
+<p>线刷教程： <a href="https://www.miui.com/shuaji-393.html">https://www.miui.com/shuaji-393.html</a></p>
+<p>xposed: <a href="https://repo.xposed.info/module/de.robv.android.xposed.installer">https://repo.xposed.info/module/de.robv.android.xposed.installer</a></p>
+<p>edxposed: <a href="https://github.com/ElderDrivers/EdXposed">https://github.com/ElderDrivers/EdXposed</a></p>
+<p>magisk: <a href="https://github.com/topjohnwu/Magisk">https://github.com/topjohnwu/Magisk</a></p>
+<p>twrp: <a href="https://twrp.me/Devices/">https://twrp.me/Devices/</a></p>
+]]></content>
+      <categories>
+        <category>Android安全</category>
+        <category>环境搭建</category>
+      </categories>
+      <tags>
+        <tag>Xposed</tag>
+        <tag>环境搭建</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>TaintAnalysis tools study</title>
+    <url>/2022/03/24/TaintAnalysis-tools-study/</url>
+    <content><![CDATA[<h1 id="污点分析"><a href="#污点分析" class="headerlink" title="污点分析"></a>污点分析</h1><p>sources and sinks</p>
+<blockquote>
+<p><strong>sources</strong>: the information we want to protect on a mobile device (e.g., phone number, contacts, location, and unique device identifiers) </p>
+<p><strong>sinks</strong>: points of unwanted information release (e.g., methods related to the Internet and SMS transmission). </p>
+<p>If data from a sensitive source reaches a sink, taint tracking identifies the path from the source to the sink as an instance of data leakage.</p>
+</blockquote>
 <span id="more"></span>
 
-<h1 id="使用dex2jar工具对dex文件进行修复"><a href="#使用dex2jar工具对dex文件进行修复" class="headerlink" title="使用dex2jar工具对dex文件进行修复"></a>使用dex2jar工具对dex文件进行修复</h1><p>主要是修复dex文件中的这两个字段：（checksum、signature）。也可以使用dexfixter工具</p>
-<ul>
-<li><code>d2j-dex-recompute-checksum.bat classes.dex -o</code></li>
-</ul>
-<p>替换apk里面的dex文件为修复之后的文件</p>
-<ul>
-<li>删除文件：<ul>
-<li><code>.\aapt r D:\tools\android\apks\crackme02.apk classes.dex</code></li>
-</ul>
-</li>
-<li>替换文件：<ul>
-<li><code>.\aapt a D:\tools\android\apks\crackme02.apk d:\tools\android\apks\classes.dex</code></li>
-</ul>
-</li>
-</ul>
-<h1 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h1><blockquote>
-<p>签名之前需要将之前的apk文件里面原来的签名文件删除 </p>
-<p>即删除 META-INF文件夹</p>
+<h1 id="Flowdroid"><a href="#Flowdroid" class="headerlink" title="Flowdroid"></a>Flowdroid</h1><p>从2.0版本之后就可以处理ICC了</p>
+<blockquote>
+<p>使用这些污点分析工具的时候并不一定非要在源代码的基础上面修改，也可以直接使用他们的库，只要能够达到我的目的即可。</p>
 </blockquote>
+<p><a href="https://github.com/secure-software-engineering/FlowDroid">https://github.com/secure-software-engineering/FlowDroid</a></p>
+<p>flowdroid采用保守策略 ，将框架分为四种：generation, exclude, kill, and default</p>
 <ul>
-<li><code>jarsigner -keystore d:\android\android.jks -signedjar crackme02signed.apk crackme02.apk android</code></li>
-<li>其中Android.jks是由AS自动生成的签名文件，android是证书名称</li>
+<li>When method parameters (including the receiver object itself) or their fields are tainted, the methods in the <strong>generation</strong> type will have their receiver and the return value, as well as all their fields, tainted; no taint will be propagated for methods of the <strong>exclude</strong> type; </li>
+<li>all taints will be removed for methods of the <strong>kill</strong> type. </li>
+<li>If a method is not assigned with any of these types, the <strong>default</strong> rule will apply , propagating the taint<br>from the receiver object and its fields to the method return value and its fields. </li>
+<li>That is, only for the methods in the <strong>generation</strong> type FLOWDROID will propagate the taint from method parameters and will taint the receiver parameter and its fields; it does not taint any other method parameters in any of the conservative strategies.</li>
 </ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd/target/soot-infoflow-cmd-jar-with-dependencies.jar \</span><br><span class="line">    -a &lt;APK File&gt; \</span><br><span class="line">    -p &lt;Android JAR folder&gt; \</span><br><span class="line">    -s &lt;SourcesSinks file&gt;</span><br></pre></td></tr></table></figure>
+
+<p>本电脑的命令使用：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -d -a D:\mobileForensics\apks\tests\app-realse.apk -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt -o outputs -t</span><br></pre></td></tr></table></figure>
+
+<p>java -jar soot-infoflow-cmd-2.9.0-jar-with-dependencies.jar -a D:\mobileForensics\Mixed -p D:\android\android-platforms -s D:\mobileForensics\SourcesAndSinks.txt -o .&#x2F;output</p>
+<p>For FlowDroid can thus generate a main method in which every order of individual component lifecycles and callbacks is possible, it does not need to simulate all possible paths.</p>
+<p><strong>In FlowDroid, only method calls can be the original source of a taint.</strong> </p>
+<p>主要流程：</p>
+<ol>
+<li>解析文件</li>
+<li>Next, FlowDroid generates the main method from the list of lifecycle and  callback methods (see the Paragraphs Callbacks and Substitution Classes for more  information). This main method is then used to generate a call graph and an  inter-procedural control-flow graph (ICFG). </li>
+<li>Starting at the detected sources,  the taint analysis then tracks taints by traversing the ICFG as explained in  Section 4.</li>
+<li>Native Calls require a special treatment which is described below along with a  performance optimization called Taint Wrapping. </li>
+<li>At the end, FlowDroid reports  all discovered flows from sources to sinks.</li>
+</ol>
+<h1 id="Amandroid"><a href="#Amandroid" class="headerlink" title="Amandroid"></a>Amandroid</h1><p>支持native层，实现了一个流和上下文敏感的内部组件数据流分析。在一个过程间的控制流图和数据流图之上，为每一个组件构建一个数据依赖图，然后生成一个汇总表，记录可能的组件间通信连接。</p>
+<p>不能处理隐式流。</p>
+<ul>
+<li>AMANDROID precisely models a subset of Android framework methods and applies a conservative strategy for the remaining ones. </li>
+<li>Interestingly , AMANDROID’s strategy is different from that of FLOWDROID:<ul>
+<li>in addition to the receiver object and the return value of a method, AMANDROID also taints all method parameters and their fields. </li>
+<li>However, it is doing so only <strong>when the method receiver or parameters themselves</strong><br><strong>are tainted</strong>, not when one of their fields is tainted. </li>
+<li>Strategies applied by both tools lead to false positive and false negative results, albeit in different cases, as we show in our evaluation.</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220418121650.png" alt="amdroid分析流程"></p>
+<h1 id="静态分析工具的对比"><a href="#静态分析工具的对比" class="headerlink" title="静态分析工具的对比"></a>静态分析工具的对比</h1><p><img src="https://raw.githubusercontent.com/Dfault0/images/main/image-20220406161407676.png" alt="静态分析工具的对比"></p>
 ]]></content>
       <categories>
         <category>Android</category>
@@ -1529,26 +1786,66 @@
       </categories>
       <tags>
         <tag>Android安全</tag>
-        <tag>破解程序</tag>
+        <tag>taint analysis tools</tag>
       </tags>
   </entry>
   <entry>
-    <title>配置自己的个人博客 github + hexo</title>
-    <url>/2022/03/18/%E9%85%8D%E7%BD%AE%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%20github%20+%20hexo/</url>
-    <content><![CDATA[<h1 id="配置自己的个人博客-github-hexo"><a href="#配置自己的个人博客-github-hexo" class="headerlink" title="配置自己的个人博客 github + hexo"></a>配置自己的个人博客 github + hexo</h1><p>基本教程：</p>
-<p><a href="https://zhuanlan.zhihu.com/p/26625249">https://zhuanlan.zhihu.com/p/26625249</a></p>
-<span id="more"></span>
+    <title>排序</title>
+    <url>/2022/06/01/%E6%8E%92%E5%BA%8F/</url>
+    <content><![CDATA[<h1 id="Bubble-sort"><a href="#Bubble-sort" class="headerlink" title="Bubble sort"></a>Bubble sort</h1><p>分为向前冒泡，还是向后冒。</p>
+<p>原理：比较相邻得两个元素，如果前者大于后者，则交换两个得顺序，一趟遍历之后，最后一个位置得元素得值是最大的。</p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;i&lt;nums.length-<span class="number">1</span>;i++)&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>;j&lt;nums.length-i;j++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums[j]&lt;nums[j-<span class="number">1</span>])&#123;</span><br><span class="line">			swap(nums[j],nums[j-<span class="number">1</span>]);</span><br><span class="line">		&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="selection-sort"><a href="#selection-sort" class="headerlink" title="selection sort"></a>selection sort</h1><p>原理：每一次在数组中找到一个最大的或者最小的值，放在一个特定的位置，比如数组头或者数组尾</p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line"><span class="comment">//从前往后找到一个最大的放在i处</span></span><br><span class="line">	<span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> i;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i+<span class="number">1</span>;j&lt;nums.length;j++)&#123;</span><br><span class="line">		<span class="keyword">if</span>(nums[j]&gt;nums[index])&#123;</span><br><span class="line">			index = j;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	swap(nums[i],nums[index]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="insertion-sort"><a href="#insertion-sort" class="headerlink" title="insertion sort"></a>insertion sort</h1><p>原理：将待排序的元素插入到已经有序的元素中，也就是说，会涉及到元素的移动等问题</p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//单个元素视为是有序的,假设整个数组需要的是升序排序</span></span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line">	<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i-<span class="number">1</span>;</span><br><span class="line">	<span class="comment">//因为值是会覆盖的，所以需要的保存下来</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">temp</span> <span class="operator">=</span> nums[i];</span><br><span class="line">	<span class="keyword">while</span>(j&gt;=<span class="number">0</span> &amp;&amp; nums[i]&gt;nums[j])&#123;</span><br><span class="line">		nums[j+<span class="number">1</span>] = nums[j];</span><br><span class="line">		j--;</span><br><span class="line">	&#125;</span><br><span class="line">	nums[j+<span class="number">1</span>] = temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Shell-sort"><a href="#Shell-sort" class="headerlink" title="Shell sort"></a>Shell sort</h1><p>​    是简单插入排序的升级，为了减少数据移动的次数，进行了增量。又叫缩小增量排序。</p>
+<p>原理：</p>
+<ul>
+<li><p>将整个待排序的数据分为若干个子序列，然后分别进行插入排序。</p>
+</li>
+<li><p>选择一个增量序列：t1, t2, …, tk, ti&gt;tj,tk&#x3D;1  增量是从大到小，最后为1</p>
+</li>
+<li><p>对于每一趟排序，根据对应的增量，将子序列进行插入排序，</p>
+</li>
+<li><p>当增量为1的时候，是最后一趟</p>
+</li>
+</ul>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//假设需要的是升序排序</span></span><br><span class="line"><span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> <span class="variable">gap</span> <span class="operator">=</span> Math.floor(n/<span class="number">2</span>);gap&gt;<span class="number">0</span>;gap = Math.floor(gap/<span class="number">2</span>))&#123;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> gap;i&lt;n;i++)&#123;</span><br><span class="line">		<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i;</span><br><span class="line">		<span class="type">int</span> <span class="variable">temp</span> <span class="operator">=</span> nums[i];</span><br><span class="line">		<span class="keyword">while</span>(j-gap&gt;=<span class="number">0</span> &amp;&amp; nums[j-gap] &gt; temp)&#123;</span><br><span class="line">			nums[j] = nums[j-gap];</span><br><span class="line">			j -= gap;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	nums[j] = temp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="merge-sort"><a href="#merge-sort" class="headerlink" title="merge sort"></a>merge sort</h1><p>思想：分治的思想，先分后合并为有序</p>
+<p>原理：</p>
+<ul>
+<li>将待排序元素分为两半</li>
+<li>将两个子序列采用归并排序（也就是说再分）</li>
+<li>将排序好的子序列进行合并</li>
+</ul>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">mergeSort(<span class="type">int</span> []nums,<span class="type">int</span> start,<span class="type">int</span> end)&#123;</span><br><span class="line">	<span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> end-start;</span><br><span class="line">	<span class="keyword">if</span>(n&lt;<span class="number">2</span>)&#123;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="type">int</span> <span class="variable">mid</span> <span class="operator">=</span>satrt + n/<span class="number">2</span>;</span><br><span class="line">    mergeSort(nums,start,mid);</span><br><span class="line">    mergeSort(nums,mid+<span class="number">1</span>,end);</span><br><span class="line">	merge(nums,start,mid,end);</span><br><span class="line">&#125;</span><br><span class="line">merge(<span class="type">int</span> []nums,<span class="type">int</span> start,<span class="type">int</span> mid,<span class="type">int</span> end)&#123;</span><br><span class="line">	<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> start;</span><br><span class="line">    <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> mid+<span class="number">1</span>;</span><br><span class="line">    <span class="type">int</span> <span class="variable">k</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span>[] temp = <span class="keyword">new</span> <span class="title class_">int</span>[end-start+<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">while</span>(i&lt;=mid &amp;&amp; j&lt;=end)&#123;</span><br><span class="line">        <span class="keyword">if</span>(nums[i]&gt;nums[j])&#123;</span><br><span class="line">            temp[k++] = nums[j++];</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            temp[k++] = nums[i++];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(i&lt;=mid)&#123;</span><br><span class="line">        temp[k++] = nums[i++];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(j&lt;=end)&#123;</span><br><span class="line">        temp[k++] = nums[j++];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> start,k=<span class="number">0</span>;i&lt;=end;i++,k++)&#123;</span><br><span class="line">        nums[i] = temp[k];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
 
 
 
 ]]></content>
+      <categories>
+        <category>code</category>
+        <category>算法</category>
+      </categories>
       <tags>
-        <tag>next</tag>
+        <tag>code</tag>
       </tags>
   </entry>
   <entry>
-    <title>刷题-数据结构篇</title>
-    <url>/2022/03/18/%E5%81%9A%E9%A2%98%E7%AC%94%E8%AE%B0/</url>
+    <title>刷题-数据结构</title>
+    <url>/2022/03/18/%E5%88%B7%E9%A2%98-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</url>
     <content><![CDATA[<h1 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h1><p>写代码：<font color=red>先在草稿上面分清楚类别</font>，分析好了各个情况才开始敲代码，不然一直调试会很不方便，效率较低。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> Integer.parseInt(string) ;<span class="comment">//可以将string直接转换成int(按照十进制)</span></span><br><span class="line"><span class="type">String</span> <span class="variable">b</span> <span class="operator">=</span> String.valueOf(<span class="type">int</span>) ;<span class="comment">//可以将int直接转换成字符串 比如 1 = &quot;1&quot;</span></span><br></pre></td></tr></table></figure>
 
@@ -1705,15 +2002,72 @@
 ]]></content>
       <categories>
         <category>code</category>
-        <category>数据结构</category>
+        <category>算法</category>
       </categories>
       <tags>
         <tag>code</tag>
       </tags>
   </entry>
   <entry>
-    <title>刷题-算法篇</title>
-    <url>/2022/03/18/%E5%88%B7%E9%A2%98-%E7%AE%97%E6%B3%95%E7%AF%87/</url>
+    <title>破解第一个Android程序</title>
+    <url>/2022/04/16/%E7%A0%B4%E8%A7%A3%E7%AC%AC%E4%B8%80%E4%B8%AAAndroid%E7%A8%8B%E5%BA%8F/</url>
+    <content><![CDATA[<h1 id="使用IDA进行破解分析"><a href="#使用IDA进行破解分析" class="headerlink" title="使用IDA进行破解分析"></a>使用IDA进行破解分析</h1><ul>
+<li>查找分析点<ol>
+<li>使用apktool反编译apk<ul>
+<li><code>Apktool_2.6.1.jar d app-release.apk -o outputdir</code></li>
+</ul>
+</li>
+<li>查看资源文件中的string.xml</li>
+<li>寻找相关的字符串对应的id号 比如 “unsuccessed”</li>
+</ol>
+</li>
+<li>使用7z直接解压缩目标APK</li>
+<li>提取其中的dex文件</li>
+<li>载入ida</li>
+<li>使用关键字搜索 ALT T 来搜索上面找到的id号</li>
+<li>简单分析程序，然后修改dex文件<ul>
+<li>edit - patch program -&gt; change byte -&gt; apply patches to input file</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="使用dex2jar工具对dex文件进行修复"><a href="#使用dex2jar工具对dex文件进行修复" class="headerlink" title="使用dex2jar工具对dex文件进行修复"></a>使用dex2jar工具对dex文件进行修复</h1><p>主要是修复dex文件中的这两个字段：（checksum、signature）。也可以使用dexfixter工具</p>
+<ul>
+<li><code>d2j-dex-recompute-checksum.bat classes.dex -o</code></li>
+</ul>
+<p>替换apk里面的dex文件为修复之后的文件</p>
+<ul>
+<li>删除文件：<ul>
+<li><code>.\aapt r D:\tools\android\apks\crackme02.apk classes.dex</code></li>
+</ul>
+</li>
+<li>替换文件：<ul>
+<li><code>.\aapt a D:\tools\android\apks\crackme02.apk d:\tools\android\apks\classes.dex</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="签名"><a href="#签名" class="headerlink" title="签名"></a>签名</h1><blockquote>
+<p>签名之前需要将之前的apk文件里面原来的签名文件删除 </p>
+<p>即删除 META-INF文件夹</p>
+</blockquote>
+<ul>
+<li><code>jarsigner -keystore d:\android\android.jks -signedjar crackme02signed.apk crackme02.apk android</code></li>
+<li>其中Android.jks是由AS自动生成的签名文件，android是证书名称</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Android</category>
+        <category>Android安全</category>
+      </categories>
+      <tags>
+        <tag>Android安全</tag>
+        <tag>破解程序</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>刷题-算法</title>
+    <url>/2022/03/18/%E5%88%B7%E9%A2%98-%E7%AE%97%E6%B3%95/</url>
     <content><![CDATA[<h1 id="动态规划-dynamic-programming-DP"><a href="#动态规划-dynamic-programming-DP" class="headerlink" title="动态规划 dynamic programming [DP]"></a>动态规划 dynamic programming [DP]</h1><p><a href="https://blog.csdn.net/u013309870/article/details/75193592">https://blog.csdn.net/u013309870/article/details/75193592</a></p>
 <p><font color = red><strong><u>动态规划在解题的时候一般不关心每一个结果是怎么构成的，怎么实现的，只用关心初始值和递推公式，因为这样就可以用程序来跑出结果</u></strong></font></p>
 <p>适用于有重叠子问题和最优子结构性质的问题。</p>
@@ -1781,6 +2135,20 @@
 <p><a href="https://leetcode.cn/problems/house-robber-iii/">337. 打家劫舍 III</a>：树形dp</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//使用树形dp来解，就只是额外用了两个数组</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    HashMap&lt;TreeNode,Integer&gt; hashmap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">rob</span><span class="params">(TreeNode root)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> []result = robAction(root);</span><br><span class="line">        <span class="keyword">return</span> Math.max(result[<span class="number">0</span>],result[<span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span>[] robAction(TreeNode root)&#123;</span><br><span class="line">        <span class="keyword">if</span>(root ==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">int</span>[]&#123;<span class="number">0</span>,<span class="number">0</span>&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> [] left = robAction(root.left);</span><br><span class="line">        <span class="type">int</span> [] right = robAction(root.right);</span><br><span class="line"></span><br><span class="line">         <span class="comment">//表示偷了当前节点，则孩子节点就不投了   </span></span><br><span class="line">        <span class="type">int</span> <span class="variable">result1</span> <span class="operator">=</span> root.val + left[<span class="number">0</span>] + right[<span class="number">0</span>];</span><br><span class="line">        <span class="comment">//如果不偷当前节点，则孩子节点可偷可不偷</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">result2</span> <span class="operator">=</span> Math.max(left[<span class="number">0</span>],left[<span class="number">1</span>]) + Math.max(right[<span class="number">0</span>],right[<span class="number">1</span>]);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">int</span>[]&#123;result2,result1&#125;;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//使用暴力的方式来解，同时记录下中间过程来优化</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    HashMap&lt;TreeNode,Integer&gt; hashmap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">rob</span><span class="params">(TreeNode root)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(root==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(root.left==<span class="literal">null</span> &amp;&amp; root.right==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> root.val;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(hashmap.containsKey(root))&#123;</span><br><span class="line">            <span class="keyword">return</span> hashmap.get(root);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">//直接使用暴力的方式来解</span></span><br><span class="line">        <span class="comment">//1.打劫了父节点，则孩子节点不打劫</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">result1</span> <span class="operator">=</span> root.val;</span><br><span class="line">        <span class="keyword">if</span>(root.left!=<span class="literal">null</span>)&#123;</span><br><span class="line">            result1 += rob(root.left.left) + rob(root.left.right);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(root.right!=<span class="literal">null</span>)&#123;</span><br><span class="line">            result1 += rob(root.right.left) + rob(root.right.right);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//2.不打劫父节点，则开始考虑孩子节点</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">result2</span> <span class="operator">=</span> rob(root.left) + rob(root.right);</span><br><span class="line">        hashmap.put(root,Math.max(result1,result2));</span><br><span class="line">        <span class="keyword">return</span> Math.max(result1,result2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<h2 id="买卖股票-还要看看冷近期"><a href="#买卖股票-还要看看冷近期" class="headerlink" title="买卖股票 还要看看冷近期"></a>买卖股票 还要看看冷近期</h2><p>包含冷静期：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">maxProfit</span><span class="params">(<span class="type">int</span>[] prices)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (prices == <span class="literal">null</span> || prices.length &lt; <span class="number">2</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span>[][] dp = <span class="keyword">new</span> <span class="title class_">int</span>[prices.length][<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// bad case</span></span><br><span class="line">        dp[<span class="number">0</span>][<span class="number">0</span>] = <span class="number">0</span>;  <span class="comment">//未持有股票,（昨天没有持有，或者昨天持有但是今天卖出了）</span></span><br><span class="line">        dp[<span class="number">0</span>][<span class="number">1</span>] = -prices[<span class="number">0</span>]; <span class="comment">//持有股票，买入股票后的钱, （昨天持有，昨天没有持有今天买入（今天买入的意思是，前天就要不持有股票））</span></span><br><span class="line">        dp[<span class="number">1</span>][<span class="number">0</span>] = Math.max(dp[<span class="number">0</span>][<span class="number">0</span>], dp[<span class="number">0</span>][<span class="number">1</span>] + prices[<span class="number">1</span>]);</span><br><span class="line">        dp[<span class="number">1</span>][<span class="number">1</span>] = Math.max(dp[<span class="number">0</span>][<span class="number">1</span>], -prices[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">2</span>; i &lt; prices.length; i++) &#123;</span><br><span class="line">            <span class="comment">// dp公式，没有持有 （前一天没有持有，前一天持有今天卖了）</span></span><br><span class="line">            <span class="comment">//今天卖股票</span></span><br><span class="line">            dp[i][<span class="number">0</span>] = Math.max(dp[i - <span class="number">1</span>][<span class="number">0</span>], dp[i - <span class="number">1</span>][<span class="number">1</span>] + prices[i]);</span><br><span class="line">            <span class="comment">//持有 = MAX(前一天持有，前一天没有持有并且前一天是冷静期，今天买入(也就是说两天前就没有持有了))，因为冷静期只是影响的是卖出后的第二天不能买入，所以，如果要买入的话，只能是过了冷静期</span></span><br><span class="line">            <span class="comment">//也可以说是今天买入股票</span></span><br><span class="line">            dp[i][<span class="number">1</span>] = Math.max(dp[i - <span class="number">1</span>][<span class="number">1</span>], dp[i - <span class="number">2</span>][<span class="number">0</span>] - prices[i]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> dp[prices.length - <span class="number">1</span>][<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="最长递增子序列"><a href="#最长递增子序列" class="headerlink" title="最长递增子序列"></a>最长递增子序列</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">lengthOfLIS</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">        dp[i]表示i之前包括i的以nums[i]结尾最长上升子序列的长度</span></span><br><span class="line"><span class="comment">        从0开始直到i一旦出现了num[i]&gt;nums[j]，则就好办了</span></span><br><span class="line"><span class="comment">        dp[i] = if(nums[i]&gt;nums[j])&#123;</span></span><br><span class="line"><span class="comment">            dp[i] = Math.max(dp[i],dp[j]+1);</span></span><br><span class="line"><span class="comment">        &#125;</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        <span class="type">int</span>[] dp = <span class="keyword">new</span> <span class="title class_">int</span> [nums.length];</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line">            dp[i] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">      </span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>;i&lt;nums.length;i++)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>;j&lt;i;j++)&#123;</span><br><span class="line">                <span class="keyword">if</span>(nums[i]&gt;nums[j])&#123;</span><br><span class="line">                    dp[i] = Math.max(dp[i],dp[j]+<span class="number">1</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            result = Math.max(result,dp[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="编辑距离"><a href="#编辑距离" class="headerlink" title="编辑距离"></a>编辑距离</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">minDistance</span><span class="params">(String word1, String word2)</span> &#123;</span><br><span class="line">        <span class="comment">//dp[i][j] 0-i-1,0-j-1的编辑距离</span></span><br><span class="line">        <span class="type">int</span> [][] dp = <span class="keyword">new</span> <span class="title class_">int</span>[word1.length()+<span class="number">1</span>][word2.length()+<span class="number">1</span>];</span><br><span class="line">        <span class="comment">//初始化</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i= <span class="number">0</span>;i&lt;=word1.length();i++)&#123;</span><br><span class="line">            dp[i][<span class="number">0</span>] = i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>;j&lt;=word2.length();j++)&#123;</span><br><span class="line">            dp[<span class="number">0</span>][j] =j;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>;i&lt;=word1.length();i++)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">1</span>;j&lt;=word2.length();j++)&#123;</span><br><span class="line">                <span class="keyword">if</span>(word1.charAt(i-<span class="number">1</span>)==word2.charAt(j-<span class="number">1</span>))&#123;</span><br><span class="line">                    <span class="comment">//相同就不用编辑了</span></span><br><span class="line">                    dp[i][j] = dp[i-<span class="number">1</span>][j-<span class="number">1</span>];</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="comment">//如果不同的话，就是插入删除 替换</span></span><br><span class="line">                    dp[i][j] = Math.min(dp[i-<span class="number">1</span>][j-<span class="number">1</span>],Math.min(dp[i-<span class="number">1</span>][j],dp[i][j-<span class="number">1</span>]))+<span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[word1.length()][word2.length()];</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="回文"><a href="#回文" class="headerlink" title="回文"></a>回文</h2><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">countSubstrings</span><span class="params">(String s)</span> &#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">        dp[i][j]表示i-j为止表示该字符串是否是回文</span></span><br><span class="line"><span class="comment">        if(s[i]==s[j])&#123;</span></span><br><span class="line"><span class="comment">            if(i==j)&#123;</span></span><br><span class="line"><span class="comment">                true;</span></span><br><span class="line"><span class="comment">            &#125;else if(abs(i-j)==1)&#123;</span></span><br><span class="line"><span class="comment">                true</span></span><br><span class="line"><span class="comment">            &#125;else if(abs(i-j)&gt;1)&#123;</span></span><br><span class="line"><span class="comment">                dp[i][j] = dp[i+1][j-1];</span></span><br><span class="line"><span class="comment">            &#125;</span></span><br><span class="line"><span class="comment">        &#125;</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">         <span class="type">boolean</span>[][] dp = <span class="keyword">new</span> <span class="title class_">boolean</span>[s.length()][s.length()];</span><br><span class="line">        <span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">         <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> s.length()-<span class="number">1</span>;i&gt;=<span class="number">0</span>;i--)&#123;</span><br><span class="line">             <span class="keyword">for</span>(<span class="type">int</span> j=i;j&lt;s.length();j++)&#123;</span><br><span class="line">                 <span class="keyword">if</span>(s.charAt(i)==s.charAt(j))&#123;</span><br><span class="line">                     <span class="keyword">if</span>(i==j || j-i==<span class="number">1</span>)&#123;</span><br><span class="line">                         dp[i][j] = <span class="literal">true</span>;</span><br><span class="line">                     &#125;</span><br><span class="line">                     <span class="keyword">if</span>(j-i&gt;<span class="number">1</span>)&#123;</span><br><span class="line">                         <span class="comment">//就是因为这个所以我们的遍历顺序才是从上到下，左到右开始的   i+</span></span><br><span class="line">                         dp[i][j] = dp[i+<span class="number">1</span>][j-<span class="number">1</span>];</span><br><span class="line">                     &#125;</span><br><span class="line">                 &#125;</span><br><span class="line">                 <span class="keyword">if</span>(dp[i][j])&#123;</span><br><span class="line">                     result++;</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>双指针法：从中心向两边扩散的方法</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">countSubstrings</span><span class="params">(String s)</span> &#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">        找到回文中心，然后向两边开始扩散，</span></span><br><span class="line"><span class="comment">        可以将两个字符的中间作为一个中心，这种情况可以合并</span></span><br><span class="line"><span class="comment">        也可以将字符串作为中心，这种会分为两种情况，一个 字符作为中心，或者，两个字符作为中心</span></span><br><span class="line"><span class="comment">        </span></span><br><span class="line"><span class="comment">        </span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span> ; i&lt;s.length();i++)&#123;</span><br><span class="line">            result += helper(s,i,i,s.length());</span><br><span class="line">            result += helper(s,i,i+<span class="number">1</span>,s.length()); </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="title function_">helper</span><span class="params">(String s,<span class="type">int</span> i,<span class="type">int</span> j ,<span class="type">int</span> n)</span>&#123;</span><br><span class="line">        <span class="type">int</span> result= <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(i&gt;=<span class="number">0</span> &amp;&amp; j&lt;n &amp;&amp; s.charAt(i)==s.charAt(j))&#123;</span><br><span class="line">            i--;</span><br><span class="line">            j++;</span><br><span class="line">            result++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 
 
 <h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><p>数组进行反转或者是字符串进行反转：<strong>先整体反转再局部反转</strong></p>
@@ -1843,7 +2211,7 @@
 
 <p>给定一个候选人编号的集合 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。candidates 中的每个数字在每个组合中只能使用 一次 。</p>
 <p>注意：解集不能包含重复的组合。 </p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    List&lt;List&lt;Integer&gt;&gt; result = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    List&lt;Integer&gt; path = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    <span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    因为是最后的解集中不能包含重复的数组，</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; <span class="title function_">combinationSum2</span><span class="params">(<span class="type">int</span>[] candidates, <span class="type">int</span> target)</span> &#123;</span><br><span class="line">    </span><br><span class="line">        Arrays.sort(candidates);</span><br><span class="line">        helper(candidates,target,<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">helper</span><span class="params">(<span class="type">int</span>[] candidates,<span class="type">int</span> target,<span class="type">int</span> start)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(sum&gt;target)&#123;</span><br><span class="line">            <span class="keyword">return</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(sum==target)&#123;</span><br><span class="line">            result.add(<span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(path));</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> start;i&lt;candidates.length&amp;&amp;candidates[i]+sum&lt;=target;i++)&#123;</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span>(i&gt;start &amp;&amp; candidates[i]==candidates[i-<span class="number">1</span>] )&#123;</span><br><span class="line">                <span class="comment">//有效去除结果集合中的重复元素，因为如果当前元素和前面的元素一样的话，最后的结果也会是一样的，所以再这里就可以不用继续进行递归了</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            sum += candidates[i];</span><br><span class="line">            path.add(candidates[i]);</span><br><span class="line">            helper(candidates,target,i+<span class="number">1</span>);</span><br><span class="line">            path.remove(path.size()-<span class="number">1</span>);</span><br><span class="line">            sum -= candidates[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    List&lt;List&lt;Integer&gt;&gt; result = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    List&lt;Integer&gt; path = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    <span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    因为是最后的解集中不能包含重复的数组，</span></span><br><span class="line"><span class="comment">    </span></span><br><span class="line"><span class="comment">     */</span>  </span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; <span class="title function_">combinationSum2</span><span class="params">(<span class="type">int</span>[] candidates, <span class="type">int</span> target)</span> &#123;</span><br><span class="line">    </span><br><span class="line">        Arrays.sort(candidates);</span><br><span class="line">        helper(candidates,target,<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">helper</span><span class="params">(<span class="type">int</span>[] candidates,<span class="type">int</span> target,<span class="type">int</span> start)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(sum&gt;target)&#123;</span><br><span class="line">            <span class="keyword">return</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(sum==target)&#123;</span><br><span class="line">            result.add(<span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(path));</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> start;i&lt;candidates.length&amp;&amp;candidates[i]+sum&lt;=target;i++)&#123;</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span>(i&gt;start &amp;&amp; candidates[i]==candidates[i-<span class="number">1</span>] )&#123;</span><br><span class="line">                <span class="comment">//有效去除结果集合中的重复元素，因为如果当前元素和前面的元素一样的话，最后的结果也会是一样的，所以再这里就可以不用继续进行递归了</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            sum += candidates[i];</span><br><span class="line">            path.add(candidates[i]);</span><br><span class="line">            helper(candidates,target,i+<span class="number">1</span>);</span><br><span class="line">            path.remove(path.size()-<span class="number">1</span>);</span><br><span class="line">            sum -= candidates[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//法二：使用map</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="comment">//结果集合</span></span><br><span class="line">    List&lt;List&lt;Integer&gt;&gt; res = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">    <span class="comment">//路径集合</span></span><br><span class="line">    LinkedList&lt;Integer&gt; path = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; <span class="title function_">findSubsequences</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        getSubsequences(nums,<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">getSubsequences</span><span class="params">( <span class="type">int</span>[] nums, <span class="type">int</span> start )</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(path.size()&gt;<span class="number">1</span> )&#123;</span><br><span class="line">            res.add( <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(path) );</span><br><span class="line">            <span class="comment">// 注意这里不要加return，要取树上的节点</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//因为这个并不能直接排序之后选择字迹，所以，并不能简单的使用前者和后者相等来判断是否用过当前数字</span></span><br><span class="line">        HashMap&lt;Integer,Integer&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=start ;i &lt; nums.length ;i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(!path.isEmpty() &amp;&amp; nums[i]&lt; path.getLast())&#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 使用过了当前数字</span></span><br><span class="line">            <span class="keyword">if</span> ( map.getOrDefault( nums[i],<span class="number">0</span> ) &gt;=<span class="number">1</span> )&#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            map.put(nums[i],map.getOrDefault( nums[i],<span class="number">0</span> )+<span class="number">1</span>);</span><br><span class="line">            path.add( nums[i] );</span><br><span class="line">            getSubsequences( nums,i+<span class="number">1</span> );</span><br><span class="line">            path.removeLast();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1880,6 +2248,12 @@
 <p><a href="https://leetcode-cn.com/problems/minimum-number-of-arrows-to-burst-balloons/">452. 用最少数量的箭引爆气球</a></p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">findMinArrowShots</span><span class="params">(<span class="type">int</span>[][] points)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(points.length==<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//按照第一个维度升序进行排序</span></span><br><span class="line">        Arrays.sort(points,(o1,o2)-&gt; Integer.compare(o1[<span class="number">0</span>], o2[<span class="number">0</span>]));</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>;i&lt;points.length;i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(points[i][<span class="number">0</span>]&gt;points[i-<span class="number">1</span>][<span class="number">1</span>])&#123;</span><br><span class="line">                <span class="comment">//不重叠，结果加一</span></span><br><span class="line">                count++;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">//表示已经重叠了</span></span><br><span class="line">                <span class="comment">//将左边界更行为重叠中的最小右边界</span></span><br><span class="line">                points[i][<span class="number">1</span>] = Math.min(points[i][<span class="number">1</span>],points[i-<span class="number">1</span>][<span class="number">1</span>]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<h1 id="单调栈"><a href="#单调栈" class="headerlink" title="单调栈"></a>单调栈</h1><p><strong>通常是一维数组，要寻找任一个元素的右边或者左边第一个比自己大或者小的元素的位置，此时我们就要想到可以用单调栈了</strong>。</p>
+<p>几天后出现更高的温度 </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] dailyTemperatures(<span class="type">int</span>[] temperatures) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//使用单调栈，其中栈顶的元素小于栈底的元素</span></span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> <span class="title class_">Stack</span>&lt;&gt;();</span><br><span class="line">        stack.push(<span class="number">0</span>);</span><br><span class="line">        <span class="type">int</span>[] result = <span class="keyword">new</span> <span class="title class_">int</span>[temperatures.length];</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>;i&lt;temperatures.length;i++)&#123;</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">            这段代码可以不要</span></span><br><span class="line"><span class="comment">            if(!stack.isEmpty() &amp;&amp; temperatures[i]&lt;=temperatures[stack.peek()])&#123;</span></span><br><span class="line"><span class="comment">                stack.push(i);</span></span><br><span class="line"><span class="comment">            &#125;</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">while</span>(!stack.isEmpty() &amp;&amp; temperatures[i]&gt;temperatures[stack.peek()])&#123;</span><br><span class="line">                result[stack.peek()] = i - stack.peek();</span><br><span class="line">                stack.pop();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//这个时候就可以进行压栈了</span></span><br><span class="line">            stack.push(i);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>循环数组：下一个更大的元素</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] nextGreaterElements(<span class="type">int</span>[] nums) &#123;</span><br><span class="line">        <span class="comment">//使用单调栈</span></span><br><span class="line">        <span class="type">int</span> result[]= <span class="keyword">new</span> <span class="title class_">int</span>[nums.length];</span><br><span class="line">        Stack&lt;Integer&gt; stack = <span class="keyword">new</span> <span class="title class_">Stack</span>&lt;&gt;();</span><br><span class="line">        stack.push(<span class="number">0</span>);</span><br><span class="line">        Arrays.fill(result,-<span class="number">1</span>);</span><br><span class="line">        <span class="comment">//这样来模拟数字扩容拼接</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span> ;i &lt;nums.length*<span class="number">2</span>;i++)&#123;</span><br><span class="line">            <span class="keyword">while</span>(!stack.isEmpty() &amp;&amp; nums[i%nums.length]&gt;nums[stack.peek()])&#123;</span><br><span class="line">                result[stack.peek()] = nums[i%nums.length];</span><br><span class="line">                stack.pop();</span><br><span class="line">            &#125;</span><br><span class="line">            stack.push(i%nums.length);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>code</category>
@@ -1980,61 +2354,17 @@
       </tags>
   </entry>
   <entry>
-    <title>AFL fuzz whitepaper</title>
-    <url>/2021/11/08/AFL-fuzz-whitepaper/</url>
-    <content><![CDATA[<h1 id="Technical-“whitepaper”-for-afl-fuzz"><a href="#Technical-“whitepaper”-for-afl-fuzz" class="headerlink" title="Technical “whitepaper” for afl-fuzz"></a>Technical “whitepaper” for afl-fuzz</h1><h2 id="Design-statement"><a href="#Design-statement" class="headerlink" title="Design statement"></a>Design statement</h2><p>该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。</p>
-<p>原则：速度、可靠性、易使用</p>
+    <title>配置自己的个人博客 github + hexo</title>
+    <url>/2022/03/18/%E9%85%8D%E7%BD%AE%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%20github%20+%20hexo/</url>
+    <content><![CDATA[<h1 id="配置自己的个人博客-github-hexo"><a href="#配置自己的个人博客-github-hexo" class="headerlink" title="配置自己的个人博客 github + hexo"></a>配置自己的个人博客 github + hexo</h1><p>基本教程：</p>
+<p><a href="https://zhuanlan.zhihu.com/p/26625249">https://zhuanlan.zhihu.com/p/26625249</a></p>
 <span id="more"></span>
 
-<h2 id="Coverage-measurements"><a href="#Coverage-measurements" class="headerlink" title="Coverage measurements"></a>Coverage measurements</h2><p>这个插桩注入到编译好的程序来获取分支覆盖率</p>
-<p>注入点：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cur_location = &lt;COMPILE_TIME_RANDOM&gt;;</span><br><span class="line">shared_mem[cur_location ^ prev_location]++; </span><br><span class="line">prev_location = cur_location &gt;&gt; 1;</span><br></pre></td></tr></table></figure>
 
-<p>cur_location是随机生成来简化链接复杂项目的并且保持XOR输出均匀分布。</p>
-<p>shared_mem[]是64KB的一个共享内存区域，被调用者传递给插桩二进制</p>
-<p>输出映射中设置的每个字节都可以看作是插入指令的代码中特定（branch_src，branch_dst）元组的命中</p>
-<p>coverage的形式：元组</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A -&gt; B -&gt; C -&gt; D -&gt; E (tuples: AB, BC, CD, DE)</span><br><span class="line">A -&gt; B -&gt; D -&gt; C -&gt; E (tuples: AB, BD, DC, CE)</span><br></pre></td></tr></table></figure>
 
-<p>这有助于发现底层代码中的细微故障条件，因为安全漏洞通常与意外或不正确的状态转换相关，而不仅仅是与到达新的基本块相关。</p>
-<h2 id="Detecting-new-behaviors"><a href="#Detecting-new-behaviors" class="headerlink" title="Detecting new behaviors"></a>Detecting new behaviors</h2><p>fuzzer维护在以前的执行中看到的元组的全局映射，可以与单路径进行快速比较，并且使用简单的循环和几条简单的之类就可以进行更新。</p>
-<p>当一个变异之后的输入的执行路径包含新的元组的时候，该输入便会被保留下来。否则将会被丢弃，即使他们的控制流图是唯一的。</p>
-<p>这种方法允许对程序状态进行非常细粒度和长期的探索，而不必对复杂的执行跟踪执行任何计算密集和脆弱的全局比较，同时避免了路径爆炸。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#1: A -&gt; B -&gt; C -&gt; D -&gt; E</span><br><span class="line">#2: A -&gt; B -&gt; C -&gt; A -&gt; E</span><br><span class="line">#2包含了新的元组（CA, AE），所以他是新的</span><br><span class="line">#3: A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; A -&gt; B -&gt; C -&gt; D -&gt; E</span><br><span class="line">但是#3不是unique的</span><br></pre></td></tr></table></figure>
-
-<p>此外除了考虑新的元组外，AFL还粗略统计了到达的元组数目，他们被分到下面的几个区间bucket：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1, 2, 3, 4-7, 8-15, 16-31, 32-127, 128+</span><br></pre></td></tr></table></figure>
-
-<p>bucket的数量是一个实现工件：它允许将插装生成的8位计数器就地映射到fuzzer可执行文件依赖的8位位图，以跟踪每个元组已经看到的执行计数。bucket之内的变化会被忽略。</p>
-<h2 id="Evolving-the-input-queue"><a href="#Evolving-the-input-queue" class="headerlink" title="Evolving the input queue"></a>Evolving the input queue</h2><p>已经变异了的测试用例，如果产生一个新的状态，就会被添加到输入队列中，并且作为将来的fuzzing的一个开始点。</p>
-<p>这个方法主要是为了让AFL探索分散的和尽可能多不可比的数据格式特点。</p>
-<h2 id="Culling-the-corpus"><a href="#Culling-the-corpus" class="headerlink" title="Culling the corpus"></a>Culling the corpus</h2><p>AFL为了保证效率，AFL会定期重新评估输入队列，选出测试用例的一个子集，同时可以保证任然可以覆盖每个元组。</p>
-<p>算法原理：为每个队列分配一个于其执行文件大小成比例的分数，然后为每个元组选择得分最低的候选项。</p>
-<p>元组的处理流程：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1) Find next tuple not yet in the temporary working set,</span><br><span class="line"></span><br><span class="line">2) Locate the winning queue entry for this tuple,</span><br><span class="line"></span><br><span class="line">3) Register *all* tuples present in that entry&#x27;s trace in the working set,</span><br><span class="line"></span><br><span class="line">4) Go to #1 if there are any missing tuples in the set.</span><br></pre></td></tr></table></figure>
-
-<p>被判断成favored的实体，通常比原始数据集小5-10倍。被判断成non-favored的实体不会被丢弃，只是当遇见的时候会有一定的概率跳过：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">- If there are new, yet-to-be-fuzzed favorites present in the queue, 99% of non-favored entries will be skipped to get to the favored ones.</span><br><span class="line"></span><br><span class="line">- If there are no new favorites:</span><br><span class="line"></span><br><span class="line">  - If the current non-favored entry was fuzzed before, it will be skipped 95% of the time.</span><br><span class="line"></span><br><span class="line">  - If it hasn&#x27;t gone through any fuzzing rounds yet, the odds of skipping drop down to 75%.</span><br></pre></td></tr></table></figure>
-
-<p>this provides a reasonable balance between queue cycling speed and test case diversity.</p>
-<p>afl-cmin: 稍微有点复杂，但是更慢的一个缩减方法。</p>
-<h2 id="Trimming-input-files"><a href="#Trimming-input-files" class="headerlink" title="Trimming input files"></a>Trimming input files</h2><p>有些类型的变异策略可能会迭代增加生成文件的大小。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">trimmer </span><br></pre></td></tr></table></figure>
-
-<p>afl-tmin：是独立运行的，使用更详尽的迭代算法，还尝试对修剪过的文件执行字母表规范化。</p>
-<p>他的操作如下：</p>
-<ul>
-<li>首先，这个工具自动选择工作模式。如果初始化输入让目标二进制文件崩溃，afl-min将会使用未插桩的模式，并且简单对输入进行调整（产生更加简单的文件，但是任然是可以产生crash）；如果目标没有崩溃，他就会使用插桩的模式，并且保持调整（产生同样的执行路径）。</li>
-</ul>
-<p>实际的算法是：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1) Attempt to zero large blocks of data with large stepovers. Empirically, this is shown to reduce the number of execs by preempting finer-grained efforts later on.</span><br><span class="line"></span><br><span class="line">2) Perform a block deletion pass with decreasing block sizes and stepovers, binary-search-style. </span><br><span class="line"></span><br><span class="line">3) Perform alphabet normalization by counting unique characters and trying to bulk-replace each with a zero value.</span><br><span class="line"></span><br><span class="line">4) As a last result, perform byte-by-byte normalization on non-zero bytes.</span><br><span class="line">- Sequential bit flips with varying lengths and stepovers,</span><br><span class="line"></span><br><span class="line">- Sequential addition and subtraction of small integers,</span><br><span class="line"></span><br><span class="line">- Sequential insertion of known interesting integers (0, 1, INT_MAX, etc),</span><br></pre></td></tr></table></figure>
 ]]></content>
-      <categories>
-        <category>Fuzzing</category>
-        <category>AFL</category>
-      </categories>
       <tags>
-        <tag>Fuzzing</tag>
+        <tag>next</tag>
       </tags>
   </entry>
 </search>
