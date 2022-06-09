@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="对加壳app的hook对于加了壳的app，我们只能够在程序自己执行到了正确的classloader的时候才能够进行hook,否则会出现找不到类的错误。 一般来说，app的application类的attachBaseContext函数和oncreate函数是用来解壳的， 经过了者两个函数，壳就会自动解密，所以在这里hook oncreate函数来找到目标app真正的类的class loader就能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Xposed基础二">
+<meta property="og:url" content="http://dfault0.github.io/2022/06/02/Xposed%E5%9F%BA%E7%A1%80%E4%BA%8C/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="对加壳app的hook对于加了壳的app，我们只能够在程序自己执行到了正确的classloader的时候才能够进行hook,否则会出现找不到类的错误。 一般来说，app的application类的attachBaseContext函数和oncreate函数是用来解壳的， 经过了者两个函数，壳就会自动解密，所以在这里hook oncreate函数来找到目标app真正的类的class loader就能">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220603155151.png">
+<meta property="article:published_time" content="2022-06-02T09:03:43.000Z">
+<meta property="article:modified_time" content="2022-06-09T10:10:07.237Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="Android安全">
+<meta property="article:tag" content="Xposed">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220603155151.png">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/06/02/Xposed%E5%9F%BA%E7%A1%80%E4%BA%8C/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/06/02/Xposed%E5%9F%BA%E7%A1%80%E4%BA%8C/","path":"2022/06/02/Xposed基础二/","title":"Xposed基础二"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Xposed基础二 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%B9%E5%8A%A0%E5%A3%B3app%E7%9A%84hook"><span class="nav-number">1.</span> <span class="nav-text">对加壳app的hook</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%B9%E4%BA%8E%E5%A4%9Adex%E7%9A%84hook"><span class="nav-number">2.</span> <span class="nav-text">对于多dex的hook</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hook-so%E5%87%BD%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">hook so函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8sandhook"><span class="nav-number">3.1.</span> <span class="nav-text">使用sandhook:</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#so%E4%B8%AD%E7%9A%84%E4%B8%BB%E5%8A%A8%E8%B0%83%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">so中的主动调用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#xposed%E6%A3%80%E6%B5%8B"><span class="nav-number">5.</span> <span class="nav-text">xposed检测</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5"><span class="nav-number">6.</span> <span class="nav-text">相关链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/06/02/Xposed%E5%9F%BA%E7%A1%80%E4%BA%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Xposed基础二 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Xposed基础二
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-06-02 17:03:43" itemprop="dateCreated datePublished" datetime="2022-06-02T17:03:43+08:00">2022-06-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-06-09 18:10:07" itemprop="dateModified" datetime="2022-06-09T18:10:07+08:00">2022-06-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="对加壳app的hook"><a href="#对加壳app的hook" class="headerlink" title="对加壳app的hook"></a>对加壳app的hook</h1><p>对于加了壳的app，我们只能够在程序自己执行到了正确的classloader的时候才能够进行hook,否则会出现找不到类的错误。</p>
+<p>一般来说，app的application类的attachBaseContext函数和oncreate函数是用来解壳的， 经过了者两个函数，壳就会自动解密，所以在这里hook oncreate函数来找到目标app真正的类的class loader就能够找到。</p>
+<ol>
+<li>hook app的oncreate函数：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">@Override</span></span><br><span class="line"> <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleLoadPackage</span><span class="params">(XC_LoadPackage.LoadPackageParam loadPackageParam)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">     Log.i(<span class="string">&quot;xposed01:&quot;</span>, loadPackageParam.packageName);</span><br><span class="line">     XposedBridge.log(<span class="string">&quot;packagename&quot;</span> + loadPackageParam.packageName);</span><br><span class="line">     <span class="keyword">if</span> (loadPackageParam.packageName.equals(<span class="string">&quot;target package name&quot;</span>)) &#123;</span><br><span class="line">         XposedBridge.log(<span class="string">&quot;hooked target: &quot;</span> + loadPackageParam.packageName);</span><br><span class="line">         <span class="type">ClassLoader</span> <span class="variable">classLoader</span> <span class="operator">=</span> loadPackageParam.classLoader;</span><br><span class="line"></span><br><span class="line">         XposedBridge.log(<span class="string">&quot;loadPackageParam.classLoader-&gt;&quot;</span> + classLoader);</span><br><span class="line"></span><br><span class="line"><span class="comment">//开始hook目标app的 onCreate函数</span></span><br><span class="line">         Class StubAppClass= XposedHelpers.findClass(<span class="string">&quot;com.stub.StubApp&quot;</span>,loadPackageParam.classLoader);</span><br><span class="line">         <span class="comment">//hook oncreate</span></span><br><span class="line">         XposedHelpers.findAndHookMethod(<span class="string">&quot;com.stub.StubApp&quot;</span>, loadPackageParam.classLoader, <span class="string">&quot;onCreate&quot;</span>, <span class="keyword">new</span> <span class="title class_">XC_MethodHook</span>() &#123;</span><br><span class="line">             <span class="meta">@Override</span></span><br><span class="line">             <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                 <span class="built_in">super</span>.beforeHookedMethod(param);</span><br><span class="line">                 XposedBridge.log(<span class="string">&quot;com.stub.StubApp-&gt;onCreate beforeHookedMethod&quot;</span>);</span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">             <span class="meta">@Override</span></span><br><span class="line">             <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                 <span class="built_in">super</span>.afterHookedMethod(param);</span><br><span class="line">                 XposedBridge.log(<span class="string">&quot;com.stub.StubApp-&gt;onCreate afterHookedMethod&quot;</span>);</span><br><span class="line">                 <span class="comment">//获取加载student的真正的classloader，当oncreate调用结束之后，就可以找到真正的classLoader了</span></span><br><span class="line">                 ClassLoader finalClassLoader=getClassloader();</span><br><span class="line">                 XposedBridge.log(<span class="string">&quot;finalClassLoader-&gt;&quot;</span> + finalClassLoader); </span><br><span class="line">                 </span><br><span class="line">                 <span class="comment">//找到了阵阵的classloader之后，就可以在这里对未加壳的app来进行hook了</span></span><br><span class="line">                 XposedHelpers.findAndHookMethod(<span class="string">&quot;target class&quot;</span>, finalClassLoader, <span class="string">&quot;privatefunc&quot;</span>, String.class, <span class="type">int</span>.class, <span class="keyword">new</span> <span class="title class_">XC_MethodHook</span>() &#123;</span><br><span class="line">                     <span class="meta">@Override</span></span><br><span class="line">                     <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                         <span class="built_in">super</span>.beforeHookedMethod(param);</span><br><span class="line">                         Object[] objectarray = param.args;</span><br><span class="line">                         <span class="type">String</span> <span class="variable">arg0</span> <span class="operator">=</span> (String) objectarray[<span class="number">0</span>];</span><br><span class="line">                         <span class="type">int</span> <span class="variable">arg1</span> <span class="operator">=</span> (<span class="type">int</span>) objectarray[<span class="number">1</span>];</span><br><span class="line">                         XposedBridge.log(<span class="string">&quot;beforeHookedMethod11 privatefunc-&gt;arg0:&quot;</span> + arg0 + <span class="string">&quot;---arg1:&quot;</span> + arg1);</span><br><span class="line"></span><br><span class="line">                     &#125;</span><br><span class="line">                     <span class="meta">@Override</span></span><br><span class="line">                     <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                         <span class="built_in">super</span>.afterHookedMethod(param);</span><br><span class="line"></span><br><span class="line">                         <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> (String) param.getResult();</span><br><span class="line">                         XposedBridge.log(<span class="string">&quot;afterHookedMethod11 privatefunc-&gt;result:&quot;</span> + result);</span><br><span class="line"></span><br><span class="line">                     &#125;</span><br><span class="line">                 &#125;);</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>然后再oncreate函数执行结束的时候，来找到真正的classloader</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ClassLoader <span class="title function_">getClassloader</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">ClassLoader</span> <span class="variable">resultClassloader</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">currentActivityThread</span> <span class="operator">=</span> invokeStaticMethod(</span><br><span class="line">            <span class="string">&quot;android.app.ActivityThread&quot;</span>, <span class="string">&quot;currentActivityThread&quot;</span>,</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;&#125;);</span><br><span class="line">    <span class="type">Object</span> <span class="variable">mBoundApplication</span> <span class="operator">=</span> getFieldOjbect(</span><br><span class="line">            <span class="string">&quot;android.app.ActivityThread&quot;</span>, currentActivityThread,</span><br><span class="line">            <span class="string">&quot;mBoundApplication&quot;</span>);</span><br><span class="line">    <span class="type">Application</span> <span class="variable">mInitialApplication</span> <span class="operator">=</span> (Application) getFieldOjbect(<span class="string">&quot;android.app.ActivityThread&quot;</span>,</span><br><span class="line">            currentActivityThread, <span class="string">&quot;mInitialApplication&quot;</span>);</span><br><span class="line">    <span class="type">Object</span> <span class="variable">loadedApkInfo</span> <span class="operator">=</span> getFieldOjbect(</span><br><span class="line">            <span class="string">&quot;android.app.ActivityThread$AppBindData&quot;</span>,</span><br><span class="line">            mBoundApplication, <span class="string">&quot;info&quot;</span>);</span><br><span class="line">    <span class="type">Application</span> <span class="variable">mApplication</span> <span class="operator">=</span> (Application) getFieldOjbect(<span class="string">&quot;android.app.LoadedApk&quot;</span>, loadedApkInfo, <span class="string">&quot;mApplication&quot;</span>);</span><br><span class="line">    resultClassloader = mApplication.getClassLoader();</span><br><span class="line">    <span class="keyword">return</span> resultClassloader;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>最后就需要再HookonCreate函数的afterHookedMethod函数里面对其他类进行正常的hook即可</li>
+</ol>
+<p>其他有用的函数（比如得到类的所有属性，函数等）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Field <span class="title function_">getClassField</span><span class="params">(ClassLoader classloader, String class_name,</span></span><br><span class="line"><span class="params">                                  String filedName)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">Class</span> <span class="variable">obj_class</span> <span class="operator">=</span> classloader.loadClass(class_name);<span class="comment">//Class.forName(class_name);</span></span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj_class.getDeclaredField(filedName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">return</span> field;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (SecurityException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NoSuchFieldException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">getClassFieldObject</span><span class="params">(ClassLoader classloader, String class_name, Object obj,</span></span><br><span class="line"><span class="params">                                         String filedName)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">Class</span> <span class="variable">obj_class</span> <span class="operator">=</span> classloader.loadClass(class_name);<span class="comment">//Class.forName(class_name);</span></span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj_class.getDeclaredField(filedName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        result = field.get(obj);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (SecurityException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NoSuchFieldException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">invokeStaticMethod</span><span class="params">(String class_name,</span></span><br><span class="line"><span class="params">                                        String method_name, Class[] pareTyple, Object[] pareVaules)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">Class</span> <span class="variable">obj_class</span> <span class="operator">=</span> Class.forName(class_name);</span><br><span class="line">        <span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> obj_class.getMethod(method_name, pareTyple);</span><br><span class="line">        <span class="keyword">return</span> method.invoke(<span class="literal">null</span>, pareVaules);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (SecurityException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">getFieldOjbect</span><span class="params">(String class_name, Object obj,</span></span><br><span class="line"><span class="params">                                    String filedName)</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">Class</span> <span class="variable">obj_class</span> <span class="operator">=</span> Class.forName(class_name);</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj_class.getDeclaredField(filedName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">return</span> field.get(obj);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (SecurityException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NoSuchFieldException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NullPointerException e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ClassLoader <span class="title function_">getClassloader</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">ClassLoader</span> <span class="variable">resultClassloader</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">currentActivityThread</span> <span class="operator">=</span> invokeStaticMethod(</span><br><span class="line">            <span class="string">&quot;android.app.ActivityThread&quot;</span>, <span class="string">&quot;currentActivityThread&quot;</span>,</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;&#125;);</span><br><span class="line">    <span class="type">Object</span> <span class="variable">mBoundApplication</span> <span class="operator">=</span> getFieldOjbect(</span><br><span class="line">            <span class="string">&quot;android.app.ActivityThread&quot;</span>, currentActivityThread,</span><br><span class="line">            <span class="string">&quot;mBoundApplication&quot;</span>);</span><br><span class="line">    <span class="type">Application</span> <span class="variable">mInitialApplication</span> <span class="operator">=</span> (Application) getFieldOjbect(<span class="string">&quot;android.app.ActivityThread&quot;</span>,</span><br><span class="line">            currentActivityThread, <span class="string">&quot;mInitialApplication&quot;</span>);</span><br><span class="line">    <span class="type">Object</span> <span class="variable">loadedApkInfo</span> <span class="operator">=</span> getFieldOjbect(</span><br><span class="line">            <span class="string">&quot;android.app.ActivityThread$AppBindData&quot;</span>,</span><br><span class="line">            mBoundApplication, <span class="string">&quot;info&quot;</span>);</span><br><span class="line">    <span class="type">Application</span> <span class="variable">mApplication</span> <span class="operator">=</span> (Application) getFieldOjbect(<span class="string">&quot;android.app.LoadedApk&quot;</span>, loadedApkInfo, <span class="string">&quot;mApplication&quot;</span>);</span><br><span class="line">    resultClassloader = mApplication.getClassLoader();</span><br><span class="line">    <span class="keyword">return</span> resultClassloader;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">GetClassLoaderClasslist</span><span class="params">(ClassLoader classLoader)</span> &#123;</span><br><span class="line">    <span class="comment">//private final DexPathList pathList;</span></span><br><span class="line">    <span class="comment">//public static java.lang.Object getObjectField(java.lang.Object obj, java.lang.String fieldName)</span></span><br><span class="line">    XposedBridge.log(<span class="string">&quot;start deal with classloader:&quot;</span> + classLoader);</span><br><span class="line">    <span class="comment">//获取pathlist对象</span></span><br><span class="line">    <span class="type">Object</span> <span class="variable">pathListObj</span> <span class="operator">=</span> XposedHelpers.getObjectField(classLoader, <span class="string">&quot;pathList&quot;</span>);</span><br><span class="line">    <span class="comment">//private final Element[] dexElements;</span></span><br><span class="line">    Object[] dexElementsObj = (Object[]) XposedHelpers.getObjectField(pathListObj, <span class="string">&quot;dexElements&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (Object i : dexElementsObj) &#123;</span><br><span class="line">        <span class="comment">//private final DexFile dexFile;</span></span><br><span class="line">        <span class="type">Object</span> <span class="variable">dexFileObj</span> <span class="operator">=</span> XposedHelpers.getObjectField(i, <span class="string">&quot;dexFile&quot;</span>);</span><br><span class="line">        <span class="comment">//private Object mCookie;</span></span><br><span class="line">        <span class="type">Object</span> <span class="variable">mCookieObj</span> <span class="operator">=</span> XposedHelpers.getObjectField(dexFileObj, <span class="string">&quot;mCookie&quot;</span>);</span><br><span class="line">        <span class="comment">//private static native String[] getClassNameList(Object cookie);</span></span><br><span class="line">        <span class="comment">//    public static java.lang.Object callStaticMethod(java.lang.Class&lt;?&gt; clazz, java.lang.String methodName, java.lang.Object... args) &#123; /* compiled code */ &#125;</span></span><br><span class="line">        <span class="type">Class</span> <span class="variable">DexFileClass</span> <span class="operator">=</span> XposedHelpers.findClass(<span class="string">&quot;dalvik.system.DexFile&quot;</span>, classLoader);</span><br><span class="line">        String[] classlist = (String[]) XposedHelpers.callStaticMethod(DexFileClass, <span class="string">&quot;getClassNameList&quot;</span>, mCookieObj);</span><br><span class="line">        <span class="keyword">for</span> (String classname : classlist) &#123;</span><br><span class="line">            XposedBridge.log(dexFileObj + <span class="string">&quot;---&quot;</span> + classname);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    XposedBridge.log(<span class="string">&quot;end dealwith classloader:&quot;</span> + classLoader);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="对于多dex的hook"><a href="#对于多dex的hook" class="headerlink" title="对于多dex的hook"></a>对于多dex的hook</h1><p>有些app里面加载了插件dex，并没有对classloader进行修正</p>
+<p>可以直接hook构造函数，就可以得到dexClassLoader，然后就可以对插件dex里面的函数进行hook了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">        <span class="keyword">if</span>(loadPackageParam.packageName.equals(<span class="string">&quot;target package name&quot;</span>))&#123;</span><br><span class="line">            XposedBridge.log(<span class="string">&quot;target package name was finded!&quot;</span>);</span><br><span class="line"><span class="comment">// public DexClassLoader(String dexPath,String optimizedDirectory,</span></span><br><span class="line"><span class="comment">//               String librarySearchPath,ClassLoader parent)</span></span><br><span class="line">            XposedHelpers.findAndHookConstructor(<span class="string">&quot;dalvik.system.DexClassLoader&quot;</span>, loadPackageParam.classLoader, String.class, String.class, String.class, ClassLoader.class, <span class="keyword">new</span> <span class="title class_">XC_MethodHook</span>() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                    <span class="built_in">super</span>.beforeHookedMethod(param);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                    <span class="built_in">super</span>.afterHookedMethod(param);</span><br><span class="line">                    <span class="comment">//得到dexclassloader</span></span><br><span class="line">                    <span class="type">DexClassLoader</span> <span class="variable">dexClassLoader</span> <span class="operator">=</span> (DexClassLoader) param.thisObject;</span><br><span class="line">                    XposedBridge.log(<span class="string">&quot;dexClassLoader:&quot;</span>+dexClassLoader);</span><br><span class="line">                    XposedHelpers.findAndHookMethod(<span class="string">&quot;target class&quot;</span>, dexClassLoader,<span class="string">&quot;method name&quot;</span>, String.class, <span class="keyword">new</span> <span class="title class_">XC_MethodHook</span>() &#123;</span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                            <span class="built_in">super</span>.beforeHookedMethod(param);</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                            <span class="built_in">super</span>.afterHookedMethod(param);</span><br><span class="line">                        &#125;;</span><br><span class="line">                    &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="hook-so函数"><a href="#hook-so函数" class="headerlink" title="hook so函数"></a>hook so函数</h1><ul>
+<li>加载so都是使用 <code>System.loadLibrary(&quot;native-lib&quot;);</code><strong>由于（Android 6.0以后）hook System.loadLibrary函数的收会爆出一个错误：找不到原来的so文件</strong>，所以建议不要hook该函数，<strong>而是hook他里面调用的宁一个函数</strong>：看Android源码，不要看as里面的源码</li>
+<li>所以需要hook该函数，或者该函数里面调用了的某个关键的函数，然后将其替换成自己的目标so文件， <code>System.load(&quot;my.so&quot;)</code>;</li>
+<li>注意这里的so文件的位置最好再&#x2F;data&#x2F;data&#x2F;packagename&#x2F;下面</li>
+<li>然后修改so的执行权限</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这里需要视情况而定，因为每个平台的函数可能是不同的，最好还是再AS里面看看源码</span></span><br><span class="line">XposedHelpers.findAndHookMethod(<span class="string">&quot;java.lang.Runtime&quot;</span>, loadPackageParam.classLoader, <span class="string">&quot;loadLibrary0&quot;</span>, ClassLoader.class,String.class, <span class="keyword">new</span> <span class="title class_">XC_MethodHook</span>() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                    <span class="built_in">super</span>.beforeHookedMethod(param);</span><br><span class="line">                    XposedBridge.log(<span class="string">&quot;beforeHookedMethod Runtime.loadLibrary0(&quot;</span>+param.args[<span class="number">0</span>]+<span class="string">&quot;,&quot;</span>+param.args[<span class="number">1</span>]+<span class="string">&quot;)&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">                    <span class="built_in">super</span>.afterHookedMethod(param);</span><br><span class="line">                    String soName= (String) param.args[<span class="number">1</span>];</span><br><span class="line">                    XposedBridge.log(<span class="string">&quot;afterHookedMethod Runtime.loadLibrary0(&quot;</span>+soName+<span class="string">&quot;)&quot;</span>);</span><br><span class="line">                    <span class="keyword">if</span>(soName.contains(<span class="string">&quot;native-lib&quot;</span>))&#123;</span><br><span class="line">                        <span class="comment">//注意这里的进程空间，因为一般只能访问自己的进程空间里面的东西，所以建议加载自己的so的文件放在目标app的私有data下面</span></span><br><span class="line">                        <span class="comment">//这里不能使用loadLibrary0，因为会hook到本身</span></span><br><span class="line">                        System.load(<span class="string">&quot;/data/data/targetpackagename/files/my.so&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>到现在就可以编写自己的so文件了，这里可以使用inline hook来进行</p>
+<p>inline hook的原理：通过获取到原来函数的地址，然后编写自己的函数，将原来函数的开头部分替换成跳转到自己函数的代码，注意需要保存原来函数的指令，以及寄存器的状态，程序执行结束之后，需要将保存的原来的函数的指令写入回去。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//hook结束之后，该地址是用来保存原来函数的地址的，注意这里需要参数和原来的函数一样，</span></span><br><span class="line"><span class="type">void</span> *(*old_strstr)(<span class="type">char</span> *, <span class="type">char</span> *) = <span class="literal">nullptr</span>;</span><br><span class="line"><span class="comment">//这是新的hook之后的函数，注意参数要和原来的一样</span></span><br><span class="line"><span class="function"><span class="type">void</span> *<span class="title">new_strstr</span><span class="params">(<span class="type">char</span> *arg0, <span class="type">char</span> *arg1)</span> </span>&#123;</span><br><span class="line">    __android_log_print(<span class="number">4</span>, <span class="string">&quot;hook&quot;</span>, <span class="string">&quot;strstr is called,arg1:%s,arg2:%s&quot;</span>, arg0, arg1);</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(arg1, <span class="string">&quot;hook&quot;</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">//过滤正常的函数调用，</span></span><br><span class="line">        <span class="type">int</span> a = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> &amp;a;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//如果是正常的函数调用的话，就需要调用原来的函数，并正确返回</span></span><br><span class="line">        <span class="type">void</span> *result = <span class="built_in">old_strstr</span>(arg0, arg1);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">starthooklibc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="comment">//找到目标so的地址</span></span><br><span class="line">    <span class="type">void</span> *libchandle = <span class="built_in">dlopen</span>(<span class="string">&quot;libc.so&quot;</span>, RTLD_NOW);</span><br><span class="line">    <span class="comment">//找到so中目标函数的地址</span></span><br><span class="line">    <span class="type">void</span> *strstr_addr = <span class="built_in">dlsym</span>(libchandle, <span class="string">&quot;methodname&quot;</span>);</span><br><span class="line">    <span class="comment">//注册函数</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">registerInlineHook</span>((<span class="type">uint32_t</span>) strstr_addr, (<span class="type">uint32_t</span>) new_strstr,(<span class="type">uint32_t</span> **) &amp;old_strstr) !=ELE7EN_OK) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//hook函数</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">inlineHook</span>((<span class="type">uint32_t</span>) strstr_addr) == ELE7EN_OK) &#123;</span><br><span class="line">        __android_log_print(<span class="number">4</span>, <span class="string">&quot;hookso&quot;</span>, <span class="string">&quot;hook libc.so-&gt;methodname success!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="type">void</span> _init(<span class="type">void</span>) &#123;</span><br><span class="line">    <span class="built_in">starthooklibc</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用sandhook"><a href="#使用sandhook" class="headerlink" title="使用sandhook:"></a>使用sandhook:</h2><p>生成目标so文件，AS中新建native项目，将sandhook中native文件夹下面的内容拷贝到自己的项目的同样的位置</p>
+<img src="https://raw.githubusercontent.com/Dfault0/images/main/20220603155151.png" style="zoom: 40%;" />
+
+<p>然后将nativehook下面的build.gradle里面的内容复制到我们的项目里面</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">externalNativeBuild &#123;</span><br><span class="line">    cmake &#123;</span><br><span class="line">        arguments &#x27;-DBUILD_TESTING=OFF&#x27;</span><br><span class="line">        cppFlags &quot;-frtti -fexceptions -Wpointer-arith&quot;</span><br><span class="line">        abiFilters &#x27;armeabi-v7a&#x27;, &#x27;arm64-v8a&#x27;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此外，如果自己单独写了cpp文件，则应该将其加入到cmakelist.txt文件里面。</p>
+<p><strong>因为_init函数的执行时机较早，会有一些sandhook需要进行的一些初始化操作在这里进行，我们不能在这里进行hook</strong></p>
+<p>选择在<strong>JNI_OnLoad</strong>函数里面执行</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;jni.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;sandhook_native.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;utils/log.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;android/log.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//这个是原来的函数的保存地址</span></span><br><span class="line"><span class="type">void</span> *(*old_strstr)(<span class="type">char</span> *, <span class="type">char</span> *) = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> *<span class="title">new_strstr</span><span class="params">(<span class="type">char</span> *arg0, <span class="type">char</span> *arg1)</span> </span>&#123;</span><br><span class="line">    __android_log_print(<span class="number">4</span>, <span class="string">&quot;hooksoarm64&quot;</span>, <span class="string">&quot;strstr is called,arg1:%s,arg2:%s&quot;</span>, arg0, arg1);</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strcmp</span>(arg1, <span class="string">&quot;hookso&quot;</span>) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="type">int</span> a = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> &amp;a;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="type">void</span> *result = <span class="built_in">old_strstr</span>(arg0, arg1);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">starthooklibc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">sizeof</span>(<span class="type">void</span> *) == <span class="number">8</span>) &#123;</span><br><span class="line">        <span class="comment">//64为</span></span><br><span class="line"><span class="comment">//        void* SandInlineHookSym(const char* so, const char* symb, void* replace)</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *libcpath = <span class="string">&quot;/system/lib64/libc.so&quot;</span>;</span><br><span class="line">        old_strstr = <span class="built_in">reinterpret_cast</span>&lt;<span class="type">void</span> *(*)(<span class="type">char</span> *, <span class="type">char</span> *)&gt;</span><br><span class="line">                (<span class="built_in">SandInlineHookSym</span>(libcpath,<span class="string">&quot;strstr&quot;</span>,<span class="built_in">reinterpret_cast</span>&lt;<span class="type">void</span> *&gt;(new_strstr)));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">//32位</span></span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *libcpath = <span class="string">&quot;/system/lib/libc.so&quot;</span>;</span><br><span class="line">        old_strstr = <span class="built_in">reinterpret_cast</span>&lt;<span class="type">void</span> *(*)(<span class="type">char</span> *, <span class="type">char</span> *)&gt;</span><br><span class="line">                (<span class="built_in">SandInlineHookSym</span>(libcpath,<span class="string">&quot;strstr&quot;</span>,</span><br><span class="line">                                   <span class="built_in">reinterpret_cast</span>&lt;<span class="type">void</span> *&gt;(new_strstr)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">testhook</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *content)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">strstr</span>(content, <span class="string">&quot;hookso&quot;</span>) != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">        __android_log_print(<span class="number">4</span>, <span class="string">&quot;xposedhookso&quot;</span>, <span class="string">&quot;find hookso&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        __android_log_print(<span class="number">4</span>, <span class="string">&quot;xposedhookso&quot;</span>, <span class="string">&quot;not find hookso&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">int</span> (*testhookfunctin)(<span class="type">const</span> <span class="type">char</span> *) = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="type">void</span> _init(<span class="type">void</span>) &#123;</span><br><span class="line"><span class="comment">//不能再这里执行，否则程序会直接闪退</span></span><br><span class="line"><span class="comment">//    starthooklibc();</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">jint JNICALL <span class="title">JNI_OnLoad</span><span class="params">(JavaVM *vm, <span class="type">void</span> *reserved)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">LOGD</span>(<span class="string">&quot;go into JNI_OnLoad&quot;</span>);</span><br><span class="line">    <span class="built_in">starthooklibc</span>();</span><br><span class="line">    <span class="keyword">return</span> JNI_VERSION_1_6;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">JNIEXPORT jstring JNICALL</span></span><br><span class="line"><span class="function"><span class="title">Java_com_example_xposedhookbysandhook_MainActivity_stringFromJNI</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">        JNIEnv* env,</span></span></span><br><span class="line"><span class="params"><span class="function">        jobject <span class="comment">/* this */</span>)</span> </span>&#123;</span><br><span class="line">    std::string hello = <span class="string">&quot;Hello from C++&quot;</span>;</span><br><span class="line">    <span class="keyword">return</span> env-&gt;<span class="built_in">NewStringUTF</span>(hello.<span class="built_in">c_str</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="so中的主动调用"><a href="#so中的主动调用" class="headerlink" title="so中的主动调用"></a>so中的主动调用</h1><p>可以通过使用sandhook的库函数来对目标so文件中的函数进行主动调用。</p>
+<blockquote>
+<p>其主要的思想: 获取so文件的基地址，然后再加上函数的便宜地址就可以得到函数的地址，然后可以进行调用了</p>
+<p>偏移地址的获取：用idea打开so文件，然后查找目标函数（再函数窗口直接搜索，然后再.text节中就可以看到偏移地址）（注意再thumb指令集中，地址都是奇数的，所以最后得到的基地址还需要+1）</p>
+<p>得到地址之后就可以直接进行调用了</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> (*testhookfunctin)(<span class="type">const</span> <span class="type">char</span> *) = <span class="literal">nullptr</span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">activecalltesthook</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*testhook)</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *a1)</span></span>;</span><br><span class="line"></span><br><span class="line">    testhook testhookfunction = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="comment">//得到函数地址</span></span><br><span class="line"><span class="comment">/*    extern &quot;C&quot;</span></span><br><span class="line"><span class="comment">    EXPORT void* SandGetModuleBase(const char* so);*/</span></span><br><span class="line"></span><br><span class="line">    <span class="type">void</span> *libnativebase = <span class="built_in">SandGetModuleBase</span>(<span class="string">&quot;libnative-lib.so&quot;</span>);</span><br><span class="line">    <span class="comment">//thumb</span></span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">sizeof</span>(<span class="type">void</span>*)==<span class="number">4</span>)&#123;</span><br><span class="line">        <span class="comment">//32位</span></span><br><span class="line">        <span class="comment">//注意地址是不能直接进行运算的，需要将其转换成数据，然后再赋值给地址</span></span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> tmpaddr = (<span class="type">unsigned</span> <span class="type">long</span>) libnativebase + <span class="number">0x8B4C</span> + <span class="number">1</span>;</span><br><span class="line">        <span class="type">void</span> *testhookaddr = <span class="built_in">reinterpret_cast</span>&lt;<span class="type">void</span> *&gt;(tmpaddr);</span><br><span class="line">        testhookfunction = <span class="built_in">reinterpret_cast</span>&lt;testhook&gt;(testhookaddr);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">//64位</span></span><br><span class="line">        <span class="type">unsigned</span> <span class="type">long</span> tmpaddr = (<span class="type">unsigned</span> <span class="type">long</span>) libnativebase + <span class="number">0xf67c</span>;</span><br><span class="line">        <span class="type">void</span> *testhookaddr = <span class="built_in">reinterpret_cast</span>&lt;<span class="type">void</span> *&gt;(tmpaddr);</span><br><span class="line">        testhookfunction = <span class="built_in">reinterpret_cast</span>&lt;testhook&gt;(testhookaddr);</span><br><span class="line">        <span class="built_in">LOGD</span>(<span class="string">&quot;libnative-lib.so base:%p,testfuncaddr:%p&quot;</span>,libnativebase,(<span class="type">void</span>*)tmpaddr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> result1 = <span class="built_in">testhookfunction</span>(<span class="string">&quot;aaaaahookso&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">LOGD</span>(<span class="string">&quot;testhookfunction(\&quot;aaaaahookso\&quot;); return:%d&quot;</span>, result1);</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> result2 = <span class="built_in">testhookfunction</span>(<span class="string">&quot;aaaabbbbb&quot;</span>);</span><br><span class="line">    <span class="built_in">LOGD</span>(<span class="string">&quot;testhookfunction(\&quot;aaaabbbbb\&quot;); return:%d&quot;</span>, result2);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="xposed检测"><a href="#xposed检测" class="headerlink" title="xposed检测"></a>xposed检测</h1><p>检测xposed：</p>
+<ul>
+<li>检测是否安装了xposed installer管理器</li>
+<li>观看是否一个原本的Java函数变成了native函数</li>
+<li>检测动态链接库</li>
+<li>检测代码堆栈的caller</li>
+<li>检测xposed环境</li>
+<li>检测环境变量</li>
+<li>检测root与否</li>
+</ul>
+<p>定制xposed:</p>
+<ul>
+<li>修改xposed中所有关于xposed相关的类，函数等指纹信息</li>
+<li>修改su的执行名称</li>
+</ul>
+<h1 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h1><p>inline hook: <a target="_blank" rel="noopener" href="https://github.com/ele7enxxh/Android-Inline-Hook">https://github.com/ele7enxxh/Android-Inline-Hook</a></p>
+<p>sandhook: <a target="_blank" rel="noopener" href="https://github.com/asLody/SandHook">https://github.com/asLody/SandHook</a></p>
+<p>xposedcher:<a target="_blank" rel="noopener" href="https://github.com/w568w/XposedChecker">https://github.com/w568w/XposedChecker</a></p>
+<p>xposed:<a target="_blank" rel="noopener" href="https://github.com/rovo89/Xposed">https://github.com/rovo89/Xposed</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android%E5%AE%89%E5%85%A8/" rel="tag"># Android安全</a>
+              <a href="/tags/Xposed/" rel="tag"># Xposed</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/06/01/Xposed%E5%AE%89%E8%A3%85/" rel="prev" title="Xposed安装">
+                  <i class="fa fa-chevron-left"></i> Xposed安装
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/06/02/inline-hook/" rel="next" title="inline hook">
+                  inline hook <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

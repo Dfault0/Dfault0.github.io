@@ -133,18 +133,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-count">29</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -173,6 +173,308 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/11/15/libFuzzer-workshop-study/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/11/15/libFuzzer-workshop-study/" class="post-title-link" itemprop="url">libFuzzer workshop study</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-11-15 10:44:19" itemprop="dateCreated datePublished" datetime="2021-11-15T10:44:19+08:00">2021-11-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-05-13 12:23:52" itemprop="dateModified" datetime="2022-05-13T12:23:52+08:00">2022-05-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Fuzzing/" itemprop="url" rel="index"><span itemprop="name">Fuzzing</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Fuzzing/libFuzzer/" itemprop="url" rel="index"><span itemprop="name">libFuzzer</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="libFuzzer-workshop-study"><a href="#libFuzzer-workshop-study" class="headerlink" title="libFuzzer workshop study"></a>libFuzzer workshop study</h1><h2 id="libfuzzer-基本使用方法（官方）"><a href="#libfuzzer-基本使用方法（官方）" class="headerlink" title="libfuzzer 基本使用方法（官方）"></a>libfuzzer 基本使用方法（官方）</h2><p>The first step in using libFuzzer on a library is to implement a <em>fuzz target</em> – a function that accepts an array of bytes and does something interesting with these bytes using the API under test. Like this:</p>
+<p>fuzzer target的主要写法如下:</p>
+<figure class="highlight cc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// fuzz_target.cc</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">int</span> <span class="title">LLVMFuzzerTestOneInput</span><span class="params">(<span class="type">const</span> <span class="type">uint8_t</span> *Data, <span class="type">size_t</span> Size)</span> </span>&#123;</span><br><span class="line">  <span class="comment">//DoSomethingInterestingWithMyAPI待测试函数</span></span><br><span class="line">  <span class="built_in">DoSomethingInterestingWithMyAPI</span>(Data, Size);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// Non-zero return values are reserved for future use.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译目标</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -fsanitize=fuzzer,address mytarget.c</span><br></pre></td></tr></table></figure>
+
+<p>最后需要链接libfuzzer.a</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -fsanitize-coverage=trace-pc-guard -fsanitize=address your_lib.cc fuzz_target.cc libFuzzer.a -o my_fuzzer</span><br></pre></td></tr></table></figure>
+
+<p>运行fuzzer,当然也是可以使用相关语法对语料库进行操作，</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#减小语料库的大小</span></span><br><span class="line"><span class="built_in">mkdir</span> NEW_CORPUS_DIR  <span class="comment"># Store minimized corpus here.</span></span><br><span class="line">./my_fuzzer -merge=1 NEW_CORPUS_DIR FULL_CORPUS_DIR</span><br><span class="line"></span><br><span class="line"><span class="comment">#interesting test 会被加入到语料库中</span></span><br><span class="line">./my_fuzzer -merge=1 CURRENT_CORPUS_DIR NEW_POTENTIALLY_INTERESTING_INPUTS_DIR</span><br><span class="line"></span><br><span class="line"><span class="comment">#开始模糊测试，当然语料库也是可以为空的</span></span><br><span class="line">./my_fuzzer CORPUS_DIR </span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/15/libFuzzer-workshop-study/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/11/14/heartbleed-CVE-2014-0160/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/11/14/heartbleed-CVE-2014-0160/" class="post-title-link" itemprop="url">heartbleed(CVE-2014-0160)</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-11-14 10:44:50" itemprop="dateCreated datePublished" datetime="2021-11-14T10:44:50+08:00">2021-11-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-05-13 12:23:09" itemprop="dateModified" datetime="2022-05-13T12:23:09+08:00">2022-05-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Fuzzing/" itemprop="url" rel="index"><span itemprop="name">Fuzzing</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Fuzzing/libfuzzer/" itemprop="url" rel="index"><span itemprop="name">libfuzzer</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="心脏滴血漏洞复现（CVE-2014-0160）"><a href="#心脏滴血漏洞复现（CVE-2014-0160）" class="headerlink" title="心脏滴血漏洞复现（CVE 2014-0160）"></a>心脏滴血漏洞复现（CVE 2014-0160）</h1><p>基本信息</p>
+<p>OpenSSL版本：1.0.1</p>
+<p>fuzzer：libfuzzer</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/14/heartbleed-CVE-2014-0160/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2021/11/08/AFL-fuzz-whitepaper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2021/11/08/AFL-fuzz-whitepaper/" class="post-title-link" itemprop="url">AFL fuzz whitepaper</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2021-11-08 10:45:10" itemprop="dateCreated datePublished" datetime="2021-11-08T10:45:10+08:00">2021-11-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-05-14 14:07:42" itemprop="dateModified" datetime="2022-05-14T14:07:42+08:00">2022-05-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Fuzzing/" itemprop="url" rel="index"><span itemprop="name">Fuzzing</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Fuzzing/AFL/" itemprop="url" rel="index"><span itemprop="name">AFL</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Technical-“whitepaper”-for-afl-fuzz"><a href="#Technical-“whitepaper”-for-afl-fuzz" class="headerlink" title="Technical “whitepaper” for afl-fuzz"></a>Technical “whitepaper” for afl-fuzz</h1><h2 id="Design-statement"><a href="#Design-statement" class="headerlink" title="Design statement"></a>Design statement</h2><p>该工具可以被认为是黑客的集合（可以在实际中测试），是有效的，并且是已实现的，最健壮的工具。</p>
+<p>原则：速度、可靠性、易使用</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/08/AFL-fuzz-whitepaper/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
