@@ -139,12 +139,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">23</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -173,6 +173,105 @@
 
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/06/10/frida-%E5%9F%BA%E7%A1%80%E4%BA%8C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/06/10/frida-%E5%9F%BA%E7%A1%80%E4%BA%8C/" class="post-title-link" itemprop="url">frida-基础二</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-06-10 10:30:54" itemprop="dateCreated datePublished" datetime="2022-06-10T10:30:54+08:00">2022-06-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-06-11 14:15:00" itemprop="dateModified" datetime="2022-06-11T14:15:00+08:00">2022-06-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/frida/" itemprop="url" rel="index"><span itemprop="name">frida</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="hook系统框架层的代码"><a href="#hook系统框架层的代码" class="headerlink" title="hook系统框架层的代码"></a>hook系统框架层的代码</h1><p><strong>hook intent</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">main</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">Activity</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;android.app.Activity&#x27;</span>)</span><br><span class="line">        <span class="title class_">Activity</span>.<span class="property">startActivity</span>.<span class="title function_">overload</span>(<span class="string">&#x27;android.content.Intent&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">arg0</span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hooking android.app.Activity.startActuvuty(arg0) successfully,arg=&#x27;</span>,arg0)</span><br><span class="line">            <span class="comment">// console.log(Java.use(&#x27;android.util.Log&#x27;).getStackTraceString(Java.use(&#x27;java.lang.Throwable&#x27;).$new()))</span></span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="built_in">decodeURIComponent</span>(arg0.<span class="title function_">toUri</span>(<span class="number">256</span>)))</span><br><span class="line">            <span class="variable language_">this</span>.<span class="title function_">startActivity</span>(arg0)</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="title class_">Activity</span>.<span class="property">startActivity</span>.<span class="title function_">overload</span>(<span class="string">&#x27;android.content.Intent&#x27;</span>,<span class="string">&#x27;android.os.Bundle&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">arg0,arg1</span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hooking android.app.Activity.startActuvuty(arg0,arg1) successfully,arg0=&#x27;</span>+arg0+<span class="string">&#x27;,arg1=&#x27;</span>+arg1)</span><br><span class="line">            <span class="comment">// console.log(Java.use(&#x27;android.util.Log&#x27;).getStackTraceString(Java.use(&#x27;java.lang.Throwable&#x27;).$new()))</span></span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="built_in">decodeURIComponent</span>(arg0.<span class="title function_">toUri</span>(<span class="number">256</span>)))</span><br><span class="line">            <span class="variable language_">this</span>.<span class="title function_">startActivity</span>(arg0,arg1)</span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        <span class="title class_">Activity</span>.<span class="property">startService</span>.<span class="title function_">overload</span>(<span class="string">&#x27;android.content.Intent&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">arg0</span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Hooking android.app.Activity.startService(arg0) successfully,arg=&#x27;</span>,arg0)</span><br><span class="line">            <span class="comment">// console.log(Java.use(&#x27;android.util.Log&#x27;).getStackTraceString(Java.use(&#x27;java.lang.Throwable&#x27;).$new()))</span></span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="built_in">decodeURIComponent</span>(arg0.<span class="title function_">toUri</span>(<span class="number">256</span>)))</span><br><span class="line">            <span class="variable language_">this</span>.<span class="title function_">startActivity</span>(arg0)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">setImmediate</span>(main)</span><br></pre></td></tr></table></figure>
+
+<p><strong>hook event</strong>  可以达到快速定位的目的</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> jclazz = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">var</span> jobj = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getObjClassName</span>(<span class="params">obj</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!jclazz) &#123;</span><br><span class="line">        <span class="keyword">var</span> jclazz = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.Class&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!jobj) &#123;</span><br><span class="line">        <span class="keyword">var</span> jobj = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.Object&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> jclazz.<span class="property">getName</span>.<span class="title function_">call</span>(jobj.<span class="property">getClass</span>.<span class="title function_">call</span>(obj));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">watch</span>(<span class="params">obj, mtdName</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> listener_name = <span class="title function_">getObjClassName</span>(obj);</span><br><span class="line">    <span class="keyword">var</span> target = <span class="title class_">Java</span>.<span class="title function_">use</span>(listener_name);</span><br><span class="line">    <span class="keyword">if</span> (!target || !mtdName <span class="keyword">in</span> target) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// send(&quot;[WatchEvent] hooking &quot; + mtdName + &quot;: &quot; + listener_name);</span></span><br><span class="line">    target[mtdName].<span class="property">overloads</span>.<span class="title function_">forEach</span>(<span class="keyword">function</span> (<span class="params">overload</span>) &#123;</span><br><span class="line">        overload.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">            <span class="comment">//send(&quot;[WatchEvent] &quot; + mtdName + &quot;: &quot; + getObjClassName(this));</span></span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;[WatchEvent] &quot;</span> + mtdName + <span class="string">&quot;: &quot;</span> + <span class="title function_">getObjClassName</span>(<span class="variable language_">this</span>))</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">this</span>[mtdName].<span class="title function_">apply</span>(<span class="variable language_">this</span>, <span class="variable language_">arguments</span>);</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">OnClickListener</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//以spawn启动进程的模式来attach的话</span></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;android.view.View&quot;</span>).<span class="property">setOnClickListener</span>.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">listener</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (listener != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="title function_">watch</span>(listener, <span class="string">&#x27;onClick&#x27;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">setOnClickListener</span>(listener);</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//如果frida以attach的模式进行attch的话</span></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">choose</span>(<span class="string">&quot;android.view.View$ListenerInfo&quot;</span>, &#123;</span><br><span class="line">            <span class="attr">onMatch</span>: <span class="keyword">function</span> (<span class="params">instance</span>) &#123;</span><br><span class="line">                instance = instance.<span class="property">mOnClickListener</span>.<span class="property">value</span>;</span><br><span class="line">                <span class="keyword">if</span> (instance) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;mOnClickListener name is :&quot;</span> + <span class="title function_">getObjClassName</span>(instance));</span><br><span class="line">                    <span class="title function_">watch</span>(instance, <span class="string">&#x27;onClick&#x27;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">onComplete</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">setImmediate</span>(<span class="title class_">OnClickListener</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h1 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h1><p>mobsf: <a target="_blank" rel="noopener" href="https://github.com/MobSF/Mobile-Security-Framework-MobSF">https://github.com/MobSF/Mobile-Security-Framework-MobSF</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -315,94 +414,6 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/06/02/inline-hook/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Dfault0">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dfault0's blog">
-      <meta itemprop="description" content="I CAN">
-    </span>
-    
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Dfault0's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/06/02/inline-hook/" class="post-title-link" itemprop="url">inline hook</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2022-06-02 23:08:56" itemprop="dateCreated datePublished" datetime="2022-06-02T23:08:56+08:00">2022-06-02</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-06-03 09:59:42" itemprop="dateModified" datetime="2022-06-03T09:59:42+08:00">2022-06-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
-        </span>
-          , 
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/06/02/Xposed%E5%9F%BA%E7%A1%80%E4%BA%8C/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -439,7 +450,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-06-09 18:10:07" itemprop="dateModified" datetime="2022-06-09T18:10:07+08:00">2022-06-09</time>
+      <time title="Modified: 2022-06-10 10:38:04" itemprop="dateModified" datetime="2022-06-10T10:38:04+08:00">2022-06-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -447,11 +458,11 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/Xposed/" itemprop="url" rel="index"><span itemprop="name">Xposed</span></a>
         </span>
     </span>
 
@@ -599,7 +610,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-06-02 09:47:06" itemprop="dateModified" datetime="2022-06-02T09:47:06+08:00">2022-06-02</time>
+      <time title="Modified: 2022-06-10 10:37:45" itemprop="dateModified" datetime="2022-06-10T10:37:45+08:00">2022-06-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -607,11 +618,11 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/Xposed/" itemprop="url" rel="index"><span itemprop="name">Xposed</span></a>
         </span>
     </span>
 
@@ -918,7 +929,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-06-04 17:22:54" itemprop="dateModified" datetime="2022-06-04T17:22:54+08:00">2022-06-04</time>
+      <time title="Modified: 2022-06-10 10:37:54" itemprop="dateModified" datetime="2022-06-10T10:37:54+08:00">2022-06-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -926,11 +937,11 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/Xposed/" itemprop="url" rel="index"><span itemprop="name">Xposed</span></a>
         </span>
     </span>
 
@@ -1038,7 +1049,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/05/17/frida%E5%AD%A6%E4%B9%A0/">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/05/17/frida-%E5%9F%BA%E7%A1%80/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -1056,7 +1067,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/05/17/frida%E5%AD%A6%E4%B9%A0/" class="post-title-link" itemprop="url">frida学习</a>
+          <a href="/2022/05/17/frida-%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">frida学习</a>
         </h2>
 
         <div class="post-meta-container">
@@ -1074,7 +1085,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-06-04 17:23:30" itemprop="dateModified" datetime="2022-06-04T17:23:30+08:00">2022-06-04</time>
+      <time title="Modified: 2022-06-10 16:51:37" itemprop="dateModified" datetime="2022-06-10T16:51:37+08:00">2022-06-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1082,11 +1093,11 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/frida/" itemprop="url" rel="index"><span itemprop="name">frida</span></a>
         </span>
     </span>
 
@@ -1318,7 +1329,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-05-13 12:23:22" itemprop="dateModified" datetime="2022-05-13T12:23:22+08:00">2022-05-13</time>
+      <time title="Modified: 2022-06-10 10:35:44" itemprop="dateModified" datetime="2022-06-10T10:35:44+08:00">2022-06-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1326,11 +1337,11 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/HOOK-%E6%B3%A8%E5%85%A5/" itemprop="url" rel="index"><span itemprop="name">HOOK & 注入</span></a>
         </span>
     </span>
 
@@ -1697,7 +1708,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-05-13 12:21:09" itemprop="dateModified" datetime="2022-05-13T12:21:09+08:00">2022-05-13</time>
+      <time title="Modified: 2022-06-10 10:33:56" itemprop="dateModified" datetime="2022-06-10T10:33:56+08:00">2022-06-10</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1705,11 +1716,11 @@
       </span>
       <span class="post-meta-item-text">In</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">工具</span></a>
         </span>
     </span>
 
