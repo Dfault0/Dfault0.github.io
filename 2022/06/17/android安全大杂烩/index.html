@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="双亲委派机制 在加载class文件时，首先会检查是否已经加载了当前class，如果已经加载了则直接返回，如果没有加载就委派给他父亲ClassLoader来进行加载 12345678910&#x2F;&#x2F;  &#x2F;libcore&#x2F;ojluni&#x2F;src&#x2F;main&#x2F;java&#x2F;java&#x2F;lang&#x2F;ClassLoader.java&#x2F;&#x2F;检查是否已经加载过了，protected final Class&lt;?&gt; fin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="android安全大杂烩">
+<meta property="og:url" content="http://dfault0.github.io/2022/06/17/android%E5%AE%89%E5%85%A8%E5%A4%A7%E6%9D%82%E7%83%A9/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="双亲委派机制 在加载class文件时，首先会检查是否已经加载了当前class，如果已经加载了则直接返回，如果没有加载就委派给他父亲ClassLoader来进行加载 12345678910&#x2F;&#x2F;  &#x2F;libcore&#x2F;ojluni&#x2F;src&#x2F;main&#x2F;java&#x2F;java&#x2F;lang&#x2F;ClassLoader.java&#x2F;&#x2F;检查是否已经加载过了，protected final Class&lt;?&gt; fin">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-06-17T03:21:44.000Z">
+<meta property="article:modified_time" content="2022-06-17T08:04:39.879Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="Android安全">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/06/17/android%E5%AE%89%E5%85%A8%E5%A4%A7%E6%9D%82%E7%83%A9/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/06/17/android%E5%AE%89%E5%85%A8%E5%A4%A7%E6%9D%82%E7%83%A9/","path":"2022/06/17/android安全大杂烩/","title":"android安全大杂烩"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>android安全大杂烩 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">双亲委派机制</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/06/17/android%E5%AE%89%E5%85%A8%E5%A4%A7%E6%9D%82%E7%83%A9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="android安全大杂烩 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          android安全大杂烩
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-06-17 11:21:44 / Modified: 16:04:39" itemprop="dateCreated datePublished" datetime="2022-06-17T11:21:44+08:00">2022-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/%E6%9D%82%E9%A1%B9/" itemprop="url" rel="index"><span itemprop="name">杂项</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="双亲委派机制"><a href="#双亲委派机制" class="headerlink" title="双亲委派机制"></a>双亲委派机制</h1><ul>
+<li><p>在加载class文件时，首先会检查是否已经加载了当前class，如果已经加载了则直接返回，如果没有加载就委派给他父亲ClassLoader来进行加载</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  /libcore/ojluni/src/main/java/java/lang/ClassLoader.java</span></span><br><span class="line"><span class="comment">//检查是否已经加载过了，</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">final</span> Class&lt;?&gt; findLoadedClass(String name) &#123;</span><br><span class="line">        ClassLoader loader;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span> == BootClassLoader.getInstance())</span><br><span class="line">            loader = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            loader = <span class="built_in">this</span>;</span><br><span class="line">        <span class="keyword">return</span> VMClassLoader.findLoadedClass(loader, name);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  /libcore/ojluni/src/main/java/java/lang/ClassLoader.java</span></span><br><span class="line"><span class="comment">//loadClass源码</span></span><br><span class="line"><span class="number">359</span>    <span class="keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="type">boolean</span> resolve)</span><br><span class="line"><span class="number">360</span>        <span class="keyword">throws</span> ClassNotFoundException</span><br><span class="line"><span class="number">361</span>    &#123;</span><br><span class="line"><span class="number">362</span>            <span class="comment">// First, check if the class has already been loaded</span></span><br><span class="line"><span class="number">363</span>            Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line"><span class="number">364</span>            <span class="keyword">if</span> (c == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">//没有找到则让父亲去找</span></span><br><span class="line"><span class="number">365</span>                <span class="keyword">try</span> &#123;</span><br><span class="line"><span class="number">366</span>                    <span class="keyword">if</span> (parent != <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">//同样父亲也是先看看当前加载器有没有加载，如果没有加载也还是让父亲的父亲去加载</span></span><br><span class="line"><span class="number">367</span>                        c = parent.loadClass(name, <span class="literal">false</span>);</span><br><span class="line"><span class="number">368</span>                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">//如果到了根节点，就到了BootstrapClassLoader 还是没有找到，那就没有加载过了，会从这里开始尝试加载class</span></span><br><span class="line">    <span class="comment">//逐步向下开始加载class,最后要是还是没有加载就需要当前的classLoader来加载</span></span><br><span class="line"><span class="number">369</span>                        c = findBootstrapClassOrNull(name);</span><br><span class="line"><span class="number">370</span>                    &#125;</span><br><span class="line"><span class="number">371</span>                &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line"><span class="number">372</span>                    <span class="comment">// ClassNotFoundException thrown if class not found</span></span><br><span class="line"><span class="number">373</span>                    <span class="comment">// from the non-null parent class loader</span></span><br><span class="line"><span class="number">374</span>                &#125;</span><br><span class="line"><span class="number">375</span></span><br><span class="line"><span class="number">376</span>                <span class="keyword">if</span> (c == <span class="literal">null</span>) &#123;</span><br><span class="line"><span class="number">377</span>                    <span class="comment">// If still not found, then invoke findClass in order</span></span><br><span class="line"><span class="number">378</span>                    <span class="comment">// to find the class.使用classforname来加载</span></span><br><span class="line"><span class="number">379</span>                    c = findClass(name);</span><br><span class="line"><span class="number">380</span>                &#125;</span><br><span class="line"><span class="number">381</span>            &#125;</span><br><span class="line"><span class="number">382</span>            <span class="keyword">return</span> c;</span><br><span class="line"><span class="number">383</span>    &#125;</span><br><span class="line"></span><br><span class="line"><span class="number">1353</span>    <span class="meta">@Override</span></span><br><span class="line"><span class="number">1354</span>    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line"><span class="number">1355</span>        <span class="keyword">return</span> Class.classForName(name, <span class="literal">false</span>, <span class="literal">null</span>);</span><br><span class="line"><span class="number">1356</span>    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>直到根节点，简单来说就是<strong>先让父亲干活，父亲干不了，自己才干活，注意这是一个递归的过程</strong>。</p>
+</li>
+<li><p>主要有这几个classloader: BootClassLoader、DexClassLoader、PathClassLoader 、BaseDexClassLoader</p>
+<ul>
+<li>BootClassLoader：启动类加载器，根节点，预加载常用的类 （&#x2F;frameworks&#x2F;base&#x2F;config&#x2F;preloaded-classes）</li>
+<li>BaseDexClassLoader：加载Path中的类</li>
+<li>DexClassLoader：可以加载APK、DEX、Jar，主要是加载自定义的dex</li>
+<li>PathClassLoader : 通常加载已安装的apk的dex，也可以加载系统类，和app的类</li>
+</ul>
+</li>
+<li><p>为什么会出现加载失败？：因为不同的classloader所负责的范围不同，如果找不到目标class,就会出现加载失败。</p>
+</li>
+</ul>
+<p>显示加载一个类：</p>
+<ul>
+<li>ClassLoader.loadClass：但是不会触发类的初始化(也就是说不会对类的静态变量,静态代码块进行初始化操作)</li>
+<li>Class.forName：不但会加载一个类,还会触发类的初始化阶段,也能够为这个类的静态变量,静态代码块进行初始化操作</li>
+</ul>
+<p>参考链接：</p>
+<p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-271538.htm">https://bbs.pediy.com/thread-271538.htm</a></p>
+<p><a target="_blank" rel="noopener" href="http://androidxref.com/8.1.0_r33/xref/libcore/ojluni/src/main/java/java/lang/ClassLoader.java">http://androidxref.com/8.1.0_r33/xref/libcore/ojluni/src/main/java/java/lang/ClassLoader.java</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android%E5%AE%89%E5%85%A8/" rel="tag"># Android安全</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/06/10/frida-%E5%9F%BA%E7%A1%80%E4%BA%8C/" rel="prev" title="frida-基础二">
+                  <i class="fa fa-chevron-left"></i> frida-基础二
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/06/20/web-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="next" title="web-基础知识">
+                  web-基础知识 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
