@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="检测ptrace原理：  ptrace是linux提供的API, 可以监视和控制进程运行，可以动态修改进程的内存，寄存器值。 一般被用来调试。ida调试so，就是基于ptrace实现的。 同一个进程只能被ptrace一次，检测的时候自己ptrace自己，看返回值int ret &#x3D; ptrace(PTRACE_TRACEME, 0, 0, 0);如果ret&#x3D;0表示正常，否则表示正在被调试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android-反调试">
+<meta property="og:url" content="http://dfault0.github.io/2022/08/16/Android-%E5%8F%8D%E8%B0%83%E8%AF%95/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="检测ptrace原理：  ptrace是linux提供的API, 可以监视和控制进程运行，可以动态修改进程的内存，寄存器值。 一般被用来调试。ida调试so，就是基于ptrace实现的。 同一个进程只能被ptrace一次，检测的时候自己ptrace自己，看返回值int ret &#x3D; ptrace(PTRACE_TRACEME, 0, 0, 0);如果ret&#x3D;0表示正常，否则表示正在被调试">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-08-16T03:19:39.000Z">
+<meta property="article:modified_time" content="2022-08-16T04:34:28.483Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="Android安全">
+<meta property="article:tag" content="反调试">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/08/16/Android-%E5%8F%8D%E8%B0%83%E8%AF%95/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/08/16/Android-%E5%8F%8D%E8%B0%83%E8%AF%95/","path":"2022/08/16/Android-反调试/","title":"Android-反调试"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Android-反调试 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A3%80%E6%B5%8Bptrace"><span class="nav-number">1.</span> <span class="nav-text">检测ptrace</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A3%80%E6%B5%8BTracerPid"><span class="nav-number">2.</span> <span class="nav-text">检测TracerPid</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#android-os-Debug-isDebuggerConnected"><span class="nav-number">3.</span> <span class="nav-text">android.os.Debug.isDebuggerConnected()</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E7%AB%AF%E5%8F%A3"><span class="nav-number">4.</span> <span class="nav-text">特殊端口</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%97%B6%E9%97%B4%E5%B7%AE"><span class="nav-number">5.</span> <span class="nav-text">检测代码执行时间差</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E6%96%AD%E7%82%B9%E6%8C%87%E4%BB%A4"><span class="nav-number">6.</span> <span class="nav-text">检测断点指令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%AD%E7%82%B9%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86"><span class="nav-number">7.</span> <span class="nav-text">断点相关知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E6%96%AD%E7%82%B9"><span class="nav-number">7.1.</span> <span class="nav-text">软件断点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E6%96%AD%E7%82%B9"><span class="nav-number">7.2.</span> <span class="nav-text">硬件断点</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/08/16/Android-%E5%8F%8D%E8%B0%83%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Android-反调试 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android-反调试
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-08-16 11:19:39 / Modified: 12:34:28" itemprop="dateCreated datePublished" datetime="2022-08-16T11:19:39+08:00">2022-08-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/%E5%8F%8D%E8%B0%83%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">反调试</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="检测ptrace"><a href="#检测ptrace" class="headerlink" title="检测ptrace"></a>检测ptrace</h1><p>原理：</p>
+<ul>
+<li>ptrace是linux提供的API, 可以监视和控制进程运行，可以动态修改进程的内存，寄存器值。</li>
+<li>一般被用来调试。ida调试so，就是基于ptrace实现的。</li>
+<li>同一个进程只能被ptrace一次，检测的时候自己ptrace自己，看返回值<code>int ret = ptrace(PTRACE_TRACEME, 0, 0, 0);</code>如果ret&#x3D;0表示正常，否则表示正在被调试</li>
+</ul>
+<p>绕过：</p>
+<ul>
+<li>hook该函数，让其返回0</li>
+</ul>
+<h1 id="检测TracerPid"><a href="#检测TracerPid" class="headerlink" title="检测TracerPid"></a>检测TracerPid</h1><p>原理：</p>
+<ul>
+<li>是一个进程的属性值，如果为0表示当前进程正常，非0表示正在被调试，其返回值表示调试进程的id</li>
+<li>&#x2F;proc&#x2F;“getpid()”&#x2F;status读取该文件，找到TracerPid</li>
+</ul>
+<p>绕过方式：</p>
+<ul>
+<li>手动打补丁，nop</li>
+<li>编译Linux内核，让TracerPid永远为0</li>
+</ul>
+<h1 id="android-os-Debug-isDebuggerConnected"><a href="#android-os-Debug-isDebuggerConnected" class="headerlink" title="android.os.Debug.isDebuggerConnected()"></a>android.os.Debug.isDebuggerConnected()</h1><p>原理：</p>
+<ul>
+<li>自带的检测函数，如果正在被调试则为true</li>
+</ul>
+<p>绕过：</p>
+<ul>
+<li>hook相关函数</li>
+</ul>
+<h1 id="特殊端口"><a href="#特殊端口" class="headerlink" title="特殊端口"></a>特殊端口</h1><ul>
+<li>ida:23946</li>
+<li>frida:27042</li>
+</ul>
+<p>调试的服务器一般在手机上会有相关的程序，并有一个特定的端口号，读取&#x2F;proc&#x2F;net&#x2F;tcp文件中的内容，查询相关的端口号</p>
+<p>绕过：</p>
+<ul>
+<li>使用特殊的端口启动服务器</li>
+</ul>
+<h1 id="检测代码执行时间差"><a href="#检测代码执行时间差" class="headerlink" title="检测代码执行时间差"></a>检测代码执行时间差</h1><p>原理：</p>
+<ul>
+<li>在关键逻辑的开始和结束的地方，获取当前时间，计算时间差，如果超过一定时间，认定是在调试。</li>
+</ul>
+<h1 id="检测断点指令"><a href="#检测断点指令" class="headerlink" title="检测断点指令"></a>检测断点指令</h1><p>调试器在下断点的时候会把原来的指令备份到别的地方，然后在断点处插入断点指令。等到执行到这里之后又将原来的执行填回去。</p>
+<ul>
+<li><p>Arm：0x01，0x00，0x9f，0xef</p>
+</li>
+<li><p>Thumb16：0x01，0xde</p>
+</li>
+<li><p>Thumb32：0xf0，0xf7，0x00，0xa0</p>
+</li>
+</ul>
+<h1 id="断点相关知识"><a href="#断点相关知识" class="headerlink" title="断点相关知识"></a>断点相关知识</h1><h2 id="软件断点"><a href="#软件断点" class="headerlink" title="软件断点"></a>软件断点</h2><ul>
+<li>X86: INT 3，二进制代码:oxCC</li>
+<li>没有数目限制</li>
+</ul>
+<h2 id="硬件断点"><a href="#硬件断点" class="headerlink" title="硬件断点"></a>硬件断点</h2><ul>
+<li>X86系统提供8个调试寄存器（DR0<del>DR7）和2个MSR用于硬件调试。其中前四个DR0</del>DR3是硬件断点寄存器，可以放入内存地址或者IO地址，还可以设置为执行、修改等条件。CPU在执行的到这里并满足条件会自动停下来。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android%E5%AE%89%E5%85%A8/" rel="tag"># Android安全</a>
+              <a href="/tags/%E5%8F%8D%E8%B0%83%E8%AF%95/" rel="tag"># 反调试</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/07/28/MySql%E5%9F%BA%E7%A1%80/" rel="prev" title="MySql基础">
+                  <i class="fa fa-chevron-left"></i> MySql基础
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/08/16/%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/" rel="next" title="汇编基础">
+                  汇编基础 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -27,12 +27,14 @@
 <meta property="og:site_name" content="Dfault0&#39;s blog">
 <meta property="og:description" content="APP壳相关知识app运行流程：  BootClassLoader加载系统核心库 PathClassLoader加载 APP自身dex 进入APP自身组件开始执行 调用声明Application的 attachBaseContext 调用声明Application的onCreate  app最先获得执行权限的是app中声明的Application类中的attachBaseContext和onCre">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220816111139.png">
 <meta property="article:published_time" content="2022-04-11T06:22:54.000Z">
-<meta property="article:modified_time" content="2022-06-10T02:35:10.109Z">
+<meta property="article:modified_time" content="2022-08-16T06:16:38.153Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="Android安全">
 <meta property="article:tag" content="加壳脱壳">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220816111139.png">
 
 
 <link rel="canonical" href="http://dfault0.github.io/2022/04/11/APP%E5%8A%A0%E5%A3%B3%E8%84%B1%E5%A3%B3/">
@@ -125,7 +127,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#APP%E5%A3%B3%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">APP壳相关知识</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A0%E5%A3%B3%E6%89%8B%E6%AE%B5"><span class="nav-number">2.</span> <span class="nav-text">加壳手段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%B1%E5%A3%B3%E6%89%8B%E6%AE%B5"><span class="nav-number">2.1.</span> <span class="nav-text">脱壳手段</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#APP%E5%A3%B3%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">APP壳相关知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E5%9B%BA%E5%8E%82%E5%95%86%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">加固厂商：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8A%A0%E5%A3%B3%E6%89%8B%E6%AE%B5"><span class="nav-number">2.</span> <span class="nav-text">加壳手段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%B1%E5%A3%B3%E6%89%8B%E6%AE%B5"><span class="nav-number">2.1.</span> <span class="nav-text">脱壳手段</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -138,18 +140,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">30</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -224,7 +226,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-06-10 10:35:10" itemprop="dateModified" datetime="2022-06-10T10:35:10+08:00">2022-06-10</time>
+      <time title="Modified: 2022-08-16 14:16:38" itemprop="dateModified" datetime="2022-08-16T14:16:38+08:00">2022-08-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -271,8 +273,8 @@
 </ul>
 </li>
 <li>自定义Application中的onCreate方法实现、<ul>
-<li>获取源程序中的Application名称</li>
-<li>反射生成正确的Application对象</li>
+<li>获取源程序中的Application名称：通过反射修改ActivityThread类，并将Application指向原dex文件中的Application</li>
+<li>反射生成正确的Application对象：创建原Application对象，并调用原Application的onCreate方法启动原程序</li>
 <li>反射设置ActivityThread中的Application信息</li>
 </ul>
 </li>
@@ -288,6 +290,7 @@
 </li>
 </ul>
 <p>只要获取到加固应用最终通过反射设置后的Classloader，我们就可以通过一系列反射最终获取到当前应用所加载的解密后的内存中的Dex文件。</p>
+<h2 id="加固厂商："><a href="#加固厂商：" class="headerlink" title="加固厂商："></a>加固厂商：</h2><p>梆梆、爱加密、易盾、腾讯、360</p>
 <h1 id="加壳手段"><a href="#加壳手段" class="headerlink" title="加壳手段"></a>加壳手段</h1><ul>
 <li>dex整体保护<ul>
 <li>文件加载：定位解密文件是关键</li>
@@ -308,6 +311,13 @@
 </ul>
 </li>
 </ul>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220816111139.png"></p>
+<p>加固的时候可以使用多种 手段结合，比如：</p>
+<ol>
+<li>dex比较重要的部分，比如算法部分，登录模块，这块的方法内容被抽取转换成自定义的指令格式，然后调用系统底层的jni方法执行。(4代壳dexvmp)</li>
+<li>其他不重要方法体直接抽空， 单独加密，运行的时候方法体内容再动态还原(3代抽取)。</li>
+<li>加载这个dex的时候（<strong>现在的dex已经经过了上面2步处理 里面的方法很多被抽空，一些被dexvmp保护</strong>）, 并不是写出到文件系统用 dexclassloader这样的api去加载, 而是读到内存中直接加载，直接调用c层API加载内存中的dex（2代不落地加载）</li>
+</ol>
 <h2 id="脱壳手段"><a href="#脱壳手段" class="headerlink" title="脱壳手段"></a>脱壳手段</h2><ol>
 <li><p>dex整体加壳</p>
 <ul>
@@ -333,6 +343,8 @@
 </ul>
 <h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-252630.htm">https://bbs.pediy.com/thread-252630.htm</a></p>
 <p>Android源码：<a target="_blank" rel="noopener" href="http://aospxref.com/">http://aospxref.com/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-977325-1-1.html">https://www.52pojie.cn/thread-977325-1-1.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/246020">https://www.anquanke.com/post/id/246020</a></p>
 
     </div>
 

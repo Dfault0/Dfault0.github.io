@@ -27,12 +27,14 @@
 <meta property="og:site_name" content="Dfault0&#39;s blog">
 <meta property="og:description" content="HookDalvik Hook主要是通过Java反射机制获取目标函数，然后再修改其method结构体的各个字段 由于Dalvik虚拟机所运行 的系统版本低于Android 5.0， 早期安全研究人员对Java层的Hook 的研究集中在Dalvik虚拟机上。 那个时期的Hook技术能够实现， 得益于如下三个方面。  Java语言的反射机制。 对Dalvik虚拟机中任何一个Java类的方法 进行Hoo">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220816143134.png">
 <meta property="article:published_time" content="2022-05-10T05:13:44.000Z">
-<meta property="article:modified_time" content="2022-07-08T07:08:06.961Z">
+<meta property="article:modified_time" content="2022-08-16T06:44:49.034Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="Android安全">
 <meta property="article:tag" content="HOOK &amp; 注入">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220816143134.png">
 
 
 <link rel="canonical" href="http://dfault0.github.io/2022/05/10/HOOK%E4%B8%8E%E6%B3%A8%E5%85%A5/">
@@ -125,7 +127,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Hook"><span class="nav-number">1.</span> <span class="nav-text">Hook</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Dalvik-Hook"><span class="nav-number">1.1.</span> <span class="nav-text">Dalvik Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ART-Hook"><span class="nav-number">1.2.</span> <span class="nav-text">ART Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LD-PRE-LOAD-Hook"><span class="nav-number">1.3.</span> <span class="nav-text">LD_PRE LOAD Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GOT-Hook"><span class="nav-number">1.4.</span> <span class="nav-text">GOT Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lnline-Hook"><span class="nav-number">1.5.</span> <span class="nav-text">lnline Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Xposed-Hook%E6%A1%86%E6%9E%B6"><span class="nav-number">1.6.</span> <span class="nav-text">Xposed Hook框架</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E5%85%A5"><span class="nav-number">2.</span> <span class="nav-text">注入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#so%E5%8A%A8%E6%80%81%E6%B3%A8%E5%85%A5"><span class="nav-number">2.1.</span> <span class="nav-text">so动态注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DEX%E6%B3%A8%E5%85%A5"><span class="nav-number">2.2.</span> <span class="nav-text">DEX注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Frida%E6%B3%A8%E5%85%A5%E6%A1%86%E6%9E%B6"><span class="nav-number">2.3.</span> <span class="nav-text">Frida注入框架</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Hook"><span class="nav-number">1.</span> <span class="nav-text">Hook</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Dalvik-Hook"><span class="nav-number">1.1.</span> <span class="nav-text">Dalvik Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ART-Hook"><span class="nav-number">1.2.</span> <span class="nav-text">ART Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LD-PRE-LOAD-Hook"><span class="nav-number">1.3.</span> <span class="nav-text">LD_PRE LOAD Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GOT-Hook"><span class="nav-number">1.4.</span> <span class="nav-text">GOT Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lnline-Hook"><span class="nav-number">1.5.</span> <span class="nav-text">lnline Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Xposed-Hook"><span class="nav-number">1.6.</span> <span class="nav-text">Xposed Hook</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#frida-hook"><span class="nav-number">1.7.</span> <span class="nav-text">frida hook</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dalvik-hook%EF%BC%9A"><span class="nav-number">1.7.1.</span> <span class="nav-text">Dalvik hook：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ART-hook"><span class="nav-number">1.7.2.</span> <span class="nav-text">ART hook:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E5%85%A5"><span class="nav-number">2.</span> <span class="nav-text">注入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#so%E5%8A%A8%E6%80%81%E6%B3%A8%E5%85%A5"><span class="nav-number">2.1.</span> <span class="nav-text">so动态注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DEX%E6%B3%A8%E5%85%A5"><span class="nav-number">2.2.</span> <span class="nav-text">DEX注入</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -138,18 +140,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">30</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -224,7 +226,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-07-08 15:08:06" itemprop="dateModified" datetime="2022-07-08T15:08:06+08:00">2022-07-08</time>
+      <time title="Modified: 2022-08-16 14:44:49" itemprop="dateModified" datetime="2022-08-16T14:44:49+08:00">2022-08-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -289,7 +291,8 @@
 <li>查找要替换的函数在目标内存中的地址。 </li>
 <li>用自己编写的so中要替换的函数的地址替换原函数的地址， 完成Hook工作。</li>
 </ol>
-<h2 id="lnline-Hook"><a href="#lnline-Hook" class="headerlink" title="lnline Hook"></a>lnline Hook</h2><p>其内联特性主要体现在修改目标函数开始处的汇编指令上。</p>
+<h2 id="lnline-Hook"><a href="#lnline-Hook" class="headerlink" title="lnline Hook"></a>lnline Hook</h2><p>修改函数头，跳转到自定义函数，自定义函数就是自己想执行的逻辑，执行完自己的逻辑再跳转回来。</p>
+<p>其内联特性主要体现在修改目标函数开始处的汇编指令上。</p>
 <p>需要注意以下几点：</p>
 <ul>
 <li>对不同目标指令集的处理</li>
@@ -306,24 +309,76 @@
 <li>修改函数起始处的指令。 使用一个跳转指令去执行替换函数。 执行后， 根据需求， 可以选择 跳转回来或者放弃执行原函数。 例如， 对 ARM模式下的 ARM 指令， 可以使用 ld 「 pc, XXX  指令进行替换（XXX 表示要转去执行的函数的地址， 即之前在程序中编写的替换函数的地· 址）。 修改后， 别忘了刷新缓存。 在 ARM 平台上， 需要执行 cacheflush（）函数来刷新修 改后的目标函数的缓存。 </li>
 <li>使用 mprotect（）函数将目标函数代码段的属性改为只读与可执行。 如果不将属性修改回去， 在开启了 SELinux 的 Android 设备上， 程序的运行可能会因为代码段是可写与可执行的而 失败。</li>
 </ol>
-<h2 id="Xposed-Hook框架"><a href="#Xposed-Hook框架" class="headerlink" title="Xposed Hook框架"></a>Xposed Hook框架</h2><p>原理：</p>
+<h2 id="Xposed-Hook"><a href="#Xposed-Hook" class="headerlink" title="Xposed Hook"></a>Xposed Hook</h2><ul>
+<li><p>init 进程负责创建 zygote 进程。</p>
+</li>
+<li><p>控制zygote进程：通过替换&#x2F;system&#x2F;bin&#x2F;app_precesss程序（zygote的可执行程序）控制zygote进程，</p>
+</li>
+<li><p>使得它在系统启动的过程种 会加载Xposed framework的一个jar文件，即XposedBridge.jar，</p>
+</li>
+<li><p>从而完成对Zygote进程及其创建的Dalivik&#x2F;ART虚拟机的劫持，并且能够允许开发者独立的替换任何class文件，比如framework本身，系统UI又或者随意的一个app。</p>
+</li>
+</ul>
+<p>原理：</p>
 <ul>
-<li>Android应用进程都是由 zygote 进程孵化而来，zygote对应的可执行程序就是app_process,Xposed 框架通过替换系统的 <strong>app_process 可执行文件以及虚拟机动态链接库</strong>，让 zygote 在启动应用程序进程时注入框架代码，进而实现对应用程序进程的劫持。</li>
-<li>实现hook技术，Xposed通过修改Art虚拟机，将需要hook的函数注册为Native函数，当执行这一函数时，虚拟机会优先执行Native函数，然后执行java函数，这样就成功完成了函数的hook。</li>
-<li>流程：在 Android 系统启动的时候， zygote 进程加载 XposedBridge 将所有需要替换的 Method 通过 JNI 方法 hookMethodNative 指向 Native 方法 xposedCallHandler ， xposedCallHandler 在转入 handleHookedMethod 这个 Java 方法执行用户规定的 Hook Func</li>
+<li>在Android系统中，应用程序进程都是由Zygote进程孵化出来的，而Zygote进程是由Init进程启动的。Zygote进程在启动时会创建一个Dalvik虚拟机实例，每当它孵化一个新的应用程序进程时，都会将这个Dalvik虚拟机实例复制到新的应用程序进程里面去，<strong>从而使得每一个应用程序进程都有一个独立的Dalvik虚拟机实例。</strong></li>
+<li>Zygote进程在启动的过程中，除了会创建一个Dalvik虚拟机实例之外，还会将Java运行时库加载到进程中来，以及注册一些Android核心类的JNI方法来前面创建的Dalvik虚拟机实例中去。注意，一个应用程序进程被Zygote进程孵化出来的时候，不仅会获得Zygote进程中的Dalvik虚拟机实例拷贝，还会与Zygote一起共享Java运行时库。<font color=red>这也就是可以将XposedBridge这个jar包加载到每一个Android应用程序中的原因</font>。XposedBridge有一个私有的Native（JNI）方法hookMethodNative，这个方法也在app_process中使用。这个函数提供一个方法对象利用Java的Reflection机制来对内置方法覆写。</li>
+<li>Android应用进程都是由 zygote 进程孵化而来，zygote对应的可执行程序就是app_process,Xposed 框架通过替换系统的 <strong>app_process 可执行文件以及虚拟机动态链接库</strong>，让 zygote 在启动应用程序进程时注入框架代码，并且加载&#x2F;data&#x2F;data&#x2F;de.robv.android.xposed.installer&#x2F;bin&#x2F;XposedBridge.jar，进而实现对应用程序进程的劫持。</li>
+<li>实现hook技术，Xposed通过修改Art虚拟机，<font color=red>将需要hook的函数注册为Native函数，当执行这一函数时，虚拟机会优先执行Native函数，然后执行java函数，这样就成功完成了函数的hook。</font></li>
+<li>流程：在 Android 系统启动的时候， zygote 进程加载 XposedBridge 将所有需要替换的 Method 通过 JNI 方法 hookMethodNative (参数为一个方法对象)，将指向 Native 方法 xposedCallHandler ， xposedCallHandler 再转入 handleHookedMethod(传递参数) 这个 Java 方法执行用户规定的 Hook Func</li>
+<li><strong>hookMethodNative</strong>：<ul>
+<li>它将一个方法对象作为输入参数，并且改变Dalvik虚拟机中对于该方法的定义。</li>
+<li>它将该方法的类型改变为native并且将这个方法的实现链接到它的本地的通用类的方法。</li>
+<li>在hookMethodNative的实现中，会调用XposedBridge中的handleHookedMethod这个方法来传递参数。</li>
+<li>handleHookedMethod这个方法类似于一个统一调度的Dispatch例程，其对应的底层的C++函数是xposedCallHandler。而handleHookedMethod实现里面会根据一个全局结构hookedMethodCallbacks来选择相应的hook函数，并调用他们的before, after函数。</li>
+</ul>
+</li>
 </ul>
 <p>需要root设备</p>
 <p><strong>支持 Android Java层的Dalvik Hook和ART Hook，总的来说就像是在目标函数执行前后插入了想要的代码，或者直接替换原来的方法。</strong></p>
 <p>使用步骤：</p>
 <ol>
 <li>为其编写插件， Hook 我们所关心的 Java 方法。 </li>
-<li>通过 XC_MethodHook 接 口提供的 beforeHookedMethod（）方法， 可以在 Hook 的方法执行前添加想要执行的代码逻辑。</li>
+<li>通过 XC_MethodHook 接口提供的 beforeHookedMethod（）方法， 可以在 Hook 的方法执行前添加想要执行的代码逻辑。</li>
 <li>也可 以使用 XC_MethodHook 接口提供的 afterHookedMethod（）方法， 在 Hook 的方法执行后添加相应的处 理代码。 </li>
 <li>也可以使用XC_MethodReplacement直接替换方法的所有实现。</li>
 </ol>
-<p>示例代码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.content.Context;</span><br><span class="line"><span class="keyword">import</span> android.util.Log;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XC_MethodHook;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XC_MethodReplacement;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XposedBridge;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XposedHelpers;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CheckSNHook</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">XC_MethodReplacement</span> <span class="variable">replacementTrue</span> <span class="operator">=</span> XC_MethodReplacement.returnConstant(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CheckSNHook</span><span class="params">(ClassLoader cl)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line"></span><br><span class="line">        XposedBridge.log(<span class="string">&quot;hooking checkSN.&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Class</span> <span class="variable">clz</span> <span class="operator">=</span> (Class&lt;?&gt;) XposedHelpers.findClass(<span class="string">&quot;com.droider.crackme0201.MainActivity&quot;</span>, cl);</span><br><span class="line">            <span class="comment">//直接替换目标函数的返回值为true</span></span><br><span class="line">            XposedBridge.hookAllMethods(clz, <span class="string">&quot;checkSN&quot;</span>, replacementTrue);</span><br><span class="line">            <span class="comment">/*</span></span><br><span class="line"><span class="comment">            XposedHelpers.findAndHookMethod(clz,</span></span><br><span class="line"><span class="comment">                    &quot;checkSN&quot;,</span></span><br><span class="line"><span class="comment">                    String.class, String.class,</span></span><br><span class="line"><span class="comment">                    new XC_MethodHook() &#123;</span></span><br><span class="line"><span class="comment">                        @Override</span></span><br><span class="line"><span class="comment">                        protected void afterHookedMethod(MethodHookParam param)</span></span><br><span class="line"><span class="comment">                                throws Throwable &#123;</span></span><br><span class="line"><span class="comment">                            XposedBridge.log(&quot;CheckSN afterHookedMethod called.&quot;);</span></span><br><span class="line"><span class="comment">                            String s1 = (String) param.args[0];</span></span><br><span class="line"><span class="comment">                            String s2 = (String) param.args[1];</span></span><br><span class="line"><span class="comment">                            param.setResult(true);</span></span><br><span class="line"><span class="comment">                            super.afterHookedMethod(param);</span></span><br><span class="line"><span class="comment">                        &#125;</span></span><br><span class="line"><span class="comment">                    &#125;);</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        XposedBridge.log(<span class="string">&quot;hook checkSN done.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<h2 id="frida-hook"><a href="#frida-hook" class="headerlink" title="frida hook"></a>frida hook</h2><p>原理：通过ptrace修改进程内存，或者再启动时注入frida代码，将目标函数改为native，然后修改目标函数得method结构体，最终达到hook得目的</p>
+<p>搬运目标：<a target="_blank" rel="noopener" href="https://mabin004.github.io/2018/07/31/Mac%E4%B8%8A%E7%BC%96%E8%AF%91Frida/">https://mabin004.github.io/2018/07/31/Mac%E4%B8%8A%E7%BC%96%E8%AF%91Frida/</a></p>
+<p>两种模式：</p>
+<ol>
+<li>attach模式<br>attach到已经存在的进程，核心原理是ptrace修改进程内存，如果进程处于调试状态（traceid不等于0），则attach失败</li>
+<li>spawn模式<br>启动一个新的进程并挂起，在启动的同时注入frida代码，适用于在进程启动前的一些hook，如hook RegisterNative等，注入完成后调用resume恢复进程。</li>
+</ol>
+<h3 id="Dalvik-hook："><a href="#Dalvik-hook：" class="headerlink" title="Dalvik hook："></a>Dalvik hook：</h3><ul>
+<li>frida的Dalvik hook和xposed的hook原理相同，都是把要hook的java函数变成native函数，并修改函数的入口为自定义的内容，这样在调用时就会执行自定义的代码。</li>
+<li>replaceDalvikImplementation修改了method中的accessFlags、registersSize、outsSize、insSize和jniArgInfo，将原java函数对应的结构体修改为一个native函数，并调用dvmUseJNIBridge（<a target="_blank" rel="noopener" href="https://mabin004.github.io/2018/07/31/Mac%E4%B8%8A%E7%BC%96%E8%AF%91Frida/,%E5%8F%82%E8%80%83http://androidxref.com/4.4.2_r2/xref/dalvik/vm/Jni.cpp#806">dvmUseJNIBridge实现代码</a>）为这个Method设置一个Bridge，改变结构体中的nativeFunc，指向自定义的函数。</li>
+</ul>
+<h3 id="ART-hook"><a href="#ART-hook" class="headerlink" title="ART hook:"></a>ART hook:</h3><p>frida的ART hook实现也是把java method转为native method</p>
+<p>ART 是一种代替 Dalivk 的新的运行时,它具有更高的执行效率。ART虚拟机执行 Java 方法主要有两种模式：quick code 模式和 Interpreter 模式。</p>
+<ul>
+<li>quick code 模式：执行 arm 汇编指令</li>
+<li>Interpreter 模式：由解释器解释执行 Dalvik 字节码</li>
+</ul>
+<p>即使是在quick code模式中，也有类方法可能需要以Interpreter模式执行。反之亦然。artInterpreterToCompiledCodeBridge :用以从 quick 模式切换到 Interpreter 模式来解释执行 java 函数代码；本地机器指令执行的类方法通过函数GetQuickToInterpreterBridge的返回值调用解释执行的类方法；</p>
+<p>ART中的每一个函数都对应一个ARTMethod结构体，其中<code>entry_point_from_interpreter_</code> 和<code>entry_point_from_quick_compiled_code_</code> 分别表示两种模式的调用入口</p>
+<p><img src="https://raw.githubusercontent.com/Dfault0/images/main/20220816143134.png" alt="art执行流程"></p>
+<p>如图所示，对于一个native method, ART虚拟机首先会尝试quickcode模式执行，检查ARTMethod结构中的entry_point_from_quick_compiled_code_成员，这里分3种情况：</p>
+<ol>
+<li>如果函数已经存在quick code, 则指向这个函数对应的 quick code的起始地址，而当quick code不存在时，它的值则会代表其他的意义；</li>
+<li>当一个 java 函数不存在 quick code时，它的值是函数 artQuickToInterpreterBridge 的地址，用以从 quick 模式切换到 Interpreter 模式来解释执行 java 函数代码；</li>
+<li>当一个 java native（JNI）函数不存在 quick code时，它的值是函数 art_quick_generic_jni_trampoline 的地址，用以执行没有quick code的 jni 函数；</li>
+</ol>
+<p><strong>注意</strong></p>
+<p>因此，如果frida把一个java method改为jni method, 是不存在quick code，这时需要将entry_point_from_quick_compiled_code_值修改为art_quick_generic_jni_trampoline 的地址。</p>
+<p>art_quick_generic_jni_trampoline函数实现比较复杂（<a target="_blank" rel="noopener" href="https://blog.csdn.net/sinat_38172893/article/details/74612596">代码分析</a>)，主要负责jni调用的准备，包括堆栈的设置，参数的设置等,该函数最终会调到entry_point_from_jni_，即jni函数的入口。</p>
+<p>因此，<font color=red>frida把java method改为jni method，需要修改ARTMethod结构体中的这几个值</font>：</p>
+<ul>
+<li>access_flags_ &#x3D; native</li>
+<li>entry_point_from_jni_ &#x3D; 自定义代码的入口</li>
+<li>entry_point_from_quick_compiled_code_ &#x3D; art_quick_generic_jni_trampoline函数的地址</li>
+<li>entry_point_from_interpreter_ &#x3D; artInterpreterToCompiledCodeBridge函数地址</li>
+</ul>
 <h1 id="注入"><a href="#注入" class="headerlink" title="注入"></a>注入</h1><h2 id="so动态注入"><a href="#so动态注入" class="headerlink" title="so动态注入"></a>so动态注入</h2><p>与Windows dll注入类似</p>
 <p>步骤：</p>
 <ol>
@@ -352,10 +407,10 @@
 <li>将so文件注入目标进程。</li>
 <li>运行so文件中指定的函数。</li>
 </ol>
-<h2 id="Frida注入框架"><a href="#Frida注入框架" class="headerlink" title="Frida注入框架"></a>Frida注入框架</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh interface portproxy add v4tov4 listenport=8888 listenaddress=10.0.2.15 connectport=21513 connectaddress=127.0.0.1</span><br></pre></td></tr></table></figure>
-
 <h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p>Android软件安全权威指南-<a target="_blank" rel="noopener" href="https://github.com/feicong/androidbook">https://github.com/feicong/androidbook</a></p>
 <p>Android Hook技术学习—常见的Hook技术方案总结：<a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-272870.htm">https://bbs.pediy.com/thread-272870.htm</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/6b4a80654d4e">https://www.jianshu.com/p/6b4a80654d4e</a></p>
+<p>frida原理：<a target="_blank" rel="noopener" href="https://mabin004.github.io/2018/07/31/Mac%E4%B8%8A%E7%BC%96%E8%AF%91Frida/">https://mabin004.github.io/2018/07/31/Mac%E4%B8%8A%E7%BC%96%E8%AF%91Frida/</a></p>
 
     </div>
 
