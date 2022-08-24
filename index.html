@@ -133,18 +133,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-count">38</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-count">28</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-count">23</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -182,6 +182,172 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/08/24/web%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2022/08/24/web%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">web常见漏洞基础</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-08-24 14:57:57 / Modified: 19:27:57" itemprop="dateCreated datePublished" datetime="2022-08-24T14:57:57+08:00">2022-08-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">渗透测试</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="XSS（Cross-Site-Scripting）"><a href="#XSS（Cross-Site-Scripting）" class="headerlink" title="XSS（Cross-Site Scripting）"></a>XSS（Cross-Site Scripting）</h1><p>跨站脚本攻击</p>
+<p>同源策略：域名、端口、协议全部相同</p>
+<ul>
+<li>原理：<ul>
+<li>当动态页面中插入的内容含有特殊字符标签时，且服务器并没有对用户的输入进行安全方面的验证，用户浏览器会将其误认为是插入了HTML标签，当这些HTML标签引入了一段脚本时，这些脚本程序就将会在用户浏览器中执行。</li>
+<li>攻击者利用网站漏洞把恶意的脚本代码（通常包括HTML代码和客户端JavaScript脚本）注入到网页之中，当其他用户浏览这些网页时，就会执行其中的恶意代码，对受害用户可能采取Cookie资料窃取、会话劫持、钓鱼欺骗等各种攻击。</li>
+<li>cookie是由名称、内容、作用路径、作用域、协议、生存周期组成，另外还有个HttpOnly属性，如果您在cookie中设置了HttpOnly属性，那么通过js脚本(document.cookie)将无法读取到cookie信息，这样能一定程度上的防止XSS攻击。</li>
+</ul>
+</li>
+<li>分类：<ul>
+<li>反射型：<ul>
+<li>攻击者构造恶意的url链接，诱导用户点击，（比如查询搜索框的内容），恶意代码存在URL中</li>
+<li>具体表现在我们把我们的恶意脚本通过 URL 的方式传递给了服务器，而服务器则只是不加处理的把脚本“反射”回访问者的浏览器而使访问者的浏览器执行相应的脚本。</li>
+<li>反射型 XSS 的触发有后端的参与，要避免反射性 XSS，必须需要后端的协调，后端解析前端的数据时首先做相关的字串检测和转义处理。</li>
+</ul>
+</li>
+<li>存储型：<ul>
+<li>由于Web应用程序对用户输入数据的不严格，导致Web应用程序将黑客输入的恶意跨站攻击数据信息保存在服务端的数据库或其他文件形式中，当网页进行数据查询展示时，会从数据库中获取数据内容，并将数据内容在网页中进行输出展示，进而导致跨站脚本代码的执行。</li>
+</ul>
+</li>
+<li>DOM型（Document Object Model）：<ul>
+<li>客户端的脚本程序可以动态地检查和修改页面内容，而不依赖于服务器端的数据。基于DOM的XSS，不需要web server参与。</li>
+<li>比如根据用户的例如客户端如从 URL 中提取数据并在本地执行，如果用户在客户端输入的数据包含了恶意的 JavaScript 脚本，而这些脚本没有经过适当的过滤和消毒，那么应用程序就可能受到 DOM-based XSS 攻击，浏览器就会执行这些恶意的脚本</li>
+<li>防御：<ul>
+<li>避免客户端文档重写、重定向或其他敏感操作，同时避免使用客户端数据，这些操作尽量在服务端使用动态页面来实现</li>
+<li>Anti-XSS：微软开发的.NET平台下用于防止XSS攻击的类库，提供了大量的编码函数用于处理用户的输入，可实现输入白名单机制和输出转义</li>
+<li>HttpOnly：Web应用程序在设置Cookie时，将其属性设置为HttpOnly，可以避免该网页的Cookie被客户端JavaScript存取，保护用户的Cookie不被盗取。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>输入过滤、输出编码</strong></li>
+</ul>
+</li>
+</ul>
+<h1 id="CSRF（Cross-Site-Request-Forgery）"><a href="#CSRF（Cross-Site-Request-Forgery）" class="headerlink" title="CSRF（Cross-Site Request Forgery）"></a>CSRF（Cross-Site Request Forgery）</h1><p>原理：</p>
+<ul>
+<li>跨站请求伪造，是指利用受害者<strong>尚未失效的身份认证信息</strong>（cookie、会话等），诱骗其点击恶意链接或者访问包含攻击代码的页面，在受害人不知情的情况下以受害者的身份向（身份认证信息所对应的）服务器发送请求，从而完成非法操作（如转账、改密等）</li>
+</ul>
+<p>防御：</p>
+<ul>
+<li><p>验证来源referer，使用验证码、token等</p>
+</li>
+<li><p>使用POST提交用户数据，来代替GET：用get方式会在浏览器上进行明文显示referer </p>
+</li>
+<li><p>校验HTTP Referer：</p>
+<ul>
+<li><p>HTTP头的Referer字段记录了HTTP请求的来源地址，通过检查来源地址是来自站内还是来自远程的恶意页面，能够解决从站外发起的CSRF攻击，同时解决非法盗链，站外提交等问题</p>
+</li>
+<li><p>但是Referer字段可以被修改或伪造（老版本firefox + x-forwarded for header插件）</p>
+</li>
+</ul>
+</li>
+<li><p>使用验证码：每次用户提交内容时，都要求其在表单中填写图片上的随机验证码，并且在提交表单后对齐进行检测</p>
+</li>
+<li><p>使用请求令牌Token：在HTTP请求中以参数的形式加如一个随机产生的请求令牌，并在服务器端对其进行验证。<strong>如果请求中没有Token或者Token的内容不正确，则认为可能是CSRF攻击而拒绝该请求</strong>。</p>
+</li>
+</ul>
+<h1 id="SSRF（Server-Side-Request-Forgery）"><a href="#SSRF（Server-Side-Request-Forgery）" class="headerlink" title="SSRF（Server-Side Request Forgery）"></a>SSRF（Server-Side Request Forgery）</h1><p>服务器端请求伪造：是一个由攻击者构造请求，在目标服务端执行的一个安全漏洞。攻击者可以利用该漏洞<strong>使服务器端向攻击者构造的任意域发出请求，目标通常是从外网无法访问的内部系统</strong>。简单来说就是利用服务器漏洞以服务器的身份发送一条构造好的请求给服务器所在内网进行攻击。</p>
+<p>服务端请求伪造：服务器通常会获取其他服务器的资源（能够对外发起网络请求的地方），攻击者利用服务器的身份获取内网的相关资源等。</p>
+<p>漏洞危害：</p>
+<ol>
+<li>对外网、服务器所在内网、本地进行端口扫描</li>
+<li>向内部任意主机的任意端口发送payload来攻击内网服务</li>
+<li>DOS攻击（请求大文件，始终保持连接Keep-Alive Always）</li>
+<li>攻击内网的web应用，如直接SQL注入、XSS攻击等</li>
+<li>利用file、gopher、dict协议读取本地文件、执行命令等</li>
+<li>可以无视网站CDN</li>
+</ol>
+<p>防御：</p>
+<ol>
+<li>禁止跳转</li>
+<li>禁用除http和https外的协议，如：file:&#x2F;&#x2F;、gopher:&#x2F;&#x2F;、dict:&#x2F;&#x2F;等。</li>
+<li>限制请求的端口为http常用的端口，如 80、443、8080。</li>
+<li>统一错误信息，避免用户可以根据错误信息来判断远程服务器的端口状态。</li>
+<li>对请求地址设置白名单或者限制内网IP，以防止对内网进行攻击。</li>
+</ol>
+<h1 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h1><p>原理：</p>
+<ul>
+<li>由于文件上传功能实现代码没有严格限制用户上传的<strong>文件后缀以及文件类型</strong>，导致允许攻击者向某个可通过 Web 访问的目录上传任意PHP文件，并能够将这些文件传递给 PHP 解释器，就可以在远程服务器上执行任意PHP脚本。</li>
+</ul>
+<p>防御：（思路：不能上传、或者上传了之后通过web访问不到）</p>
+<ol>
+<li>检查文件上传路径</li>
+<li>文件扩展名</li>
+<li>文件MIME检测</li>
+<li>文件重命名</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/08/16/%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -210,9 +376,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-08-16 12:34:08 / Modified: 12:49:58" itemprop="dateCreated datePublished" datetime="2022-08-16T12:34:08+08:00">2022-08-16</time>
+      <time title="Created: 2022-08-16 12:34:08" itemprop="dateCreated datePublished" datetime="2022-08-16T12:34:08+08:00">2022-08-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-08-17 11:16:51" itemprop="dateModified" datetime="2022-08-17T11:16:51+08:00">2022-08-17</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -238,7 +410,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h1 id="ARM汇编"><a href="#ARM汇编" class="headerlink" title="ARM汇编"></a>ARM汇编</h1><p>常见指令：</p>
+          <h1 id="ARM汇编"><a href="#ARM汇编" class="headerlink" title="ARM汇编"></a>ARM汇编</h1><p><strong>跳转指令：</strong></p>
 <ul>
 <li>B[c]、BL[c]、BX[c]、BLX[c] label<ul>
 <li>B： branch跳转指令，类似jmp</li>
@@ -247,6 +419,125 @@
 </ul>
 </li>
 </ul>
+<p>数据处理指令：所有得数据处理指令如果后面加上了”S“,则表示其会影响状态标志</p>
+<ul>
+<li>MOV{S}<c> <Rd>, <Rm>   </li>
+<li>MVN{S}<c> <Rd>, #<const> 将立即数取反然后放到目标寄存器中</li>
+<li>ADD{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}</li>
+<li>ADC{S}<c> <Rd>, <Rn>, <Rm>{,… <shift>}</li>
+<li>SUB{S}<C> <Rd>, <Rn>, <Rm>{, <shift>}</li>
+<li>MUL{S}<c> <Rd>,<Rn>, <Rm></li>
+<li>SDIV<C> <Rd>, <Rn>, <Rm></li>
+<li>UDIV<c> <Rd>, <Rn>, <Rm> 无符号除法   rd &#x3D; rn&#x2F;rm</li>
+<li>ASR{S}<C> <Rd>, <Rm>, #<imm> 算术右移</li>
+<li>AND{S}<c> <Rd>, <Rn>, <Rm>{, <shift>}</li>
+<li>ORR{S}<c> <Rd>, <Rn>, <Rm>{, <shift>} 或</li>
+<li>EOR<c> <Rdn>, <Rm> 异或</li>
+</ul>
+<p>数据加载指令： 其中地址是寻址方式可变换</p>
+<ul>
+<li>LDR指令用于将数据从存储器中加载到寄存器中<ul>
+<li>LDR<c> <Rt>, [<Rn>,<Rm>]</li>
+</ul>
+</li>
+<li>STR指令用于将数据存储到指定地址的存储单元中<ul>
+<li>STR<c> <Rt>, [<Rn>,<Rm>]</li>
+</ul>
+</li>
+</ul>
+<p>数据块传输：</p>
+<ul>
+<li>STMDA<c> <Rn>{!},<register><ul>
+<li>STMA R0!,{R1-R3} @将R1-R3寄存器得内容存储到R0寄存器指向得存储单元。</li>
+</ul>
+</li>
+<li>LDMDA<c> <Rn>{!},<register><ul>
+<li>LDMDA R0!,{R1-R3} @从R0寄存器指向得存储单元中读出3个字，并将其分别放到R1-R3中</li>
+</ul>
+</li>
+</ul>
+<p>寻址方式后面加！:先根据寻址规则修改寄存器，然后再根据寄存器得值访问内存。</p>
+<h1 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h1><p>运行模式：</p>
+<ul>
+<li>用户模式（usr) : ARM处理器正常的程序执行状态。</li>
+<li>快速中断模式（fiq）：用于高速数据传输或通道处理。</li>
+<li>外部中断模式（irq）：用于通用的中断处理。</li>
+<li>管理模式（SVC）：操作系统使用的保护模式。</li>
+<li>数据访问终止模式（abt）：当数据或指令预取终止时进入该模式，可用于虚拟存储及存储<br>保护。</li>
+<li>系统模式（sys）：运行具有特权的操作系统任务。</li>
+<li>未定义指令中止模式（und） ：当未定义的指令执行时进入该模式。</li>
+</ul>
+<p>在32位的用户模式下，处理器可以访问的寄存器为不分组寄存器R0～R7、分组寄存器时～<br>R14、程序计数器R15 (PC）及当前程序状态寄存器CPSR。<strong>共17个</strong><br>ARM处理器有两种工作状态，即ARM状态与Thumb状态，处理器可以在这两种状态之间随<br>意切换。当处理器处于ARM状态时，会执行<strong>32位</strong>对齐的ARM指令；当处理器处于Thumb状态<br>时，执行的是<strong>16位</strong>对齐的Thumb指令</p>
+<ul>
+<li>Thumb状态下的R0～R7 与ARM状态下的RO～R7相同。</li>
+<li>Thumb状态下的CPSR 与ARM状态下的CPSR相同。</li>
+<li>Thumb状态下的FP：ARM状态下的R11。</li>
+<li>Thumb状态下的IP：ARM状态下的R12。</li>
+<li>Thumb状态下的SP：ARM状态下的R13。</li>
+<li>Thumb状态下的LR ：ARM状态下的R14。保存（子程序，异常）得下一条指令地址</li>
+<li>Thumb状态下的PC ：ARM状态下R15。</li>
+</ul>
+<p>到了arm64-v8a，AArch64使用32位固定长度的指令集，它有如下特性。</p>
+<ul>
+<li>引人异常等级的概念，有EL0～EL3四种异常等级。</li>
+<li>提供了基于5 位寄存器说明符的简洁解码表。</li>
+<li>指令语义与AArch32中大致相同。</li>
+<li>提供了31 个可以随时访问的通用64位寄存器x0～x30。<ul>
+<li>x0～x7 ：用于传递参数与计算结果，</li>
+<li>x8：直接结果位置寄存器。</li>
+<li>x9～x15为临时寄存器</li>
+<li>x16 与x17为内部过程调用寄存器（也可以作为临时寄存器IPO与IPI) , x18为临时寄存器，</li>
+<li>x19 ～x28为调用备份寄存器，</li>
+<li>x29为帧指针寄存器，</li>
+<li>x30作为过程链接寄存器PLR 使用。</li>
+<li>x0～x30 寄存器都是64位的，每个寄存器可以通过W0～W30 来访问低32位。<br>读32位寄存器Wn时，不会影响高32位的值；<strong>写Wn时，会将高32位全部清零</strong>。</li>
+</ul>
+</li>
+<li>提供了无模式GP 寄存器组。</li>
+<li>提供了程序计数器（PC）和堆枝指针（SP）非通用寄存器。</li>
+<li>提供了可用于大多数指令的专用零寄存器XZR&#x2F;WZR。</li>
+</ul>
+<p>除了通用寄存器，arm64-v8a还提供了32个128 位NEON浮点寄存器V0～V31 ，它们可以作<br>为半精度寄存器H、单精度寄存器S、双精度寄存器D使用。</p>
+<h1 id="调用约定"><a href="#调用约定" class="headerlink" title="调用约定"></a>调用约定</h1><h2 id="ARM调用约定："><a href="#ARM调用约定：" class="headerlink" title="ARM调用约定："></a>ARM调用约定：</h2><ul>
+<li>armeabi：<ul>
+<li>R0～R3这四个寄存器用于传递子程序调用的第1个到第4个参数， 剩下得参数从右往左依次入栈；</li>
+<li>R0寄存器同时用于存放子程序的返回结果， 如果数据大于32位， 则将结果存入R0：R1；</li>
+<li>被调用者实现栈平衡</li>
+</ul>
+</li>
+<li>Thumb模式同上：不支持32位的stmfd与ldmfd指令，而使用push与pop指令分别代替。</li>
+<li>armeabi-v7a与armeabi 基本一致，arτneabi-v7a是支持硬件浮点指令的，因此，具体的浮点运算都交给了浮点指令。</li>
+<li>arm64-v8a：对32位的整型参数， 前8个参数使用w0～w7寄存器传递， 剩下的参数从右往左依次入栈；对64位的整型参数， 前8个参数使用x0～x7寄存器传递，剩下的参数从右往左依次入栈；对浮点数计算， 前7个参数使用d0～d7寄存器传递， 超过该数目的参数使用堆栈传递。被调用者实现栈平衡，返回值：w0&#x2F;x0</li>
+</ul>
+<h2 id="X86-调用约定"><a href="#X86-调用约定" class="headerlink" title="X86 调用约定"></a>X86 调用约定</h2><p>有三种常用调用约定，cdecl(C规范)&#x2F;stdcall(WinAPI默认)&#x2F;fastcall 函数调用约定</p>
+<ul>
+<li><p>cdecl (c declaration):</p>
+<ul>
+<li>参数从右往左入栈,函数结果保存在寄存器EAX&#x2F;AX&#x2F;AL中，如果长度超过32位，则结果保存在EAX:EDX中。浮点型结果存放在寄存器ST0中。<font color=red>调用者负责维护栈平衡</font>(只有cdecl是调用者负责栈平衡，其他都不是)</li>
+</ul>
+</li>
+<li><p><strong>stdcall:</strong></p>
+<ul>
+<li>参数从右往左依次入栈，<strong>被调用者实现栈平衡</strong>，返回值存放在 EAX 中</li>
+</ul>
+</li>
+<li><p><strong>fastcall:</strong></p>
+<ul>
+<li>参数1、参数2分别保存在 ECX、EDX ，剩下的参数从右往左依次入栈，被调用者实现栈平衡，返回值存放在 EAX 中。</li>
+</ul>
+</li>
+</ul>
+<h2 id="x64-只有fastcall"><a href="#x64-只有fastcall" class="headerlink" title="x64: 只有fastcall"></a>x64: 只有fastcall</h2><ul>
+<li>参数1、参数2、参数3、参数4分别保存在 RCX、RDX、R8D、R9D ，</li>
+<li>剩下的参数从右往左依次入栈，<strong>被调用者实现栈平衡</strong>，返回值存放在 RAX 中。</li>
+</ul>
+<h2 id="thiscall：用于c-中得类成员函数调用"><a href="#thiscall：用于c-中得类成员函数调用" class="headerlink" title="thiscall：用于c++中得类成员函数调用"></a><strong>thiscall：用于c++中得类成员函数调用</strong></h2><ul>
+<li>x86: 参数从右往左依次入栈，this指针存放ECX中，被调用者实现栈平衡，返回值存放在 EAX 中。</li>
+<li>x64: 参数1、参数2、参数3分别保存在RDX、R8D、R9D中，this指针存放RCX中，剩下的参数从右往左依次入栈，被调用者实现栈平衡，返回值存放在 RAX 中。</li>
+<li>arm: 参数1、参数2、参数3分别保存在R1、R2、R3中，this指针存放R0中，剩下的参数从右往左依次入栈，被调用者实现栈平衡，返回值存放在 R0 中。</li>
+<li>arm64: 参数1<del>参数7 分别保存到 X1</del>X7 寄存器中，this指针存放X0中，剩下的参数从右往左依次入栈，被调用者实现栈平衡，返回值存放在 X0 中。</li>
+</ul>
+<h1 id="参考连接"><a href="#参考连接" class="headerlink" title="参考连接"></a>参考连接</h1><p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-224583.htm#msg_header_h2_0">https://bbs.pediy.com/thread-224583.htm#msg_header_h2_0</a></p>
 
       
     </div>
@@ -689,7 +980,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-08-05 17:18:13" itemprop="dateModified" datetime="2022-08-05T17:18:13+08:00">2022-08-05</time>
+      <time title="Modified: 2022-08-17 12:10:38" itemprop="dateModified" datetime="2022-08-17T12:10:38+08:00">2022-08-17</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -724,7 +1015,7 @@
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">LogPrint</span>(<span class="params">log</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> theDate = <span class="keyword">new</span> <span class="title class_">Date</span>();</span><br><span class="line">    <span class="keyword">var</span> hour = theDate.<span class="title function_">getHours</span>();</span><br><span class="line">    <span class="keyword">var</span> minute = theDate.<span class="title function_">getMinutes</span>();</span><br><span class="line">    <span class="keyword">var</span> second = theDate.<span class="title function_">getSeconds</span>();</span><br><span class="line">    <span class="keyword">var</span> mSecond = theDate.<span class="title function_">getMilliseconds</span>();</span><br><span class="line"></span><br><span class="line">    hour &lt; <span class="number">10</span> ? hour = <span class="string">&quot;0&quot;</span> + hour : hour;</span><br><span class="line">    minute &lt; <span class="number">10</span> ? minute = <span class="string">&quot;0&quot;</span> + minute : minute;</span><br><span class="line">    second &lt; <span class="number">10</span> ? second = <span class="string">&quot;0&quot;</span> + second : second;</span><br><span class="line">    mSecond &lt; <span class="number">10</span> ? mSecond = <span class="string">&quot;00&quot;</span> + mSecond : mSecond &lt; <span class="number">100</span> ? mSecond = <span class="string">&quot;0&quot;</span> + mSecond : mSecond;</span><br><span class="line">    <span class="keyword">var</span> time = hour + <span class="string">&quot;:&quot;</span> + minute + <span class="string">&quot;:&quot;</span> + second + <span class="string">&quot;:&quot;</span> + mSecond;</span><br><span class="line">    <span class="keyword">var</span> threadid = <span class="title class_">Process</span>.<span class="title function_">getCurrentThreadId</span>();</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;[&quot;</span> + time + <span class="string">&quot;]&quot;</span> + <span class="string">&quot;-&gt;threadid:&quot;</span> + threadid + <span class="string">&quot;--&quot;</span> + log);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">printJavaStack</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">Exception</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.Exception&quot;</span>);</span><br><span class="line">        <span class="keyword">var</span> ins = <span class="title class_">Exception</span>.$new(<span class="string">&quot;Exception&quot;</span>);</span><br><span class="line">        <span class="keyword">var</span> straces = ins.<span class="title function_">getStackTrace</span>();</span><br><span class="line">        <span class="keyword">if</span> (straces != <span class="literal">undefined</span> &amp;&amp; straces != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">var</span> strace = straces.<span class="title function_">toString</span>();</span><br><span class="line">            <span class="keyword">var</span> replaceStr = strace.<span class="title function_">replace</span>(<span class="regexp">/,/g</span>, <span class="string">&quot; \n &quot;</span>);</span><br><span class="line">            <span class="title class_">LogPrint</span>(<span class="string">&quot;========&quot;</span> + name + <span class="string">&quot; Stack strat=======&quot;</span>);</span><br><span class="line">            <span class="title class_">LogPrint</span>(replaceStr);</span><br><span class="line">            <span class="title class_">LogPrint</span>(<span class="string">&quot;========&quot;</span> + name + <span class="string">&quot; Stack end========= \n &quot;</span>);</span><br><span class="line">            <span class="title class_">Exception</span>.$dispose();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">isprintable</span>(<span class="params">value</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (value &gt;= <span class="number">32</span> &amp;&amp; value &lt;= <span class="number">126</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">hooktcp</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">SocketClass</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;java.net.Socket&#x27;</span>);</span><br><span class="line">        <span class="title class_">SocketClass</span>.<span class="property">$init</span>.<span class="title function_">overload</span>(<span class="string">&#x27;java.lang.String&#x27;</span>, <span class="string">&#x27;int&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0, arg1</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;[&quot;</span> + <span class="title class_">Process</span>.<span class="title function_">getCurrentThreadId</span>() + <span class="string">&quot;]new Socket connection:&quot;</span> + arg0 + <span class="string">&quot;,port:&quot;</span> + arg1);</span><br><span class="line">            <span class="title function_">printJavaStack</span>(<span class="string">&#x27;tcp connect...&#x27;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">this</span>.$init(arg0, arg1);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">SocketInputStreamClass</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;java.net.SocketInputStream&#x27;</span>);</span><br><span class="line">        <span class="comment">//socketRead0</span></span><br><span class="line">        <span class="title class_">SocketInputStreamClass</span>.<span class="property">socketRead0</span>.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0, arg1, arg2, arg3, arg4</span>) &#123;</span><br><span class="line">            <span class="keyword">var</span> size = <span class="variable language_">this</span>.<span class="title function_">socketRead0</span>(arg0, arg1, arg2, arg3, arg4);</span><br><span class="line">            <span class="comment">//console.log(&quot;[&quot; + Process.getCurrentThreadId() + &quot;]socketRead0:size:&quot; + size + &quot;,content:&quot; + JSON.stringify(arg1));</span></span><br><span class="line">            <span class="keyword">var</span> bytearray = <span class="title class_">Java</span>.<span class="title function_">array</span>(<span class="string">&#x27;byte&#x27;</span>, arg1);</span><br><span class="line">            <span class="keyword">var</span> content = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="title function_">isprintable</span>(bytearray[i])) &#123;</span><br><span class="line">                    content = content + <span class="title class_">String</span>.<span class="title function_">fromCharCode</span>(bytearray[i]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">var</span> socketimpl = <span class="variable language_">this</span>.<span class="property">impl</span>.<span class="property">value</span>;</span><br><span class="line">            <span class="keyword">var</span> address = socketimpl.<span class="property">address</span>.<span class="property">value</span>;</span><br><span class="line">            <span class="keyword">var</span> port = socketimpl.<span class="property">port</span>.<span class="property">value</span>;</span><br><span class="line"></span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\naddress:&quot;</span> + address + <span class="string">&quot;,port&quot;</span> + port + <span class="string">&quot;\n&quot;</span> + <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(<span class="variable language_">this</span>.<span class="property">socket</span>.<span class="property">value</span>) + <span class="string">&quot;\n[&quot;</span> + <span class="title class_">Process</span>.<span class="title function_">getCurrentThreadId</span>() + <span class="string">&quot;]receive:&quot;</span> + content);</span><br><span class="line">            <span class="title function_">printJavaStack</span>(<span class="string">&#x27;socketRead0&#x27;</span>)</span><br><span class="line">            <span class="keyword">return</span> size;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">SocketOutPutStreamClass</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;java.net.SocketOutputStream&#x27;</span>);</span><br><span class="line">        <span class="title class_">SocketOutPutStreamClass</span>.<span class="property">socketWrite0</span>.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0, arg1, arg2, arg3</span>) &#123;</span><br><span class="line">            <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">socketWrite0</span>(arg0, arg1, arg2, arg3);</span><br><span class="line">            <span class="comment">//console.log(&quot;[&quot; + Process.getCurrentThreadId() + &quot;]socketWrite0:len:&quot; + arg3 + &quot;--content:&quot; + JSON.stringify(arg1));</span></span><br><span class="line">            <span class="keyword">var</span> bytearray = <span class="title class_">Java</span>.<span class="title function_">array</span>(<span class="string">&#x27;byte&#x27;</span>, arg1);</span><br><span class="line">            <span class="keyword">var</span> content = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; arg3; i++) &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (<span class="title function_">isprintable</span>(bytearray[i])) &#123;</span><br><span class="line">                    content = content + <span class="title class_">String</span>.<span class="title function_">fromCharCode</span>(bytearray[i]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">var</span> socketimpl = <span class="variable language_">this</span>.<span class="property">impl</span>.<span class="property">value</span>;</span><br><span class="line">            <span class="keyword">var</span> address = socketimpl.<span class="property">address</span>.<span class="property">value</span>;</span><br><span class="line">            <span class="keyword">var</span> port = socketimpl.<span class="property">port</span>.<span class="property">value</span>;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;send address:&quot;</span> + address + <span class="string">&quot;,port&quot;</span> + port + <span class="string">&quot;[&quot;</span> + <span class="title class_">Process</span>.<span class="title function_">getCurrentThreadId</span>() + <span class="string">&quot;]send:&quot;</span> + content);</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\n&quot;</span> + <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(<span class="variable language_">this</span>.<span class="property">socket</span>.<span class="property">value</span>) + <span class="string">&quot;\n[&quot;</span> + <span class="title class_">Process</span>.<span class="title function_">getCurrentThreadId</span>() + <span class="string">&quot;]send:&quot;</span> + content);</span><br><span class="line">            <span class="title function_">printJavaStack</span>(<span class="string">&#x27;socketWrite0&#x27;</span>)</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">main</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="title function_">hooktcp</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">setImmediate</span>(main)</span><br></pre></td></tr></table></figure>
 
 <h1 id="hookUDP"><a href="#hookUDP" class="headerlink" title="hookUDP"></a>hookUDP</h1><p>调用栈:recvfromBytes  sendtoBytes   这两个关键函数都在linux.java里面实现</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">//libcore.io.Linux.sendtoBytes</span><br><span class="line">[15:00:19:655]-&gt;threadid:21227--libcore.io.Linux.sendtoBytes(Native Method) </span><br><span class="line"> libcore.io.Linux.sendto(Linux.java:227)                              </span><br><span class="line"> libcore.io.BlockGuardOs.sendto(BlockGuardOs.java:304) </span><br><span class="line"> libcore.io.IoBridge.sendto(IoBridge.java:569) </span><br><span class="line"> java.net.PlainDatagramSocketImpl.send(PlainDatagramSocketImpl.java:124) </span><br><span class="line"> java.net.DatagramSocket.send(DatagramSocket.java:721) </span><br><span class="line"> cn.jiguang.bb.c.a(Unknown Source:5) </span><br><span class="line"> cn.jiguang.bb.o.a(Unknown Source:29) </span><br><span class="line"> cn.jiguang.bb.o.a(Unknown Source:80) </span><br><span class="line"> cn.jiguang.bb.o.a(Unknown Source:16) </span><br><span class="line"> cn.jiguang.bb.o.call(Unknown Source:0) </span><br><span class="line"> java.util.concurrent.FutureTask.run(FutureTask.java:266) </span><br><span class="line"> java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162) </span><br><span class="line"> java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636) </span><br><span class="line"> java.lang.Thread.run(Thread.java:764)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">//libcore.io.Linux.sendtoBytes</span><br><span class="line">[15:00:19:655]-&gt;threadid:21227--libcore.io.Linux.sendtoBytes(Native Method) </span><br><span class="line"> libcore.io.Linux.sendto(Linux.java:227)                              </span><br><span class="line"> libcore.io.BlockGuardOs.sendto(BlockGuardOs.java:304) </span><br><span class="line"> libcore.io.IoBridge.sendto(IoBridge.java:569) </span><br><span class="line"> java.net.PlainDatagramSocketImpl.send(PlainDatagramSocketImpl.java:124) </span><br><span class="line"> java.net.DatagramSocket.send(DatagramSocket.java:721) </span><br><span class="line"> cn.jiguang.bb.c.a(Unknown Source:5) </span><br><span class="line"> cn.jiguang.bb.o.a(Unknown Source:29) </span><br><span class="line"> cn.jiguang.bb.o.a(Unknown Source:80) </span><br><span class="line"> cn.jiguang.bb.o.a(Unknown Source:16) </span><br><span class="line"> cn.jiguang.bb.o.call(Unknown Source:0) </span><br><span class="line"> java.util.concurrent.FutureTask.run(FutureTask.java:266) </span><br><span class="line"> java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162) </span><br><span class="line"> java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636) </span><br><span class="line"> java.lang.Thread.run(Thread.java:764)</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">//libcore.io.Linux.recvfromBytes</span><br><span class="line">[15:00:21:700]-&gt;threadid:21249--libcore.io.Linux.recvfromBytes(Native Method) </span><br><span class="line"> libcore.io.Linux.recvfrom(Linux.java:205) </span><br><span class="line"> libcore.io.BlockGuardOs.recvfrom(BlockGuardOs.java:276) </span><br><span class="line"> libcore.io.IoBridge.recvfrom(IoBridge.java:610) </span><br><span class="line"> java.net.PlainDatagramSocketImpl.doRecv(PlainDatagramSocketImpl.java:152) </span><br><span class="line"> java.net.PlainDatagramSocketImpl.receive0(PlainDatagramSocketImpl.java:140) </span><br><span class="line"> java.net.AbstractPlainDatagramSocketImpl.receive(AbstractPlainDatagramSocketImpl.java:143) </span><br><span class="line"> java.net.DatagramSocket.receive(DatagramSocket.java:847) </span><br><span class="line"> cn.jiguang.bb.c.a(Unknown Source:26) </span><br><span class="line"> cn.jiguang.bb.o.a(Unknown Source:29) </span><br><span class="line"> cn.jiguang.bb.o.a(Unknown Source:80) </span><br><span class="line"> cn.jiguang.bb.o.a(Unknown Source:16) </span><br><span class="line"> cn.jiguang.bb.o.call(Unknown Source:0) </span><br><span class="line"> java.util.concurrent.FutureTask.run(FutureTask.java:266) </span><br><span class="line"> java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1162) </span><br><span class="line"> java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:636) </span><br><span class="line"> java.lang.Thread.run(Thread.java:764)</span><br></pre></td></tr></table></figure>
 
@@ -921,9 +1212,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-06-20 16:12:35 / Modified: 17:56:16" itemprop="dateCreated datePublished" datetime="2022-06-20T16:12:35+08:00">2022-06-20</time>
+      <time title="Created: 2022-06-20 16:12:35" itemprop="dateCreated datePublished" datetime="2022-06-20T16:12:35+08:00">2022-06-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-08-16 15:47:52" itemprop="dateModified" datetime="2022-08-16T15:47:52+08:00">2022-08-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1134,7 +1431,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-06-23 21:11:41" itemprop="dateModified" datetime="2022-06-23T21:11:41+08:00">2022-06-23</time>
+      <time title="Modified: 2022-08-16 15:45:28" itemprop="dateModified" datetime="2022-08-16T15:45:28+08:00">2022-08-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1146,7 +1443,7 @@
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android%E5%AE%89%E5%85%A8/frida/" itemprop="url" rel="index"><span itemprop="name">frida</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/HOOK-%E6%B3%A8%E5%85%A5/" itemprop="url" rel="index"><span itemprop="name">HOOK & 注入</span></a>
         </span>
     </span>
 
@@ -1269,139 +1566,6 @@
 <h1 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h1><p>mobsf: <a target="_blank" rel="noopener" href="https://github.com/MobSF/Mobile-Security-Framework-MobSF">https://github.com/MobSF/Mobile-Security-Framework-MobSF</a></p>
 <p>frida docs:<a target="_blank" rel="noopener" href="https://frida.re/docs/javascript-api/">https://frida.re/docs/javascript-api/</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/195215">https://www.anquanke.com/post/id/195215</a></p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/06/07/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Dfault0">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dfault0's blog">
-      <meta itemprop="description" content="I CAN">
-    </span>
-    
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Dfault0's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2022/06/07/%E5%AF%86%E7%A0%81%E5%AD%A6%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">密码学基础</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2022-06-07 11:13:17" itemprop="dateCreated datePublished" datetime="2022-06-07T11:13:17+08:00">2022-06-07</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-06-09 18:06:31" itemprop="dateModified" datetime="2022-06-09T18:06:31+08:00">2022-06-09</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">In</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
-        </span>
-          , 
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android%E5%AE%89%E5%85%A8/%E5%AF%86%E7%A0%81%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">密码学</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h1 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h1><ol>
-<li>对称密码：加解密密钥相同：RC4、DES、AES<ul>
-<li>序列密码：对明文逐字符加密</li>
-<li>分组密码：将明文分组，分别对每一组进行加密</li>
-</ul>
-</li>
-<li>非对称密码：加解密密钥不同：RSA、ECC椭圆曲线</li>
-<li>hash函数：不同长度的输入，输出固定长度的摘要</li>
-</ol>
-<p>编码:</p>
-<ul>
-<li>base64:基于<strong>可打印的64个字符</strong>来表示二进制数据的一种方式</li>
-<li>原理：使用一个字符（6位bit位）来表示一个8bit的二进制数，(每3个8位的字节转换成4个6位的字节)。可能回出现填充(“&#x3D;”)，当要编码的数据不是三的倍数的时候需要再原来的数据后面加上二进制0，空就是”&#x3D;”</li>
-</ul>
-<h1 id="主动调用"><a href="#主动调用" class="headerlink" title="主动调用"></a>主动调用</h1><p>主动调用可以使用xposed,也可以使用frida</p>
-<p><u><strong>使用frida来对so中的函数进行主动调用：</strong></u></p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">activeinvokesub_834</span>(<span class="params">content</span>)&#123;</span><br><span class="line">    <span class="comment">//是thumb指令（指令长度为4），就需要加一</span></span><br><span class="line">    <span class="keyword">var</span> offset = <span class="number">0x834</span>+<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">var</span> nativeLibModule = <span class="title class_">Process</span>.<span class="title function_">getModuleByName</span>(<span class="string">&quot;libnative-lib.so&quot;</span>)</span><br><span class="line">    <span class="keyword">var</span> fun_sub_834 = nativeLibModule.<span class="property">base</span>.<span class="title function_">add</span>(offset)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> arg0 = <span class="title class_">Memory</span>.<span class="title function_">alloc</span>(<span class="number">10</span>)</span><br><span class="line">    <span class="title function_">ptr</span>(arg0).<span class="title function_">writeUtf8String</span>(content)</span><br><span class="line">    <span class="keyword">var</span> sub_834 = <span class="keyword">new</span> <span class="title class_">NativeFunction</span>(fun_sub_834,<span class="string">&#x27;pointer&#x27;</span>,[<span class="string">&#x27;pointer&#x27;</span>])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> result = <span class="title function_">sub_834</span>(arg0)</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;result:&quot;</span>,<span class="title function_">hexdump</span>(result))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="RC4原理"><a href="#RC4原理" class="headerlink" title="RC4原理"></a>RC4原理</h1><p>解密和加密是一样的</p>
-<ol>
-<li>将**s盒(256字节)**和key进行KSA算法（Key scheduling algorithm）初始化</li>
-<li>然后将上面的结果进行PRGA算法运算（pseudo random generation algorithm）伪随机密码生成</li>
-<li>产生了密钥流</li>
-<li>使用明文和密钥流进行逐字节异或得到密文</li>
-<li>使用密文和密钥流进行逐字节XOR得到明文</li>
-</ol>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;jni.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;android/log.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">rc4_init</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> *s, <span class="type">unsigned</span> <span class="type">char</span> *key, <span class="type">unsigned</span> <span class="type">long</span> Len)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">    <span class="type">char</span> k[<span class="number">256</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> tmp = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) &#123;</span><br><span class="line">        s[i] = i;<span class="comment">//初始化状态向量</span></span><br><span class="line">        k[i] = key[i % Len];<span class="comment">//根据密钥，初始化临时向量</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) &#123;<span class="comment">//根据给定密钥，扰乱状态向量</span></span><br><span class="line">        j = (j + s[i] + k[i]) % <span class="number">256</span>;</span><br><span class="line">        tmp = s[i];</span><br><span class="line">        s[i] = s[j];</span><br><span class="line">        s[j] = tmp;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">rc4_crypt</span><span class="params">(<span class="type">unsigned</span> <span class="type">char</span> *s, <span class="type">unsigned</span> <span class="type">char</span> *Data, <span class="type">unsigned</span> <span class="type">long</span> Len)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>, t = <span class="number">0</span>;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> k = <span class="number">0</span>;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> tmp;</span><br><span class="line">    <span class="keyword">for</span> (k = <span class="number">0</span>; k &lt; Len; k++) &#123;</span><br><span class="line">        i = (i + <span class="number">1</span>) % <span class="number">256</span>;</span><br><span class="line">        j = (j + s[i]) % <span class="number">256</span>;</span><br><span class="line">        tmp = s[i];</span><br><span class="line">        s[i] = s[j];</span><br><span class="line">        s[j] = tmp;<span class="comment">//得到新的状态向量</span></span><br><span class="line">        t = (s[i] + s[j]) % <span class="number">256</span>;</span><br><span class="line">        Data[k] ^= s[t];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">RC4Encrypt</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* key, <span class="type">unsigned</span> <span class="type">char</span>* content)</span></span>&#123;</span><br><span class="line">    <span class="comment">//rc4_init(unsigned char *s, unsigned char *key, unsigned long Len)</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> Len=<span class="built_in">strlen</span>(key);</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> s[<span class="number">256</span>]=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="built_in">rc4_init</span>(s, (<span class="type">unsigned</span> <span class="type">char</span> *) key, Len);</span><br><span class="line">    <span class="built_in">rc4_crypt</span>(s, content, <span class="built_in">strlen</span>((<span class="type">char</span>*)content));</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>特征：</strong></p>
-<ol>
-<li>S盒长度256字节，并且会有两轮256次的循环对S盒进行扰乱（初始化）</li>
-<li>在PRGA处：会出现一个和加密字符相同长度次数的循环，同时也会重新扰乱s盒</li>
-</ol>
-<h1 id="hooBase64"><a href="#hooBase64" class="headerlink" title="hooBase64"></a>hooBase64</h1><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//主动调用</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">activeinvokesub_834</span>(<span class="params">content</span>)&#123;</span><br><span class="line">    <span class="comment">//获取目标函数的地址</span></span><br><span class="line">    <span class="keyword">var</span> offset = <span class="number">0x834</span>+<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">var</span> nativeLibModule = <span class="title class_">Process</span>.<span class="title function_">getModuleByName</span>(<span class="string">&quot;libnative-lib.so&quot;</span>)</span><br><span class="line">    <span class="keyword">var</span> fun_sub_834 = nativeLibModule.<span class="property">base</span>.<span class="title function_">add</span>(offset)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> arg0 = <span class="title class_">Memory</span>.<span class="title function_">alloc</span>(<span class="number">10</span>)</span><br><span class="line">    <span class="title function_">ptr</span>(arg0).<span class="title function_">writeUtf8String</span>(content)</span><br><span class="line">    <span class="comment">//获取函数对象，新建一个函数对象</span></span><br><span class="line">    <span class="keyword">var</span> sub_834 = <span class="keyword">new</span> <span class="title class_">NativeFunction</span>(fun_sub_834,<span class="string">&#x27;pointer&#x27;</span>,[<span class="string">&#x27;pointer&#x27;</span>])</span><br><span class="line">	<span class="comment">//调用函数，注意要传入参数</span></span><br><span class="line">    <span class="keyword">var</span> result = <span class="title function_">sub_834</span>(arg0)</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;result:&quot;</span>,<span class="title function_">hexdump</span>(result))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">activeinvokejavafunc1</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">enumerateClassLoadersSync</span>(&#123;</span><br><span class="line">            <span class="attr">onMatch</span>:<span class="keyword">function</span> (<span class="params">classloader</span>)&#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;classloader:&quot;</span>,classloader)</span><br><span class="line">                    <span class="keyword">if</span>(classloader.<span class="title function_">indexOf</span>(<span class="string">&quot;com.kanxue.encrypt01&quot;</span>)!=-<span class="number">1</span>)&#123;</span><br><span class="line">                        classloader.<span class="title function_">loadClass</span>(<span class="string">&quot;com.kanxue.encrypt01&quot;</span>)</span><br><span class="line">                    	<span class="title class_">Java</span>.<span class="property">classFactory</span>.<span class="property">loader</span> = classloader</span><br><span class="line">                        <span class="comment">//com.kanxue.encrypt01.MainActivity.caicaikan</span></span><br><span class="line">                    	<span class="keyword">var</span> mainActivityclazz = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.kanxue.encrypt01.MainActivity&quot;</span>)</span><br><span class="line">                    	<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;main:&quot;</span>,mainActivityclazz)</span><br><span class="line">                        </span><br><span class="line">                                                <span class="title class_">Java</span>.<span class="title function_">choose</span>(<span class="string">&quot;com.kanxue.encrypt01.MainActivity&quot;</span>, &#123;</span><br><span class="line">                            <span class="attr">onMatch</span>: <span class="keyword">function</span> (<span class="params">instance</span>) &#123;</span><br><span class="line">                                <span class="variable language_">console</span>.<span class="title function_">log</span>(instance);</span><br><span class="line">                                <span class="keyword">var</span> result = instance.<span class="title function_">caicaikan</span>(content);</span><br><span class="line">                                <span class="variable language_">console</span>.<span class="title function_">log</span>(result);</span><br><span class="line"></span><br><span class="line">                            &#125;, <span class="attr">onComplete</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">                                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;search heap complete&#x27;</span>);</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;)</span><br><span class="line">                        </span><br><span class="line">                    &#125;                </span><br><span class="line">                &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;error:&quot;</span>,error)</span><br><span class="line">                    </span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,<span class="attr">onComplete</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;search completed!&quot;</span>)&#125;</span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">setImmediate</span>(activeinvokejavafunc1)</span><br></pre></td></tr></table></figure>
-
-<h1 id="hookdes"><a href="#hookdes" class="headerlink" title="hookdes"></a>hookdes</h1><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">main</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;javax.crypto.Cipher&#x27;</span>).<span class="property">getInstance</span>.<span class="title function_">overload</span>(<span class="string">&#x27;java.lang.String&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;javax.crypto.Cipher.getInstance is called!&#x27;</span>, arg0);</span><br><span class="line">            <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">getInstance</span>(arg0);</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="comment">//.init(Cipher.ENCRYPT_MODE, getRawKey(key), iv);</span></span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;javax.crypto.Cipher&#x27;</span>).<span class="property">init</span>.<span class="title function_">overload</span>(<span class="string">&#x27;int&#x27;</span>, <span class="string">&#x27;java.security.Key&#x27;</span>, <span class="string">&#x27;java.security.spec.AlgorithmParameterSpec&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0, arg1, arg2</span>) &#123;</span><br><span class="line">            <span class="comment">//console.log(&#x27;javax.crypto.Cipher.init is called!&#x27;, arg0, arg1, arg2);</span></span><br><span class="line">            <span class="keyword">var</span> mode = arg0;</span><br><span class="line">            <span class="keyword">var</span> key = arg1;</span><br><span class="line">            <span class="keyword">var</span> iv = arg2;</span><br><span class="line">            <span class="keyword">var</span> <span class="title class_">KeyClass</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;java.security.Key&#x27;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">var</span> keyobj = <span class="title class_">Java</span>.<span class="title function_">cast</span>(key, <span class="title class_">KeyClass</span>);</span><br><span class="line">            <span class="keyword">var</span> key_bytes = keyobj.<span class="title function_">getEncoded</span>();</span><br><span class="line">            <span class="keyword">var</span> keyString = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.String&quot;</span>).$new(key_bytes)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;keyString:&quot;</span>,keyString)</span><br><span class="line">            <span class="keyword">var</span> <span class="title class_">IVClass</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;javax.crypto.spec.IvParameterSpec&#x27;</span>);</span><br><span class="line">            <span class="keyword">var</span> ivobj = <span class="title class_">Java</span>.<span class="title function_">cast</span>(iv, <span class="title class_">IVClass</span>);</span><br><span class="line">            <span class="keyword">var</span> iv_bytes = ivobj.<span class="title function_">getIV</span>();</span><br><span class="line">            <span class="keyword">var</span> ivString = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.String&quot;</span>).$new(iv_bytes)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;ivString:&quot;</span>,ivString)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;javax.crypto.Cipher.init is called!&#x27;</span>, mode, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(key_bytes), <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(iv_bytes));</span><br><span class="line">            <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">init</span>(arg0, arg1, arg2);</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;javax.crypto.Cipher&#x27;</span>).<span class="property">doFinal</span>.<span class="title function_">overload</span>(<span class="string">&#x27;[B&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;javax.crypto.Cipher.doFinal is called!&#x27;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg0));</span><br><span class="line">            <span class="keyword">var</span> data = arg0;</span><br><span class="line">            <span class="comment">//打印出待加密的字符串</span></span><br><span class="line">            <span class="keyword">var</span> dataString = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.String&quot;</span>).$new(data)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;datastring:&#x27;</span>,dataString)</span><br><span class="line">            <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">doFinal</span>(arg0);</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;javax.crypto.Cipher.doFinal is called!&#x27;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(data), <span class="string">&quot;encrypt:&quot;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(result));</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="comment">//doFinal</span></span><br><span class="line"></span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">setImmediate</span>(main);</span><br></pre></td></tr></table></figure>
-
-<h1 id="hookRC4"><a href="#hookRC4" class="headerlink" title="hookRC4"></a>hookRC4</h1><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">activeinvokesub_F658</span>(<span class="params">key,content</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> offset = <span class="number">0xf658</span></span><br><span class="line">    <span class="keyword">var</span> nativeLibModule = <span class="title class_">Process</span>.<span class="title function_">getModuleByName</span>(<span class="string">&#x27;libnative-lib.so&#x27;</span>)</span><br><span class="line">    <span class="keyword">var</span> sub_f658_func = nativeLibModule.<span class="property">base</span>.<span class="title function_">add</span>(offset)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> arg0 = <span class="title class_">Memory</span>.<span class="title function_">alloc</span>(<span class="number">10</span>)</span><br><span class="line">    <span class="title function_">ptr</span>(arg0).<span class="title function_">writeUtf8String</span>(key)</span><br><span class="line">    <span class="keyword">var</span> arg1 = <span class="title class_">Memory</span>.<span class="title function_">alloc</span>(<span class="number">10</span>)</span><br><span class="line">    <span class="title function_">ptr</span>(arg1).<span class="title function_">writeUtf8String</span>(content)</span><br><span class="line">    <span class="keyword">var</span> sub_f658 = <span class="keyword">new</span> <span class="title class_">NativeFunction</span>(sub_f658_func,<span class="string">&#x27;void&#x27;</span>,[<span class="string">&#x27;pointer&#x27;</span>,<span class="string">&#x27;pointer&#x27;</span>])</span><br><span class="line">    <span class="title function_">sub_f658</span>(arg0,arg1)</span><br><span class="line">    </span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg0:&quot;</span>,<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg0))</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg1:&quot;</span>,<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg1))</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg0:&quot;</span>,<span class="title function_">hexdump</span>(arg0))</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg1:&quot;</span>,<span class="title function_">hexdump</span>(arg1))</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;==========================================================&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="title function_">sub_f658</span>(arg0,arg1)</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg0:&quot;</span>,<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg0))</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg1:&quot;</span>,<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg1))</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg0:&quot;</span>,<span class="title function_">hexdump</span>(arg0))</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;arg1:&quot;</span>,<span class="title function_">hexdump</span>(arg1))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">hooklibnativelib</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;into hooklibnativelib&#x27;</span>)</span><br><span class="line">    <span class="comment">// sub_F0AC((__int64)&amp;v10, v4, arg0_length);</span></span><br><span class="line">    <span class="comment">// arg1_length = strlen(v5);</span></span><br><span class="line">    <span class="comment">// result = sub_F3C4((__int64)&amp;v10, v5, arg1_length);</span></span><br><span class="line">    <span class="comment">//获得函数的地址 = 基址 + 偏移</span></span><br><span class="line">    <span class="keyword">var</span> nativeLibModule = <span class="title class_">Process</span>.<span class="title function_">getModuleByName</span>(<span class="string">&#x27;libnative-lib.so&#x27;</span>)</span><br><span class="line">    <span class="keyword">var</span> sub_F0AC_addr = nativeLibModule.<span class="property">base</span>.<span class="title function_">add</span>(<span class="number">0xF0AC</span>)</span><br><span class="line">    <span class="keyword">var</span> sub_F3C4_addr = nativeLibModule.<span class="property">base</span>.<span class="title function_">add</span>(<span class="number">0xF3C4</span>)</span><br><span class="line">    <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(sub_F0AC_addr,&#123;</span><br><span class="line">        <span class="attr">onEnter</span>:<span class="keyword">function</span>(<span class="params">args</span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;RC_init  on enter&quot;</span>)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;key:&quot;</span>,<span class="title function_">hexdump</span>(args[<span class="number">1</span>],args[<span class="number">2</span>]))</span><br><span class="line"></span><br><span class="line">        &#125;,<span class="attr">onLeave</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;RC_init  on leave&quot;</span>)</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(sub_F3C4_addr,&#123;</span><br><span class="line">        <span class="attr">onEnter</span>:<span class="keyword">function</span>(<span class="params">args</span>)&#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">arg1</span> = args[<span class="number">1</span>];</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;RC_encrypt  on enter&quot;</span>)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;content:&quot;</span>,<span class="title function_">hexdump</span>(args[<span class="number">1</span>],args[<span class="number">2</span>]))</span><br><span class="line"></span><br><span class="line">        &#125;,<span class="attr">onLeave</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;RC_encrypt  on leave&quot;</span>)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;cryptresult:&quot;</span>, <span class="title function_">hexdump</span>(<span class="variable language_">this</span>.<span class="property">arg1</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">main</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="title class_">Java</span>.<span class="property">available</span>)&#123;</span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;into main&#x27;</span>)</span><br><span class="line">            <span class="keyword">var</span> <span class="title class_">RuntimeClazz</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;java.lang.Runtime&#x27;</span>)</span><br><span class="line">            <span class="title class_">RuntimeClazz</span>.<span class="property">loadLibrary0</span>.<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">arg0,arg1</span>)&#123;</span><br><span class="line">                <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">loadLibrary0</span>(arg0,arg1)</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (arg1.<span class="title function_">indexOf</span>(<span class="string">&#x27;native-lib&#x27;</span>) != -<span class="number">1</span>) &#123;</span><br><span class="line">                    <span class="title function_">hooklibnativelib</span>();</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">setImmediate</span>(main)</span><br></pre></td></tr></table></figure>
-
-<h1 id="hookAES"><a href="#hookAES" class="headerlink" title="hookAES"></a>hookAES</h1><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">hookaes</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title class_">Java</span>.<span class="property">available</span>) &#123;</span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">                <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;javax.crypto.spec.SecretKeySpec&#x27;</span>).<span class="property">$init</span>.<span class="title function_">overload</span>(<span class="string">&#x27;[B&#x27;</span>, <span class="string">&#x27;java.lang.String&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0, arg1</span>) &#123;</span><br><span class="line"></span><br><span class="line">                    <span class="comment">//console.log(&#x27;javax.crypto.spec.SecretKeySpec.init is called&#x27;);</span></span><br><span class="line">                    <span class="keyword">if</span> (arg1.<span class="title function_">indexOf</span>(<span class="string">&quot;AES&quot;</span>) != -<span class="number">1</span>) &#123;</span><br><span class="line">                        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;key:&#x27;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg0), <span class="string">&quot;,algorithm:&quot;</span> + arg1);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">var</span> result = <span class="variable language_">this</span>.$init(arg0, arg1);</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125;;</span><br><span class="line">                <span class="comment">//.init(Cipher.ENCRYPT_MODE, getRawKey(key), iv);</span></span><br><span class="line">                <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;javax.crypto.Cipher&#x27;</span>).<span class="property">init</span>.<span class="title function_">overload</span>(<span class="string">&#x27;int&#x27;</span>, <span class="string">&#x27;java.security.Key&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0, arg1</span>) &#123;</span><br><span class="line">                    <span class="comment">//console.log(&#x27;javax.crypto.Cipher.init is called!&#x27;, arg0, arg1, arg2);</span></span><br><span class="line">                    <span class="keyword">var</span> mode = arg0;</span><br><span class="line">                    <span class="keyword">var</span> key = arg1;</span><br><span class="line">                    <span class="keyword">var</span> <span class="title class_">SecretKeySpecClass</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;java.security.Key&#x27;</span>);</span><br><span class="line">                    <span class="keyword">var</span> keyobj = <span class="title class_">Java</span>.<span class="title function_">cast</span>(key, <span class="title class_">SecretKeySpecClass</span>);</span><br><span class="line">                    <span class="keyword">var</span> key_bytes = keyobj.<span class="title function_">getEncoded</span>();</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;javax.crypto.Cipher.init is called!&#x27;</span>, mode, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(key_bytes));</span><br><span class="line">                    <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">init</span>(arg0, arg1);</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125;;</span><br><span class="line">                <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;javax.crypto.Cipher&#x27;</span>).<span class="property">doFinal</span>.<span class="title function_">overload</span>(<span class="string">&#x27;[B&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0</span>) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;javax.crypto.Cipher.doFinal is called!&#x27;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg0));</span><br><span class="line">                    <span class="keyword">var</span> data = arg0;</span><br><span class="line">                    <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">doFinal</span>(arg0);</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;javax.crypto.Cipher.doFinal is called!&#x27;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(data), <span class="string">&quot;encrypt:&quot;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(result));</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125;;</span><br><span class="line">            &#125;</span><br><span class="line">        )</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">setImmediate</span>(hookaes);</span><br></pre></td></tr></table></figure>
-
-<h1 id="hookhash"><a href="#hookhash" class="headerlink" title="hookhash"></a>hookhash</h1><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">hookCRC32</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title class_">Java</span>.<span class="property">available</span>) &#123;</span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">                <span class="keyword">var</span> <span class="title class_">CRC32Class</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;java.util.zip.CRC32&#x27;</span>);</span><br><span class="line"></span><br><span class="line">                <span class="title class_">CRC32Class</span>.<span class="property">$init</span>.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;CRC32 constructor function is called&quot;</span>);</span><br><span class="line">                    <span class="keyword">return</span> <span class="variable language_">this</span>.$init();</span><br><span class="line">                &#125;;</span><br><span class="line"></span><br><span class="line">                <span class="title class_">CRC32Class</span>.<span class="property">update</span>.<span class="title function_">overload</span>(<span class="string">&#x27;[B&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0</span>) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;CRC32-&gt;update:&quot;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg0));</span><br><span class="line">                    <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">update</span>(arg0);</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125;;</span><br><span class="line">                <span class="title class_">CRC32Class</span>.<span class="property">update</span>.<span class="title function_">overload</span>(<span class="string">&#x27;java.nio.ByteBuffer&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0</span>) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;CRC32-&gt;update.overload(&#x27;java.nio.ByteBuffer&#x27;):&quot;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg0));</span><br><span class="line">                    <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">update</span>(arg0);</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125;;</span><br><span class="line">                <span class="title class_">CRC32Class</span>.<span class="property">update</span>.<span class="title function_">overload</span>(<span class="string">&#x27;int&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0</span>) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;CRC32-&gt;update.overload(&#x27;int&#x27;):&quot;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg0));</span><br><span class="line">                    <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">update</span>(arg0);</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125;;</span><br><span class="line">                <span class="title class_">CRC32Class</span>.<span class="property">update</span>.<span class="title function_">overload</span>(<span class="string">&#x27;int&#x27;</span>, <span class="string">&#x27;int&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0, arg1</span>) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;CRC32-&gt;update.overload(&#x27;int&#x27;, &#x27;int&#x27;):&quot;</span>, arg0, <span class="string">&#x27;---&#x27;</span>, arg1);</span><br><span class="line">                    <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">update</span>(arg0, arg1);</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125;;</span><br><span class="line">                <span class="title class_">CRC32Class</span>.<span class="property">update</span>.<span class="title function_">overload</span>(<span class="string">&#x27;[B&#x27;</span>, <span class="string">&#x27;int&#x27;</span>, <span class="string">&#x27;int&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0, arg1, arg2</span>) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;CRC32-&gt;update:&quot;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg0), <span class="string">&quot;---:&quot;</span>, <span class="string">&quot;---&quot;</span>, arg1, <span class="string">&quot;---&quot;</span>, arg2);</span><br><span class="line">                    <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">update</span>(arg0, arg1, arg2);</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125;;</span><br><span class="line">                <span class="title class_">CRC32Class</span>.<span class="property">getValue</span>.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">                    <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">getValue</span>();</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;CRC32-&gt;getValue:&quot;</span>, result);</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125;;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        )</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">hookmd5andsha</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title class_">Java</span>.<span class="property">available</span>) &#123;</span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">            <span class="keyword">var</span> <span class="title class_">MessageDigestClass</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;java.security.MessageDigest&#x27;</span>);</span><br><span class="line">            <span class="title class_">MessageDigestClass</span>.<span class="property">getInstance</span>.<span class="title function_">overload</span>(<span class="string">&#x27;java.lang.String&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0</span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;MessageDigest-&gt;getInstance:&quot;</span>, arg0);</span><br><span class="line">                <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="title function_">getInstance</span>(arg0);</span><br><span class="line">            &#125;;</span><br><span class="line">            <span class="title class_">MessageDigestClass</span>.<span class="property">update</span>.<span class="title function_">overload</span>(<span class="string">&#x27;[B&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">arg0</span>) &#123;</span><br><span class="line">                <span class="comment">//var StringClass=Java.use(&quot;java.lang.String&quot;);</span></span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;MessageDigestClass-&gt;update:&quot;</span>, <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(arg0));</span><br><span class="line">                <span class="keyword">var</span> result = <span class="variable language_">this</span>.<span class="title function_">update</span>(arg0);</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">main</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">//hookCRC32();</span></span><br><span class="line">    <span class="title function_">hookmd5andsha</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">setImmediate</span>(main);</span><br></pre></td></tr></table></figure>
-
-
-
 
       
     </div>

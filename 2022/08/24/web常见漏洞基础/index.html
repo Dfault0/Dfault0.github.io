@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="XSS（Cross-Site Scripting）跨站脚本攻击 同源策略：域名、端口、协议全部相同  原理： 当动态页面中插入的内容含有特殊字符标签时，且服务器并没有对用户的输入进行安全方面的验证，用户浏览器会将其误认为是插入了HTML标签，当这些HTML标签引入了一段脚本时，这些脚本程序就将会在用户浏览器中执行。 攻击者利用网站漏洞把恶意的脚本代码（通常包括HTML代码和客户端JavaScrip">
+<meta property="og:type" content="article">
+<meta property="og:title" content="web常见漏洞基础">
+<meta property="og:url" content="http://dfault0.github.io/2022/08/24/web%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="XSS（Cross-Site Scripting）跨站脚本攻击 同源策略：域名、端口、协议全部相同  原理： 当动态页面中插入的内容含有特殊字符标签时，且服务器并没有对用户的输入进行安全方面的验证，用户浏览器会将其误认为是插入了HTML标签，当这些HTML标签引入了一段脚本时，这些脚本程序就将会在用户浏览器中执行。 攻击者利用网站漏洞把恶意的脚本代码（通常包括HTML代码和客户端JavaScrip">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-08-24T06:57:57.000Z">
+<meta property="article:modified_time" content="2022-08-24T11:27:57.092Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="渗透测试">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/08/24/web%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E%E5%9F%BA%E7%A1%80/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/08/24/web%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E%E5%9F%BA%E7%A1%80/","path":"2022/08/24/web常见漏洞基础/","title":"web常见漏洞基础"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>web常见漏洞基础 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#XSS%EF%BC%88Cross-Site-Scripting%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">XSS（Cross-Site Scripting）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CSRF%EF%BC%88Cross-Site-Request-Forgery%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">CSRF（Cross-Site Request Forgery）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SSRF%EF%BC%88Server-Side-Request-Forgery%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">SSRF（Server-Side Request Forgery）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="nav-number">4.</span> <span class="nav-text">文件上传</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/08/24/web%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="web常见漏洞基础 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          web常见漏洞基础
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-08-24 14:57:57 / Modified: 19:27:57" itemprop="dateCreated datePublished" datetime="2022-08-24T14:57:57+08:00">2022-08-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">渗透测试</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="XSS（Cross-Site-Scripting）"><a href="#XSS（Cross-Site-Scripting）" class="headerlink" title="XSS（Cross-Site Scripting）"></a>XSS（Cross-Site Scripting）</h1><p>跨站脚本攻击</p>
+<p>同源策略：域名、端口、协议全部相同</p>
+<ul>
+<li>原理：<ul>
+<li>当动态页面中插入的内容含有特殊字符标签时，且服务器并没有对用户的输入进行安全方面的验证，用户浏览器会将其误认为是插入了HTML标签，当这些HTML标签引入了一段脚本时，这些脚本程序就将会在用户浏览器中执行。</li>
+<li>攻击者利用网站漏洞把恶意的脚本代码（通常包括HTML代码和客户端JavaScript脚本）注入到网页之中，当其他用户浏览这些网页时，就会执行其中的恶意代码，对受害用户可能采取Cookie资料窃取、会话劫持、钓鱼欺骗等各种攻击。</li>
+<li>cookie是由名称、内容、作用路径、作用域、协议、生存周期组成，另外还有个HttpOnly属性，如果您在cookie中设置了HttpOnly属性，那么通过js脚本(document.cookie)将无法读取到cookie信息，这样能一定程度上的防止XSS攻击。</li>
+</ul>
+</li>
+<li>分类：<ul>
+<li>反射型：<ul>
+<li>攻击者构造恶意的url链接，诱导用户点击，（比如查询搜索框的内容），恶意代码存在URL中</li>
+<li>具体表现在我们把我们的恶意脚本通过 URL 的方式传递给了服务器，而服务器则只是不加处理的把脚本“反射”回访问者的浏览器而使访问者的浏览器执行相应的脚本。</li>
+<li>反射型 XSS 的触发有后端的参与，要避免反射性 XSS，必须需要后端的协调，后端解析前端的数据时首先做相关的字串检测和转义处理。</li>
+</ul>
+</li>
+<li>存储型：<ul>
+<li>由于Web应用程序对用户输入数据的不严格，导致Web应用程序将黑客输入的恶意跨站攻击数据信息保存在服务端的数据库或其他文件形式中，当网页进行数据查询展示时，会从数据库中获取数据内容，并将数据内容在网页中进行输出展示，进而导致跨站脚本代码的执行。</li>
+</ul>
+</li>
+<li>DOM型（Document Object Model）：<ul>
+<li>客户端的脚本程序可以动态地检查和修改页面内容，而不依赖于服务器端的数据。基于DOM的XSS，不需要web server参与。</li>
+<li>比如根据用户的例如客户端如从 URL 中提取数据并在本地执行，如果用户在客户端输入的数据包含了恶意的 JavaScript 脚本，而这些脚本没有经过适当的过滤和消毒，那么应用程序就可能受到 DOM-based XSS 攻击，浏览器就会执行这些恶意的脚本</li>
+<li>防御：<ul>
+<li>避免客户端文档重写、重定向或其他敏感操作，同时避免使用客户端数据，这些操作尽量在服务端使用动态页面来实现</li>
+<li>Anti-XSS：微软开发的.NET平台下用于防止XSS攻击的类库，提供了大量的编码函数用于处理用户的输入，可实现输入白名单机制和输出转义</li>
+<li>HttpOnly：Web应用程序在设置Cookie时，将其属性设置为HttpOnly，可以避免该网页的Cookie被客户端JavaScript存取，保护用户的Cookie不被盗取。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>输入过滤、输出编码</strong></li>
+</ul>
+</li>
+</ul>
+<h1 id="CSRF（Cross-Site-Request-Forgery）"><a href="#CSRF（Cross-Site-Request-Forgery）" class="headerlink" title="CSRF（Cross-Site Request Forgery）"></a>CSRF（Cross-Site Request Forgery）</h1><p>原理：</p>
+<ul>
+<li>跨站请求伪造，是指利用受害者<strong>尚未失效的身份认证信息</strong>（cookie、会话等），诱骗其点击恶意链接或者访问包含攻击代码的页面，在受害人不知情的情况下以受害者的身份向（身份认证信息所对应的）服务器发送请求，从而完成非法操作（如转账、改密等）</li>
+</ul>
+<p>防御：</p>
+<ul>
+<li><p>验证来源referer，使用验证码、token等</p>
+</li>
+<li><p>使用POST提交用户数据，来代替GET：用get方式会在浏览器上进行明文显示referer </p>
+</li>
+<li><p>校验HTTP Referer：</p>
+<ul>
+<li><p>HTTP头的Referer字段记录了HTTP请求的来源地址，通过检查来源地址是来自站内还是来自远程的恶意页面，能够解决从站外发起的CSRF攻击，同时解决非法盗链，站外提交等问题</p>
+</li>
+<li><p>但是Referer字段可以被修改或伪造（老版本firefox + x-forwarded for header插件）</p>
+</li>
+</ul>
+</li>
+<li><p>使用验证码：每次用户提交内容时，都要求其在表单中填写图片上的随机验证码，并且在提交表单后对齐进行检测</p>
+</li>
+<li><p>使用请求令牌Token：在HTTP请求中以参数的形式加如一个随机产生的请求令牌，并在服务器端对其进行验证。<strong>如果请求中没有Token或者Token的内容不正确，则认为可能是CSRF攻击而拒绝该请求</strong>。</p>
+</li>
+</ul>
+<h1 id="SSRF（Server-Side-Request-Forgery）"><a href="#SSRF（Server-Side-Request-Forgery）" class="headerlink" title="SSRF（Server-Side Request Forgery）"></a>SSRF（Server-Side Request Forgery）</h1><p>服务器端请求伪造：是一个由攻击者构造请求，在目标服务端执行的一个安全漏洞。攻击者可以利用该漏洞<strong>使服务器端向攻击者构造的任意域发出请求，目标通常是从外网无法访问的内部系统</strong>。简单来说就是利用服务器漏洞以服务器的身份发送一条构造好的请求给服务器所在内网进行攻击。</p>
+<p>服务端请求伪造：服务器通常会获取其他服务器的资源（能够对外发起网络请求的地方），攻击者利用服务器的身份获取内网的相关资源等。</p>
+<p>漏洞危害：</p>
+<ol>
+<li>对外网、服务器所在内网、本地进行端口扫描</li>
+<li>向内部任意主机的任意端口发送payload来攻击内网服务</li>
+<li>DOS攻击（请求大文件，始终保持连接Keep-Alive Always）</li>
+<li>攻击内网的web应用，如直接SQL注入、XSS攻击等</li>
+<li>利用file、gopher、dict协议读取本地文件、执行命令等</li>
+<li>可以无视网站CDN</li>
+</ol>
+<p>防御：</p>
+<ol>
+<li>禁止跳转</li>
+<li>禁用除http和https外的协议，如：file:&#x2F;&#x2F;、gopher:&#x2F;&#x2F;、dict:&#x2F;&#x2F;等。</li>
+<li>限制请求的端口为http常用的端口，如 80、443、8080。</li>
+<li>统一错误信息，避免用户可以根据错误信息来判断远程服务器的端口状态。</li>
+<li>对请求地址设置白名单或者限制内网IP，以防止对内网进行攻击。</li>
+</ol>
+<h1 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h1><p>原理：</p>
+<ul>
+<li>由于文件上传功能实现代码没有严格限制用户上传的<strong>文件后缀以及文件类型</strong>，导致允许攻击者向某个可通过 Web 访问的目录上传任意PHP文件，并能够将这些文件传递给 PHP 解释器，就可以在远程服务器上执行任意PHP脚本。</li>
+</ul>
+<p>防御：（思路：不能上传、或者上传了之后通过web访问不到）</p>
+<ol>
+<li>检查文件上传路径</li>
+<li>文件扩展名</li>
+<li>文件MIME检测</li>
+<li>文件重命名</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" rel="tag"># 渗透测试</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/08/16/%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/" rel="prev" title="汇编基础">
+                  <i class="fa fa-chevron-left"></i> 汇编基础
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
