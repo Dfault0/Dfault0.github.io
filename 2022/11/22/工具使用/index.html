@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="IDA调试APK 普通调试   将android_server push到手机上：#adb push android_server &#x2F;data&#x2F;local&#x2F;tmp&#x2F; 修改android_server权限：# chmod a+x android_server 启动android_server：#.&#x2F;android_server -p port 转发端口号：#adb forward tcp:23946">
+<meta property="og:type" content="article">
+<meta property="og:title" content="工具使用">
+<meta property="og:url" content="http://dfault0.github.io/2022/11/22/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="IDA调试APK 普通调试   将android_server push到手机上：#adb push android_server &#x2F;data&#x2F;local&#x2F;tmp&#x2F; 修改android_server权限：# chmod a+x android_server 启动android_server：#.&#x2F;android_server -p port 转发端口号：#adb forward tcp:23946">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-11-22T10:52:17.000Z">
+<meta property="article:modified_time" content="2023-06-26T07:56:39.452Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="Tools">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/11/22/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/11/22/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/","path":"2022/11/22/工具使用/","title":"工具使用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>工具使用 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#IDA%E8%B0%83%E8%AF%95APK"><span class="nav-number">1.</span> <span class="nav-text">IDA调试APK</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AS%E8%B0%83%E8%AF%95apk"><span class="nav-number">2.</span> <span class="nav-text">AS调试apk</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#frida%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">frida使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#objection%E4%BD%BF%E7%94%A8%EF%BC%9A"><span class="nav-number">4.</span> <span class="nav-text">objection使用：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#xposed-%E4%BD%BF%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">xposed 使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux"><span class="nav-number">6.</span> <span class="nav-text">Linux</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#vim"><span class="nav-number">6.1.</span> <span class="nav-text">vim</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%96%87%E4%BB%B6"><span class="nav-number">6.2.</span> <span class="nav-text">查看文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux%E5%AE%9E%E7%94%A8%E5%B0%8F%E5%B7%A5%E5%85%B7"><span class="nav-number">6.3.</span> <span class="nav-text">linux实用小工具</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#others"><span class="nav-number">7.</span> <span class="nav-text">others</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AS-build"><span class="nav-number">7.1.</span> <span class="nav-text">AS build</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E7%94%9F%E6%88%90dex%E6%96%87%E4%BB%B6"><span class="nav-number">7.2.</span> <span class="nav-text">使用工具生成dex文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#adb"><span class="nav-number">7.3.</span> <span class="nav-text">adb</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ida-tips"><span class="nav-number">7.4.</span> <span class="nav-text">ida tips</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux-errer"><span class="nav-number">7.5.</span> <span class="nav-text">linux errer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#apktool"><span class="nav-number">7.6.</span> <span class="nav-text">apktool</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/11/22/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="工具使用 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          工具使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-11-22 18:52:17" itemprop="dateCreated datePublished" datetime="2022-11-22T18:52:17+08:00">2022-11-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-06-26 15:56:39" itemprop="dateModified" datetime="2023-06-26T15:56:39+08:00">2023-06-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Tools/" itemprop="url" rel="index"><span itemprop="name">Tools</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="IDA调试APK"><a href="#IDA调试APK" class="headerlink" title="IDA调试APK"></a>IDA调试APK</h1><blockquote>
+<p>普通调试</p>
+</blockquote>
+<ol>
+<li>将android_server push到手机上：<code>#adb push android_server /data/local/tmp/</code></li>
+<li>修改android_server权限：<code># chmod a+x android_server</code></li>
+<li>启动android_server：<code>#./android_server -p port</code></li>
+<li>转发端口号：<code>#adb forward tcp:23946 tcp:23946</code> </li>
+<li>设置调试选项:debugger-remote-&gt;debug -&gt;host：127.0.0.1 port:23946</li>
+<li>附加到进程</li>
+</ol>
+<span id="more"></span>
+
+<blockquote>
+<p>ida trace:主要思想，利用frida主动调用，利用IDA拦截调试</p>
+</blockquote>
+<ol>
+<li>需要去掉Frida的注入：setImmediate(main)，然后使用Frida连接到应用程序（写好主动调用的函数）</li>
+<li>使用IDA debug 加载应用程序，</li>
+<li>File-&gt;Script file-&gt;附件python脚本文件（脚本文件里面写好命令，断点之类）</li>
+<li>使用Frida主动调用关键函数</li>
+<li>运行IDA，就会停在断点处，然后挂起其他线程（防止其他线程里面有反调试）</li>
+<li>ida-&gt;debugger-&gt;tracing-&gt;tacing options-&gt;设置记录文件以及取消勾选“tarce over debugger sedments”</li>
+<li>-&gt;instrucing tracing 开始tarce</li>
+<li>得到trace的结果之后，需要结合frida的函数返回结果（结果可能在参数中），从结果分析具体的算法，主要是看寄存器的值，再写算法还原，在还原过程中需要多测试不同的参数，需要保证基本都正确才能说明算法还原正确，注意在调试过程中，需要根据条件来动态调试</li>
+<li>在分析trace日志的过程中，使用010editor打开文件进行分析，方便</li>
+</ol>
+<h1 id="AS调试apk"><a href="#AS调试apk" class="headerlink" title="AS调试apk"></a>AS调试apk</h1><ol>
+<li><p>确保手机的ro.debugger是开启的，如果没有开启则将其设置为1：</p>
+<ul>
+<li>使用magisk刷入MagiskHide</li>
+<li>adb shell props: 根据提示修改或者添加 <a target="_blank" rel="noopener" href="https://github.com/Magisk-Modules-Repo/MagiskHide-Props-Config/blob/master/README.md#changeset-custom-prop-values">“Add&#x2F;edit custom props”</a></li>
+<li>添加的属性包括：<code>ro.debuggable=1   ro.secure=0</code></li>
+</ul>
+</li>
+<li><p>AS直接导入apk：profile or debug apk</p>
+</li>
+<li><p>启动指定acticity(如下) or 启动app</p>
+<ul>
+<li><p>adb shell </p>
+</li>
+<li><p>am start -D -n com.csd.newyunketang&#x2F;.view.myLessons.activity.LocalVideoDetailActivity</p>
+</li>
+</ul>
+</li>
+<li><p>需要设置端口转发：</p>
+<ul>
+<li>adb shell ps | findstr com.csd</li>
+<li>adb forward tcp:8900 jdwp:7456 （pid）</li>
+<li>这个8900端口需要在vs中用到</li>
+</ul>
+</li>
+<li><p>AS设置断点，注意普通的smali support支持断点，所以需要下载新的<a target="_blank" rel="noopener" href="https://bitbucket.org/JesusFreke/smalidea/downloads/">smalidea</a>插件，并且需要修改相关的设置</p>
+<ul>
+<li>重启AS，依次点击<code>File</code> -&gt; <code>Settting</code> -&gt;<code>Editor</code> -&gt; <code>File Types</code></li>
+<li>有两个smali名字的插件，一个是<code>smali support</code> ，一个是刚安装的<code>smalidea</code></li>
+<li>将其原本的smali support支持的*.smali换到smalidea中</li>
+<li>设置断点</li>
+</ul>
+</li>
+<li><p>AS设置Remote JVM debug</p>
+</li>
+<li><p>attach remote android process:</p>
+<ul>
+<li>为了防止退出，所以需要debug type : java only</li>
+</ul>
+</li>
+</ol>
+<h1 id="frida使用"><a href="#frida使用" class="headerlink" title="frida使用"></a>frida使用</h1><p>frida 启动方式：</p>
+<blockquote>
+<p>spawn : frida -U –no-pause -f  com.csd.newyunketang -l hookopen.js   –runtime&#x3D;v8</p>
+<p>spawn : frida -H 192.168.3.131:8888 -f com.example.demoso1 -l hookLinker.js  –no-pause</p>
+<p>attach : frida -U –runtime&#x3D;v8 appName  -l hookopen.js   </p>
+<p>appname:frida-ps -U 自己找</p>
+<p>attach : frida -UF –runtime&#x3D;v8   -l hookopen.js  </p>
+</blockquote>
+<p><strong>objetc.$className</strong>：object签名</p>
+<p>打印指针的内容：<code>ptr(offset_addr).readCString()</code></p>
+<h1 id="objection使用："><a href="#objection使用：" class="headerlink" title="objection使用："></a>objection使用：</h1><ol>
+<li>Objection启动方式：</li>
+</ol>
+<blockquote>
+<p>objection -N -h 10.16.60.128 -p 8888 -g com.bige0.shadowsocksr  explore </p>
+<p>objection -g com.bige0.shadowsocksr  explore </p>
+</blockquote>
+<ol start="2">
+<li>objection 常用指令</li>
+</ol>
+<ul>
+<li>查看内存中加载的库：<code>memory list modules</code></li>
+<li>查看某个库的导出函数：<code>memory list exports libssl.so</code></li>
+<li>在内存堆中搜索：android heap search instances com.android.settings.DisplaySettings</li>
+<li>执行：android heap execute handleID handleID中的某个函数名</li>
+<li>查看当前可用activity：android hooking list activities</li>
+<li>直接启动某个activity：android intent launch_activity com.android.settings.DisplaySettings。这个可以用来绕过某些activity</li>
+<li>查看包含关键字的类： android hooking list classes</li>
+<li>查看指定类里面的方法：android hooking list class_methods com.android.settings.DisplaySettings</li>
+<li>查看某个类的动态信息：android  hooking  watch class android.bluetooth.BluetoothDevice</li>
+<li>在找到相关的某些信息之后，堆设备进行相关的操作会得到打印出一些有用的信息</li>
+<li>动态查看某个类下面的某个函数的参数，返回值，调用栈：android hooking watch class_method android.bluetooth.BluetoothDevice.getName –dump-args –dump-return –dump-backtrace</li>
+<li>在hook单个函数的时候会HOOK所有的重载（函数名相同，参数不同）：android hooking watch class_method java.io.File.$init –dump-args</li>
+<li>加载插件：有两种方式，一种是在objection里面：plugin load 插件的具体位置；另一种是直接在使用objection的时候就加载插件：objection -N -h 192.168.3.131 -p 5555 -g com.android.settings explore -P ~&#x2F;.objection&#x2F;plugins</li>
+<li>加载插件wallbreaker ,查看某个类中的变量函数签名等信息：<ul>
+<li>plugin wallbreaker classdump –fullname android.bluetooth.BluetoothDevice</li>
+</ul>
+</li>
+</ul>
+<h1 id="xposed-使用"><a href="#xposed-使用" class="headerlink" title="xposed 使用"></a>xposed 使用</h1><p>基本步骤：</p>
+<ol>
+<li><p>copy XposedBridgeApi.jar到项目得libs目录，在app下面得build.gradle中添加依赖</p>
+<p><code>compileOnly files(&#39;libs/XposedBridgeApi-54.jar&#39;)</code></p>
+</li>
+<li><p>修改app目录下的build.gradle，并在AndroidManifest.xml文件中增加Xposed相关内容</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">&quot;xposedmodule&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">android:value</span>=<span class="string">&quot;true&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">&quot;xposeddescription&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">android:value</span>=<span class="string">&quot;插件描述信息&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">&quot;xposedminversion&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">android:value</span>=<span class="string">&quot;54&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>新建Hook类，编写hook代码 必须是public得</p>
+</li>
+<li><p><strong>在project模式下得main目录下新建assets文件夹</strong>，然后再assets目录下新建文件xposed_init，在里面写上hook类得完整路径，比如：com.example.xposed01.hookConstructors，否则会找不到</p>
+</li>
+</ol>
+<h1 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h1><h2 id="vim"><a href="#vim" class="headerlink" title="vim"></a>vim</h2><p>三种模式：普通模式、插入模式、命令模式</p>
+<ol>
+<li>普通模式-&gt;插入模式：<ul>
+<li>i 光标不动，在原光标的前面插入数据</li>
+<li>a光标后移一位，在光标后面插入数据</li>
+<li>I在本行的开始位置插入数据</li>
+<li>A在本行的结束位置处插入数据</li>
+<li>o 在本行下面创建一个空行</li>
+<li>O 在本行的上一行创建一个空行</li>
+</ul>
+</li>
+<li>普通模式下的命令较多<ul>
+<li>dd删除当前行</li>
+</ul>
+</li>
+<li>命令模式下的命令：<ul>
+<li>wq 保存并退出文件</li>
+<li>q 退出文件</li>
+<li>q! 强制退出</li>
+</ul>
+</li>
+</ol>
+<h2 id="查看文件"><a href="#查看文件" class="headerlink" title="查看文件"></a>查看文件</h2><ol>
+<li>cat [-n -b ] filename </li>
+<li>tac 倒叙查看文件内容 （从最后一行开始）</li>
+<li>head [-n] filename直接查看,默认前10行</li>
+<li>tail [-n] filename 倒叙查看，默认前10行</li>
+<li>more filename 文件过大，分页显示内容，空格建翻页</li>
+<li>wc 文件名 统计一个文件中各种数据的数量计算文件的byte 数，字数，列数等</li>
+</ol>
+<h2 id="linux实用小工具"><a href="#linux实用小工具" class="headerlink" title="linux实用小工具"></a>linux实用小工具</h2><ul>
+<li>htop：可以查看当前活跃的、占用高的进程</li>
+<li>jnettop：流量查看工具，可以查看下载和安装进度</li>
+</ul>
+<h1 id="others"><a href="#others" class="headerlink" title="others"></a>others</h1><h2 id="AS-build"><a href="#AS-build" class="headerlink" title="AS build"></a>AS build</h2><p>设置仓库</p>
+<blockquote>
+<p>repositories {<br>    maven { url “<a target="_blank" rel="noopener" href="https://maven.aliyun.com/repository/public&quot;">https://maven.aliyun.com/repository/public&quot;</a> }<br>    maven { url “<a target="_blank" rel="noopener" href="https://repo.huaweicloud.com/repository/maven&quot;">https://repo.huaweicloud.com/repository/maven&quot;</a> }<br>    mavenLocal()<br>    mavenCentral()<br>}</p>
+</blockquote>
+<h2 id="使用工具生成dex文件"><a href="#使用工具生成dex文件" class="headerlink" title="使用工具生成dex文件"></a>使用工具生成dex文件</h2><p>自己制作dex文件，方便再同样的Java环境下，对一些数据进行解码等操作</p>
+<ol>
+<li><p>使用AS编写Java文件，build,在app\build\intermediates\javac\debug\classes\下找到相关的class文件</p>
+</li>
+<li><p>D:\Android\Sdk\build-tools\29.0.3&gt;d8 target.class</p>
+</li>
+<li><p>adb push classes.dex &#x2F;data&#x2F;loal&#x2F;tmp&#x2F;</p>
+</li>
+<li><p>chmod 777  &#x2F;data&#x2F;local&#x2F;tmp&#x2F;classes.dex</p>
+</li>
+</ol>
+<p>使用js调用dex文件并使用</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">openClassFile</span>(<span class="string">&quot;/data/local/tmp/classes.dex&quot;</span>).<span class="title function_">load</span>();</span><br><span class="line">        <span class="keyword">const</span> reverse = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;类的签名&#x27;</span>)</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;method1:&quot;</span>,reverse.<span class="title function_">method1</span>())</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;method2:&#x27;</span>,reverse.<span class="title function_">method2</span>())</span><br><span class="line">)&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="adb"><a href="#adb" class="headerlink" title="adb"></a><strong>adb</strong></h2><ol>
+<li><p>使用adb 输入字符串到edittext</p>
+<ul>
+<li><p>adb shell</p>
+</li>
+<li><p>input text “text “</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="ida-tips"><a href="#ida-tips" class="headerlink" title="ida tips"></a>ida tips</h2><ul>
+<li>如果函数本来是有参数的是，但是ida没有识别出来：<strong>直接按Y即可</strong></li>
+<li>如果是jni函数，则第一第二个参数固定：<code>JNIEnv *env, jobject thiz</code></li>
+<li>ctrl + F11然后右键，加入新的库之后（不需要加入头文件），就可以修改了</li>
+<li>如果函数没有识别出相关的参数，那么直接右键 force call type或者”Y”，修改函数声明即可</li>
+</ul>
+<h2 id="linux-errer"><a href="#linux-errer" class="headerlink" title="linux errer"></a>linux errer</h2><ol>
+<li><p>curl connection refused:修改DNS，注意这个可能不是修改一次就管作用得，需要及时确认：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/resolv.conf</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">add the dns server</span></span><br><span class="line">nameserver 8.8.8.8</span><br><span class="line">nameserver 114.114.114.114</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>git clone error : <code>git config --global http://10.16.42.229:1080</code></p>
+</li>
+</ol>
+<h2 id="apktool"><a href="#apktool" class="headerlink" title="apktool"></a>apktool</h2><ol>
+<li>在使用Android killer的时候选择反编译的app的时候需要自己更新一下apktool</li>
+<li>如果出现了修改代码之后不能反编译回app的话，需要使用到apktool</li>
+<li>反编译：<code>java -jar d:\tools\android\apktool_2.7.0.jar d com.csd.newyunketang.apk -o outdir</code></li>
+<li>回编译：<code>java -jar d:\tools\android\apktool_2.7.0.jar b outdir -o out.apk --use-aapt2</code></li>
+<li>签名：keystore</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Tools/" rel="tag"># Tools</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/11/21/reverse-bumblebee/" rel="prev" title="reverse-bumblebee">
+                  <i class="fa fa-chevron-left"></i> reverse-bumblebee
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/12/03/firda-%E8%BF%9B%E9%98%B6/" rel="next" title="firda-进阶">
+                  firda-进阶 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="frida写入文件通过使用frida来进行文件读写，可以直接修改文件。 12345678910111213141516171819202122232425262728function write_data() &amp;#123;    &#x2F;&#x2F;frida 的api来写文件    var file &#x3D; new File(&quot;&#x2F;sdcard&#x2F;reg.dat&quot;, &quot;w&quot;);">
+<meta property="og:type" content="article">
+<meta property="og:title" content="firda-进阶">
+<meta property="og:url" content="http://dfault0.github.io/2022/12/03/firda-%E8%BF%9B%E9%98%B6/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="frida写入文件通过使用frida来进行文件读写，可以直接修改文件。 12345678910111213141516171819202122232425262728function write_data() &amp;#123;    &#x2F;&#x2F;frida 的api来写文件    var file &#x3D; new File(&quot;&#x2F;sdcard&#x2F;reg.dat&quot;, &quot;w&quot;);">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-12-03T08:41:41.000Z">
+<meta property="article:modified_time" content="2023-06-26T07:56:35.528Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="Android安全">
+<meta property="article:tag" content="HOOK &amp; 注入">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/12/03/firda-%E8%BF%9B%E9%98%B6/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/12/03/firda-%E8%BF%9B%E9%98%B6/","path":"2022/12/03/firda-进阶/","title":"firda-进阶"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>firda-进阶 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#frida%E5%86%99%E5%85%A5%E6%96%87%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">frida写入文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#frida-hook%E7%89%B9%E5%AE%9A%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">frida hook特定函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#firda-%E4%B8%BB%E5%8A%A8%E8%B0%83%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">firda 主动调用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%B7%E6%B7%86"><span class="nav-number">3.1.</span> <span class="nav-text">混淆</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/12/03/firda-%E8%BF%9B%E9%98%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="firda-进阶 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          firda-进阶
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-12-03 16:41:41" itemprop="dateCreated datePublished" datetime="2022-12-03T16:41:41+08:00">2022-12-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-06-26 15:56:35" itemprop="dateModified" datetime="2023-06-26T15:56:35+08:00">2023-06-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/HOOK-%E6%B3%A8%E5%85%A5/" itemprop="url" rel="index"><span itemprop="name">HOOK & 注入</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="frida写入文件"><a href="#frida写入文件" class="headerlink" title="frida写入文件"></a>frida写入文件</h1><p>通过使用frida来进行文件读写，可以直接修改文件。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">write_data</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">//frida 的api来写文件</span></span><br><span class="line">    <span class="keyword">var</span> file = <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;/sdcard/reg.dat&quot;</span>, <span class="string">&quot;w&quot;</span>);</span><br><span class="line">    file.<span class="title function_">write</span>(<span class="string">&quot;EoPAoY62@ElRD&quot;</span>);</span><br><span class="line">    file.<span class="title function_">flush</span>();</span><br><span class="line">    file.<span class="title function_">close</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">write_dat2a</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">//把C函数定义为NativeFunction来写文件</span></span><br><span class="line">    <span class="keyword">var</span> addr_fopen = <span class="title class_">Module</span>.<span class="title function_">findExportByName</span>(<span class="string">&quot;libc.so&quot;</span>, <span class="string">&quot;fopen&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> addr_fputs = <span class="title class_">Module</span>.<span class="title function_">findExportByName</span>(<span class="string">&quot;libc.so&quot;</span>, <span class="string">&quot;fputs&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> addr_fclose = <span class="title class_">Module</span>.<span class="title function_">findExportByName</span>(<span class="string">&quot;libc.so&quot;</span>, <span class="string">&quot;fclose&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;addr_fopen:&quot;</span>, addr_fopen, <span class="string">&quot;addr_fputs:&quot;</span>, addr_fputs, <span class="string">&quot;addr_fclose:&quot;</span>, addr_fclose);</span><br><span class="line">    <span class="keyword">var</span> fopen = <span class="keyword">new</span> <span class="title class_">NativeFunction</span>(addr_fopen, <span class="string">&quot;pointer&quot;</span>, [<span class="string">&quot;pointer&quot;</span>, <span class="string">&quot;pointer&quot;</span>]);</span><br><span class="line">    <span class="keyword">var</span> fputs = <span class="keyword">new</span> <span class="title class_">NativeFunction</span>(addr_fputs, <span class="string">&quot;int&quot;</span>, [<span class="string">&quot;pointer&quot;</span>, <span class="string">&quot;pointer&quot;</span>]);</span><br><span class="line">    <span class="keyword">var</span> fclose = <span class="keyword">new</span> <span class="title class_">NativeFunction</span>(addr_fclose, <span class="string">&quot;int&quot;</span>, [<span class="string">&quot;pointer&quot;</span>]);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> filename = <span class="title class_">Memory</span>.<span class="title function_">allocUtf8String</span>(<span class="string">&quot;/sdcard/reg.dat&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> open_mode = <span class="title class_">Memory</span>.<span class="title function_">allocUtf8String</span>(<span class="string">&quot;w+&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> file = <span class="title function_">fopen</span>(filename, open_mode);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;fopen file:&quot;</span>, file);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> buffer = <span class="title class_">Memory</span>.<span class="title function_">allocUtf8String</span>(<span class="string">&quot;EoPAoY62@ElRD&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> ret = <span class="title function_">fputs</span>(buffer, file);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;fputs ret:&quot;</span>, ret);</span><br><span class="line">    <span class="title function_">fclose</span>(file);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="frida-hook特定函数"><a href="#frida-hook特定函数" class="headerlink" title="frida hook特定函数"></a>frida hook特定函数</h1><blockquote>
+<p>或者说直接inline hook的特定地址处，获取寄存机的值也是一样的用法</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">hook_native_addr</span>(<span class="params">base_addr,offset,par_size</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(base_addr)&#123;</span><br><span class="line">        <span class="keyword">var</span> func_addr = base_addr.<span class="title function_">add</span>(offset)</span><br><span class="line">        <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(func_addr,&#123;</span><br><span class="line">            <span class="attr">onEnter</span>:<span class="keyword">function</span>(<span class="params">args</span>)&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;par_size;i++) &#123;</span><br><span class="line">                    <span class="keyword">var</span> temp = <span class="string">&quot;arg&quot;</span>+i</span><br><span class="line">                    <span class="variable language_">this</span>.<span class="property">temp</span> = args[i]</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;offset: 0x&quot;</span>+offset+<span class="string">&quot; onEnter &quot;</span>+temp+<span class="string">&quot;:&quot;</span>,<span class="title function_">hexdump</span>(args[i]))</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,<span class="attr">onLeave</span>:<span class="keyword">function</span>(<span class="params">retval</span>)&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;par_size;i++) &#123;</span><br><span class="line">                    <span class="keyword">var</span> temp = <span class="string">&quot;arg&quot;</span>+i</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;offset: 0x&quot;</span>+offset+<span class="string">&quot; onLeave &quot;</span>+temp+<span class="string">&quot;:&quot;</span>,<span class="title function_">hexdump</span>(<span class="variable language_">this</span>.<span class="property">temp</span>))</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;offset: 0x&quot;</span>+offset+<span class="string">&quot; onLeave retval: &quot;</span>,<span class="title function_">hexdump</span>(retval))</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;base_addr is null!&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="firda-主动调用"><a href="#firda-主动调用" class="headerlink" title="firda 主动调用"></a>firda 主动调用</h1><blockquote>
+<p>主动调用的目的在于使得触发简单，以及固定参数</p>
+</blockquote>
+<ol>
+<li><p>frida主动调用Java函数：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">call_sign1</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="comment">//非静态函数需要获取实例</span></span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">        <span class="title class_">Java</span>.<span class="title function_">choose</span>(<span class="string">&quot;com.example.hellojni.HelloJni&quot;</span>,&#123;</span><br><span class="line">            <span class="attr">onMatch</span>:<span class="keyword">function</span>(<span class="params">instance</span>)&#123;</span><br><span class="line">                <span class="keyword">var</span> result = instance.<span class="title function_">sign1</span>(<span class="string">&quot;0123456789abcdef&quot;</span>)</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;result: &quot;</span>,result)</span><br><span class="line">            &#125;,<span class="attr">onComplete</span>:<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">    </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="comment">//静态函数则直接调用即可</span></span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.example.hellojni.HelloJni&quot;</span>).<span class="title function_">sign1</span>(<span class="string">&quot;0123456789abcdef&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>主动调用Native函数：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">call_native_aaa</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> base_addr = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="string">&quot;libxxx.so&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span>(base_addr)&#123;</span><br><span class="line">        <span class="keyword">var</span> fun_new = <span class="keyword">new</span> <span class="title class_">NativeFunction</span>(base_addr.<span class="title function_">add</span>(<span class="number">0x127E4</span>),<span class="string">&quot;int&quot;</span>,[<span class="string">&#x27;pointer&#x27;</span>,<span class="string">&#x27;pointer&#x27;</span>,<span class="string">&#x27;pointer&#x27;</span>,<span class="string">&#x27;pointer&#x27;</span>,<span class="string">&#x27;pointer&#x27;</span>,<span class="string">&#x27;pointer&#x27;</span>])</span><br><span class="line">        <span class="keyword">var</span> context = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;android.app.ActivityThread&#x27;</span>).<span class="title function_">currentApplication</span>().<span class="title function_">getApplicationContext</span>();</span><br><span class="line">        <span class="keyword">var</span> result = <span class="title function_">fun_new</span>(context,<span class="title class_">Memory</span>.<span class="title function_">allocUtf8String</span>(<span class="string">&quot;111&quot;</span>),<span class="title class_">Memory</span>.<span class="title function_">allocUtf8String</span>(<span class="string">&quot;222&quot;</span>),<span class="title class_">Memory</span>.<span class="title function_">allocUtf8String</span>(<span class="string">&quot;333&quot;</span>),<span class="title class_">Memory</span>.<span class="title function_">allocUtf8String</span>(<span class="string">&quot;444&quot;</span>),<span class="title class_">Memory</span>.<span class="title function_">allocUtf8String</span>(<span class="string">&quot;555&quot;</span>))</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;fun_new:&quot;</span>,result)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="混淆"><a href="#混淆" class="headerlink" title="混淆"></a>混淆</h2><ol>
+<li><p>如果存在ollvm混淆的话，就先去<strong>导出表</strong>里面看是否有.datadiv_decode（这个是OLLVM默认的字符串混淆函数），可以直接hook registerNative函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">typedef struct &#123;</span></span><br><span class="line"><span class="comment">    const char* name;</span></span><br><span class="line"><span class="comment">    const char* signature;</span></span><br><span class="line"><span class="comment">    void*       fnPtr;</span></span><br><span class="line"><span class="comment">&#125; JNINativeMethod;</span></span><br><span class="line"><span class="comment">jint RegisterNatives(jclass clazz, const JNINativeMethod* methods,jint nMethods)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">hookLibart</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> module_libart = <span class="title class_">Process</span>.<span class="title function_">findModuleByName</span>(<span class="string">&quot;libart.so&quot;</span>)</span><br><span class="line">    <span class="keyword">var</span> symbols = module_libart.<span class="title function_">enumerateSymbols</span>()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> addr_RegisterNatives = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; symbols.<span class="property">length</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">var</span> name = symbols[i].<span class="property">name</span></span><br><span class="line">        <span class="keyword">if</span> (name.<span class="title function_">indexOf</span>(<span class="string">&quot;art&quot;</span>) &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">//通常会出现两个函数，但是checkJNI函数不是我们所需要的，需要过滤</span></span><br><span class="line">            <span class="keyword">if</span> (name.<span class="title function_">indexOf</span>(<span class="string">&quot;CheckJNI&quot;</span>) == -<span class="number">1</span> &amp;&amp; name.<span class="title function_">indexOf</span>(<span class="string">&quot;JNI&quot;</span>) &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (name.<span class="title function_">indexOf</span>(<span class="string">&quot;RegisterNatives&quot;</span>) &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(name);</span><br><span class="line">                    addr_RegisterNatives = symbols[i].<span class="property">address</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (addr_RegisterNatives) &#123;</span><br><span class="line">        <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(addr_RegisterNatives, &#123;</span><br><span class="line">            <span class="attr">onEnter</span>: <span class="keyword">function</span> (<span class="params">args</span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;RegisterNatives size: &quot;</span>,args[<span class="number">3</span>])</span><br><span class="line">                <span class="keyword">var</span> size = args[<span class="number">3</span>]</span><br><span class="line">                <span class="keyword">var</span> method_struct_base = args[<span class="number">2</span>]</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">hexdump</span>(method_struct_base))</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>;i&lt;size;i++)&#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;RegisterNatives name:&quot;</span>, <span class="title function_">ptr</span>(method_struct_base).<span class="title function_">readPointer</span>().<span class="title function_">readCString</span>())</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;RegisterNatives sig:&quot;</span>, <span class="title function_">ptr</span>(method_struct_base).<span class="title function_">add</span>(<span class="title class_">Process</span>.<span class="property">pointerSize</span>).<span class="title function_">readPointer</span>().<span class="title function_">readCString</span>());</span><br><span class="line">                    <span class="comment">//最后一个是注册的地址，但是其实好像没啥用，因为计算出来的地址是加载到内存中的地址了</span></span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;RegisterNatives addr:&quot;</span>, <span class="title function_">ptr</span>(method_struct_base).<span class="title function_">add</span>(<span class="title class_">Process</span>.<span class="property">pointerSize</span>*<span class="number">2</span>).<span class="title function_">readPointer</span>());</span><br><span class="line">                    method_struct_base.<span class="title function_">add</span>(<span class="title class_">Process</span>.<span class="property">pointerSize</span>)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;, <span class="attr">onLeave</span>: <span class="keyword">function</span> (<span class="params">retval</span>) &#123;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果没有的话就去看看.init_array里面有没有相关的函数，然后去看函数</p>
+</li>
+<li><p>同时也可以使用inlinehook，其方法和别的hooknative方法是一样的，只是如果不是函数的话，只能打印出当前的寄存器的值。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">inline_hook</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> base_hello_jni = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="string">&quot;libhello-jni.so&quot;</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;base_hello_jni:&quot;</span>, base_hello_jni);</span><br><span class="line">    <span class="keyword">if</span> (base_hello_jni) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(base_hello_jni);</span><br><span class="line">        <span class="comment">//inline hook，</span></span><br><span class="line">        <span class="comment">//在OLLVM默认的字符串混淆中，静态的时候字符串是混淆</span></span><br><span class="line">        <span class="comment">//执行起来之后会先调用.init_array里面的函数来解密混淆之后的字符串</span></span><br><span class="line">        <span class="keyword">var</span> addr_07320 = base_hello_jni.<span class="title function_">add</span>(<span class="number">0x07320</span>);</span><br><span class="line">        <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(addr_07320, &#123;</span><br><span class="line">            <span class="attr">onEnter</span>: <span class="keyword">function</span> (<span class="params">args</span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;addr_07320 x13:&quot;</span>, <span class="variable language_">this</span>.<span class="property">context</span>.<span class="property">x13</span>);</span><br><span class="line">            &#125;, <span class="attr">onLeave</span>: <span class="keyword">function</span> (<span class="params">retval</span>) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在注入的时候可能这个相关so还没有加载起来，所以找不到函数的地址，这个时候就需要hook dlopen,等到库加载起来的时候才进行inline hook（32位不太稳定，因为指令的长度不定，64位要好一点）</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">hook_dlopen</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> dlopen = <span class="title class_">Module</span>.<span class="title function_">findExportByName</span>(<span class="literal">null</span>, <span class="string">&quot;dlopen&quot;</span>);</span><br><span class="line">    <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(dlopen, &#123;</span><br><span class="line">        <span class="attr">onEnter</span>: <span class="keyword">function</span> (<span class="params">args</span>) &#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">call_hook</span> = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">var</span> so_name = <span class="title function_">ptr</span>(args[<span class="number">0</span>]).<span class="title function_">readCString</span>();</span><br><span class="line">            <span class="keyword">if</span> (so_name.<span class="title function_">indexOf</span>(<span class="string">&quot;libhello-jni.so&quot;</span>) &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;dlopen:&quot;</span>, <span class="title function_">ptr</span>(args[<span class="number">0</span>]).<span class="title function_">readCString</span>());</span><br><span class="line">                <span class="variable language_">this</span>.<span class="property">call_hook</span> = <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="attr">onLeave</span>: <span class="keyword">function</span> (<span class="params">retval</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">call_hook</span>) &#123;</span><br><span class="line">                <span class="title function_">inline_hook</span>();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">// 高版本Android系统使用android_dlopen_ext，6.0以上</span></span><br><span class="line">    <span class="keyword">var</span> android_dlopen_ext = <span class="title class_">Module</span>.<span class="title function_">findExportByName</span>(<span class="literal">null</span>, <span class="string">&quot;android_dlopen_ext&quot;</span>);</span><br><span class="line">    <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(android_dlopen_ext, &#123;</span><br><span class="line">        <span class="attr">onEnter</span>: <span class="keyword">function</span> (<span class="params">args</span>) &#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">call_hook</span> = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">var</span> so_name = <span class="title function_">ptr</span>(args[<span class="number">0</span>]).<span class="title function_">readCString</span>();</span><br><span class="line">            <span class="keyword">if</span> (so_name.<span class="title function_">indexOf</span>(<span class="string">&quot;libhello-jni.so&quot;</span>) &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;android_dlopen_ext:&quot;</span>, <span class="title function_">ptr</span>(args[<span class="number">0</span>]).<span class="title function_">readCString</span>());</span><br><span class="line">                <span class="variable language_">this</span>.<span class="property">call_hook</span> = <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="attr">onLeave</span>: <span class="keyword">function</span> (<span class="params">retval</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">call_hook</span>) &#123;</span><br><span class="line">                <span class="title function_">inline_hook</span>();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>有些使用需要使用主动调用：为了固定住参数，在多次进行运行分析的时候会减轻工作量，同时可以在进行主动调用的时候需要多次执行，因为这样可以看出每一次的运行结果是否一致。</p>
+</li>
+<li><p>在控制流平坦化中，直接看代码是无意义的，可以只用看与关键参数相关的代码，X交叉引用，参数个数识别失败的，可以使用Y，直接修改函数的类型，一般是可以自动识别出来</p>
+</li>
+<li><p><font color = 'red'>看后面的参数是否继续用到了这个参数，如果后面没有用到这个参数就不看</font></p>
+</li>
+<li><p>在hook的时候，首先使用hexdump来打印出内容，然后再根据具体的内容判断数据类型，最后根据类型来打印具体的值，如果猜不到具体的值是什么的话，就先跳过，后面再看</p>
+</li>
+<li><p>在hook的时候如果，参数和返回值都没有变化的话，就说明这个函数没啥用，只是为了干扰，可以直接跳过</p>
+</li>
+<li><p>如果在分析一个函数的时候如果常量值较多的话，可以直接谷歌搜索该常量，就可以发现是否是一个特定的算法的常量值，进而推断出，该算法的主要目的</p>
+</li>
+<li><p>可以从输入分析，也可以从输出分析</p>
+</li>
+<li><p>在虚假控制流中的导出函数中，有很多x和y</p>
+</li>
+<li><p>注意在ARM64中，如果函数的返回值的内容大于16个字节，那么将使用X8来存储返回值的地址，所以Frida的返回值是没有生效的，需要自己直接获取X8的内容</p>
+</li>
+<li><p>std：string的结构：buffer长度+字符串实际长度+地址，可使用下面命令来得到结果</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">ptr</span>(<span class="variable language_">this</span>.<span class="property">arg0</span>).<span class="title function_">add</span>(<span class="title class_">Process</span>.<span class="property">pointerSize</span>*<span class="number">2</span>).<span class="title function_">readCString</span>()</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android%E5%AE%89%E5%85%A8/" rel="tag"># Android安全</a>
+              <a href="/tags/HOOK-%E6%B3%A8%E5%85%A5/" rel="tag"># HOOK & 注入</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/11/22/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="prev" title="工具使用">
+                  <i class="fa fa-chevron-left"></i> 工具使用
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/01/08/ghidra-book-notes/" rel="next" title="ghidra_book_notes">
+                  ghidra_book_notes <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

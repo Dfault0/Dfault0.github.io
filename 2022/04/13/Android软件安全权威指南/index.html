@@ -31,7 +31,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220413185509.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/Dfault0/images/main/20220414154101.png">
 <meta property="article:published_time" content="2022-04-13T09:15:46.000Z">
-<meta property="article:modified_time" content="2022-06-10T02:34:35.815Z">
+<meta property="article:modified_time" content="2023-06-26T07:56:35.373Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="Android安全">
 <meta name="twitter:card" content="summary">
@@ -128,7 +128,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%86%E5%90%91%E4%B8%80%E4%B8%AAapp%E7%9A%84%E5%B8%B8%E8%A7%84%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.</span> <span class="nav-text">逆向一个app的常规步骤</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dex%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">dex文件结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Dalvik"><span class="nav-number">3.</span> <span class="nav-text">Dalvik</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#dex2jar%E4%BD%BF%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">dex2jar使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IDA%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95APK"><span class="nav-number">4.</span> <span class="nav-text">IDA动态调试APK</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">5.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%86%E5%90%91%E4%B8%80%E4%B8%AAapp%E7%9A%84%E5%B8%B8%E8%A7%84%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.</span> <span class="nav-text">逆向一个app的常规步骤</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dex%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">dex文件结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Dalvik"><span class="nav-number">3.</span> <span class="nav-text">Dalvik</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#dex2jar%E4%BD%BF%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">dex2jar使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -141,18 +141,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">32</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">27</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -227,7 +227,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-06-10 10:34:35" itemprop="dateModified" datetime="2022-06-10T10:34:35+08:00">2022-06-10</time>
+      <time title="Modified: 2023-06-26 15:56:35" itemprop="dateModified" datetime="2023-06-26T15:56:35+08:00">2023-06-26</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -412,16 +412,6 @@
 <li>将测试的安装包xxx.apk后缀改为.zip，解压后拷贝<code>classes.dex</code>文件到dex2jar文件目录下，cmd进入改目录，执行<code>d2j-dex2jar.bat classes.dex</code>命令，会生成classes-dex2jar.jar文件；</li>
 <li>打开jd-gui工具，然后将生成的classes-dex2jar.jar文件拖进去，即可看见反编译的文件</li>
 </ul>
-<h1 id="IDA动态调试APK"><a href="#IDA动态调试APK" class="headerlink" title="IDA动态调试APK"></a>IDA动态调试APK</h1><ol>
-<li>使用adb连接模拟器 ：adb connect 127.0.0.1:5555</li>
-<li>将ida IDA下面的dbgsrv这个路径中的 android_server adb push 到手机中的 &#x2F;data&#x2F;local&#x2F;tmp目录下 并且运行起来</li>
-</ol>
-<ul>
-<li>adb -s 127.0.0.1:5555 push android_server &#x2F;data&#x2F;local&#x2F;tmp</li>
-</ul>
-<ol start="3">
-<li>将apk载入ida，然后选中classes.dex文件，并设置调试的入口等</li>
-</ol>
 <h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ol>
 <li><p>Android安全面经：<a target="_blank" rel="noopener" href="https://blog.xhyeax.com/2021/12/01/2022-autumn-mobile-security-interview-experience/">https://blog.xhyeax.com/2021/12/01/2022-autumn-mobile-security-interview-experience/</a></p>
 </li>
@@ -474,7 +464,7 @@
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

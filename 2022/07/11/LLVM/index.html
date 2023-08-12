@@ -20,15 +20,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="LLVM参考链接llvm: https:&#x2F;&#x2F;llvm.org&#x2F; ndk: https:&#x2F;&#x2F;developer.android.com&#x2F;ndk&#x2F;downloads#r24-downloads">
+    <meta name="description" content="编译llvm14编译过程 在下载llvm源码的时候需要根据NDK的版本来选择:  android-ndk-r25b&#x2F;toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-x86_64&#x2F;bin clang –version  -&gt;14.0.6    克隆llvm  使用Clion编译：  为了使得clion可以直接用，并且节约空间，建议">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LLVM">
 <meta property="og:url" content="http://dfault0.github.io/2022/07/11/LLVM/index.html">
 <meta property="og:site_name" content="Dfault0&#39;s blog">
-<meta property="og:description" content="LLVM参考链接llvm: https:&#x2F;&#x2F;llvm.org&#x2F; ndk: https:&#x2F;&#x2F;developer.android.com&#x2F;ndk&#x2F;downloads#r24-downloads">
+<meta property="og:description" content="编译llvm14编译过程 在下载llvm源码的时候需要根据NDK的版本来选择:  android-ndk-r25b&#x2F;toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-x86_64&#x2F;bin clang –version  -&gt;14.0.6    克隆llvm  使用Clion编译：  为了使得clion可以直接用，并且节约空间，建议">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-07-11T03:04:47.000Z">
-<meta property="article:modified_time" content="2022-07-11T04:30:53.668Z">
+<meta property="article:modified_time" content="2023-06-26T07:56:36.851Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="LLVM">
 <meta name="twitter:card" content="summary">
@@ -124,7 +124,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#LLVM"><span class="nav-number">1.</span> <span class="nav-text">LLVM</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">2.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91llvm14"><span class="nav-number">1.</span> <span class="nav-text">编译llvm14</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">编译过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%87%BA%E9%94%99"><span class="nav-number">1.2.</span> <span class="nav-text">编译出错</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E8%80%97%E5%B0%BD"><span class="nav-number">1.2.1.</span> <span class="nav-text">空间耗尽</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BA%E7%8E%B0bug"><span class="nav-number">1.2.2.</span> <span class="nav-text">出现bug</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8llvm"><span class="nav-number">2.</span> <span class="nav-text">使用llvm</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#write-pass"><span class="nav-number">3.</span> <span class="nav-text">write pass</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%86%85%E7%BC%96%E5%86%99pass"><span class="nav-number">3.1.</span> <span class="nav-text">源码内编写pass</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%A4%96%E7%BC%96%E5%86%99pass"><span class="nav-number">3.2.</span> <span class="nav-text">源码外编写pass</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%A9%E5%B1%95%E5%88%B0llvm%EF%BC%9A"><span class="nav-number">3.3.</span> <span class="nav-text">扩展到llvm：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E5%86%99PASS-llvm12%E4%BB%A5%E4%B8%8B"><span class="nav-number">3.3.1.</span> <span class="nav-text">编写PASS llvm12以下</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E5%86%99PASS-llvm12%E4%BB%A5%E4%B8%8A"><span class="nav-number">3.3.2.</span> <span class="nav-text">编写PASS llvm12以上</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8pass"><span class="nav-number">3.4.</span> <span class="nav-text">使用pass</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -137,18 +137,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">32</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">27</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -215,9 +215,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-07-11 11:04:47 / Modified: 12:30:53" itemprop="dateCreated datePublished" datetime="2022-07-11T11:04:47+08:00">2022-07-11</time>
+      <time title="Created: 2022-07-11 11:04:47" itemprop="dateCreated datePublished" datetime="2022-07-11T11:04:47+08:00">2022-07-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-06-26 15:56:36" itemprop="dateModified" datetime="2023-06-26T15:56:36+08:00">2023-06-26</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -229,7 +235,7 @@
         </span>
           , 
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Android%E5%AE%89%E5%85%A8/LLVM/" itemprop="url" rel="index"><span itemprop="name">LLVM</span></a>
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/OLLVM/" itemprop="url" rel="index"><span itemprop="name">OLLVM</span></a>
         </span>
     </span>
 
@@ -243,8 +249,174 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="LLVM"><a href="#LLVM" class="headerlink" title="LLVM"></a>LLVM</h1><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p>llvm: <a target="_blank" rel="noopener" href="https://llvm.org/">https://llvm.org/</a></p>
-<p>ndk: <a target="_blank" rel="noopener" href="https://developer.android.com/ndk/downloads#r24-downloads">https://developer.android.com/ndk/downloads#r24-downloads</a></p>
+        <h1 id="编译llvm14"><a href="#编译llvm14" class="headerlink" title="编译llvm14"></a>编译llvm14</h1><h2 id="编译过程"><a href="#编译过程" class="headerlink" title="编译过程"></a>编译过程</h2><blockquote>
+<p>在下载llvm源码的时候需要根据NDK的版本来选择:</p>
+<ul>
+<li>android-ndk-r25b&#x2F;toolchains&#x2F;llvm&#x2F;prebuilt&#x2F;linux-x86_64&#x2F;bin clang –version  -&gt;14.0.6</li>
+</ul>
+</blockquote>
+<ol>
+<li><p>克隆llvm</p>
+</li>
+<li><p>使用Clion编译：</p>
+<blockquote>
+<p>为了使得clion可以直接用，并且节约空间，建议只使用这种方法来进行变异</p>
+</blockquote>
+<ul>
+<li>打开llvm&#x2F;cmakelists.txt文件</li>
+<li>setting-&gt;build,exe,dep-&gt;cmake-&gt;debue&#x2F;release-&gt;camke options: -G Ninja -DCMAKE_BUILD_TYPE&#x3D;Release  -DLLVM_ENABLE_PROJECTS&#x3D;’clang’</li>
+<li>文件导入结束之后：切换到llvm&#x2F;cmake-build-debug&#x2F;release文件夹：ninja -j8 &#x2F; ninja clang编译</li>
+</ul>
+</li>
+<li><p>build debug: 编译时间长</p>
+<ul>
+<li>cd llvm -&gt; mkdri build_llvm-&gt;cd build_llvm-&gt;cmake -G Ninja ..&#x2F;llvm-&gt;ninja -j8开始编译</li>
+</ul>
+</li>
+<li><p>build release: 编译时间短</p>
+<ul>
+<li>cmake -G Ninja -DCMAKE_BUILD_TYPE&#x3D;Release -DLLVM_INCLUDE_TESTS&#x3D;OFF -DLLVM_ENABLE_PROJECTS&#x3D;”clang” ..&#x2F;llvm</li>
+</ul>
+</li>
+</ol>
+<h2 id="编译出错"><a href="#编译出错" class="headerlink" title="编译出错"></a>编译出错</h2><h3 id="空间耗尽"><a href="#空间耗尽" class="headerlink" title="空间耗尽"></a>空间耗尽</h3><ol>
+<li>扩展磁盘空间</li>
+<li>将扩展的磁盘分配给现存的分区：disks-&gt;resize</li>
+<li>增大交换空间大小：<ul>
+<li>sudo dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;&#x2F;swapfile1 bs&#x3D;1G count&#x3D;30 ：创建交换文件30G</li>
+<li>free -h</li>
+<li>sudo mkswap -f &#x2F;swapfile1</li>
+<li>sudo chmod 0600 &#x2F;swapfile1</li>
+<li>sudo swapoff &#x2F;swapfile</li>
+<li>sudo swapon &#x2F;swapfile1</li>
+<li>free -h</li>
+<li>sudo vim &#x2F;etc&#x2F;fstab -&gt;swapfile修改为swapfile1：设置开机自启动</li>
+</ul>
+</li>
+</ol>
+<h3 id="出现bug"><a href="#出现bug" class="headerlink" title="出现bug"></a>出现bug</h3><blockquote>
+<p>我真的要哭死了，这个东西搞了我好几天都没有弄好，而且之前明明编译完成过，但是没有写文档，就忘记怎么做的了，而且不知道为啥还需要重新弄。气人！</p>
+</blockquote>
+<ol>
+<li>在编译过程中最开始的时候就应该 google: llvm 14 build -&gt;以找到最适合的getstarted官方文档-&gt;<a target="_blank" rel="noopener" href="https://releases.llvm.org/14.0.0/docs/GettingStarted.html%E4%BB%A5%E5%BE%97%E5%88%B0%E7%9B%AE%E5%89%8D%E8%AF%A5%E6%96%87%E6%A1%A3%E5%8F%AF%E8%83%BD%E8%BF%87%E6%97%B6%EF%BC%8C%E4%BB%8E%E8%80%8C%E6%89%BE%E5%88%B0-&gt;https://clang.llvm.org/get_started.html">https://releases.llvm.org/14.0.0/docs/GettingStarted.html以得到目前该文档可能过时，从而找到-&gt;https://clang.llvm.org/get_started.html</a></li>
+<li>set CC&#x3D;cl</li>
+<li>set CXX&#x3D;cl</li>
+<li>然后重新编译即可</li>
+</ol>
+<h1 id="使用llvm"><a href="#使用llvm" class="headerlink" title="使用llvm"></a>使用llvm</h1><ol>
+<li>将编译好的clang添加到环境变量：export PATH&#x3D;&#x2F;home&#x2F;fourth&#x2F;ollvm&#x2F;llvm-project-llvmorg-14.0.6&#x2F;llvm&#x2F;cmake-build-release&#x2F;bin:$PATH</li>
+<li>使用clang编译相关文件：clang hello.c -o hello_clang-&gt;生成的文件可直接执行</li>
+<li>调试clang：<ul>
+<li>在开始打开的project中，在clang-&gt;tools-&gt;driver-&gt;driver.cpp-&gt;main()下断点</li>
+<li>在窗口build旁边选择clang|release（debug目前还没有编译完成）,edit configuration-&gt;clang-&gt;program arguments: &#x2F;home&#x2F;fourth&#x2F;ollvm&#x2F;study&#x2F;hello.c -o &#x2F;home&#x2F;fourth&#x2F;ollvm&#x2F;study&#x2F;hello_clion</li>
+<li>但是注意，调试还是需要debug版本的</li>
+</ul>
+</li>
+<li>使用llvm编译源文件流程：<ul>
+<li>.c-&gt;.ll:clang -emit-llvm -S hello.c -o hello.ll（ll文件可以直接修改后执行）</li>
+<li>执行ll文件：lli hello.ll</li>
+<li>将可读的LLVM转成bitcode：llvm-as hello.ll -o hello.bc</li>
+<li>将bitcode(字节码)文件转成本地汇编文件：llc hello.bc -o hello.s  (llc后端编译器)</li>
+<li>使用clang将s转成可执行文件：clang hello.s -o hello_s</li>
+<li>将字节码文件反转成IR文件：llvm-dis hello.bc -o hello_re.ll</li>
+</ul>
+</li>
+</ol>
+<h1 id="write-pass"><a href="#write-pass" class="headerlink" title="write pass"></a>write pass</h1><h2 id="源码内编写pass"><a href="#源码内编写pass" class="headerlink" title="源码内编写pass"></a>源码内编写pass</h2><blockquote>
+<p><a target="_blank" rel="noopener" href="https://releases.llvm.org/14.0.0/docs/WritingAnLLVMNewPMPass.html">https://releases.llvm.org/14.0.0/docs/WritingAnLLVMNewPMPass.html</a></p>
+</blockquote>
+<p>pass文件一般存在：llvm&#x2F;lib&#x2F;Transforms&#x2F;</p>
+<ol>
+<li><p>新建一个文件夹：llvm&#x2F;lib&#x2F;Transforms&#x2F;EncodeFunctionName</p>
+</li>
+<li><p>新建llvm&#x2F;lib&#x2F;Transforms&#x2F;EncodeFunctionName&#x2F;EncodeFunctionName.cpp</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//该pass主要是修改除了main函数的函数名为：MD5(F.name)</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Pass.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/Function.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Support/raw_ostream.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/LegacyPassManager.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Transforms/IPO/PassManagerBuilder.h&quot;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> llvm;</span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">EncodeFunctionName</span> : <span class="keyword">public</span> FunctionPass &#123;</span><br><span class="line">    <span class="type">static</span> <span class="type">char</span> ID;</span><br><span class="line">    <span class="built_in">EncodeFunctionName</span>() : <span class="built_in">FunctionPass</span>(ID)&#123;&#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">runOnFunction</span><span class="params">(Function &amp;F)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">      <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;EncodeFunctionName: &quot;</span>&lt;&lt;F.<span class="built_in">getName</span>()&lt;&lt;<span class="string">&quot;-&gt;&quot;</span>;</span><br><span class="line">      <span class="keyword">if</span>(F.<span class="built_in">getName</span>().<span class="built_in">compare</span>(<span class="string">&quot;main&quot;</span>)!=<span class="number">0</span>)&#123;</span><br><span class="line">        llvm::MD5 Md5;</span><br><span class="line">        Md5.<span class="built_in">update</span>(<span class="string">&quot;dfault0&quot;</span>);</span><br><span class="line">        Md5.<span class="built_in">update</span>(F.<span class="built_in">getName</span>());</span><br><span class="line">        llvm::MD5::MD5Result R;</span><br><span class="line">        Md5.<span class="built_in">final</span>(R);</span><br><span class="line">        SmallString&lt;<span class="number">32</span>&gt; Str;</span><br><span class="line">        llvm::MD5::<span class="built_in">stringifyResult</span>(R, Str);</span><br><span class="line">        F.<span class="built_in">setName</span>(Str);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">errs</span>().<span class="built_in">write_escaped</span>(F.<span class="built_in">getName</span>()) &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">char</span> EncodeFunctionName::ID = <span class="number">0</span>;</span><br><span class="line"><span class="comment">//encode:是load时的参数</span></span><br><span class="line"><span class="function"><span class="type">static</span> RegisterPass&lt;EncodeFunctionName&gt; <span class="title">X</span><span class="params">(<span class="string">&quot;encode&quot;</span>, <span class="string">&quot;encode function name pass&quot;</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                             <span class="literal">false</span> <span class="comment">/* Only looks at CFG */</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                             <span class="literal">false</span> <span class="comment">/* Analysis Pass */</span>)</span></span>;</span><br><span class="line"><span class="function"><span class="type">static</span> llvm::RegisterStandardPasses <span class="title">Y</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    llvm::PassManagerBuilder::EP_EarlyAsPossible,</span></span></span><br><span class="line"><span class="params"><span class="function">    [](<span class="type">const</span> llvm::PassManagerBuilder &amp;Builder,</span></span></span><br><span class="line"><span class="params"><span class="function">       llvm::legacy::PassManagerBase &amp;PM) &#123; PM.add(<span class="keyword">new</span> EncodeFunctionName()); &#125;)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>新建llvm&#x2F;lib&#x2F;Transforms&#x2F;EncodeFunctionName下&#x2F;CMakeLists.txt</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">add_llvm_library( EncodeFunctionName MODULE</span><br><span class="line">        EncodeFunctionName.cpp</span><br><span class="line">        PLUGIN_TOOL</span><br><span class="line">        opt</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编辑在PASS的上级目录的CMakeLists.txt中添加：add_subdirectory(EncodeFunctionName)（文件夹名称）</p>
+</li>
+</ol>
+<h2 id="源码外编写pass"><a href="#源码外编写pass" class="headerlink" title="源码外编写pass"></a>源码外编写pass</h2><blockquote>
+<p>Developing LLVM passes out of source: <a target="_blank" rel="noopener" href="https://releases.llvm.org/14.0.0/docs/CMake.html">https://releases.llvm.org/14.0.0/docs/CMake.html</a></p>
+</blockquote>
+<ol>
+<li><p>创建文件结构</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;project dir&gt;/</span><br><span class="line">    |</span><br><span class="line">    CMakeLists.txt</span><br><span class="line">    &lt;pass name&gt;/</span><br><span class="line">        |</span><br><span class="line">        CMakeLists.txt</span><br><span class="line">        Pass.cpp</span><br><span class="line">        ...</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编辑 <project dir>&#x2F;CMakeLists.txt：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.23</span>)</span><br><span class="line"><span class="keyword">project</span>(outPass)</span><br><span class="line"></span><br><span class="line"><span class="comment">#根据clion的提示到release下面查找相关的文件：find . -name &quot;LLVMConfig.cmake&quot;,然后阅读连接 readlink -f ./lib/cmake/llvm/LLVMConfig.cmake</span></span><br><span class="line"><span class="keyword">set</span>(LLVM_DIR /home/fourth/ollvm/llvm-<span class="keyword">project</span>-llvmorg-<span class="number">14.0</span>.<span class="number">6</span>/llvm/cmake-build-release/lib/cmake/llvm/)</span><br><span class="line"></span><br><span class="line"><span class="keyword">find_package</span>(LLVM REQUIRED CONFIG)</span><br><span class="line"><span class="keyword">list</span>(APPEND CMAKE_MODULE_PATH <span class="string">&quot;$&#123;LLVM_CMAKE_DIR&#125;&quot;</span>)</span><br><span class="line"><span class="keyword">include</span>(AddLLVM)</span><br><span class="line"><span class="keyword">separate_arguments</span>(LLVM_DEFINITIONS_LIST NATIVE_COMMAND <span class="variable">$&#123;LLVM_DEFINITIONS&#125;</span>)</span><br><span class="line"><span class="keyword">add_definitions</span>(<span class="variable">$&#123;LLVM_DEFINITIONS_LIST&#125;</span>)</span><br><span class="line"><span class="keyword">include_directories</span>(<span class="variable">$&#123;LLVM_INCLUDE_DIRS&#125;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_subdirectory</span>(EncodeFunctionName)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编辑 <project dir>&#x2F;<pass name>&#x2F;CMakeLists.txt：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#因为已经存在EncodeFunctionName，所以直接修改这个EncodeFunctionName2即可</span></span><br><span class="line">add_llvm_library( EncodeFunctionName2 MODULE</span><br><span class="line">        EncodeFunctionName.cpp</span><br><span class="line">        PLUGIN_TOOL</span><br><span class="line">        opt</span><br><span class="line">        )</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译</p>
+</li>
+</ol>
+<h2 id="扩展到llvm："><a href="#扩展到llvm：" class="headerlink" title="扩展到llvm："></a>扩展到llvm：</h2><p>还没有弄出来如何将pass注册到llvm中，这个后面需要再看看，目前就到这里</p>
+<h3 id="编写PASS-llvm12以下"><a href="#编写PASS-llvm12以下" class="headerlink" title="编写PASS llvm12以下"></a>编写PASS llvm12以下</h3><ol>
+<li><p>在llvm&#x2F;include&#x2F;llvm&#x2F;Transforms&#x2F;(注意这个文件夹的结构需要和llvm&#x2F;lib&#x2F;Transforms一致)新建一个 EncodeFunctionName&#x2F;EncodeFunctionName.h</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> LLVM_ENCODEFUNCTIONNAME_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LLVM_ENCODEFUNCTIONNAME_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Pass.h&quot;</span></span></span><br><span class="line"><span class="keyword">namespace</span> llvm&#123;</span><br><span class="line"> <span class="function">Pass* <span class="title">createEncodeFunctionName</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">// LLVM_ENCODEFUNCTIONNAME_H</span></span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>在llvm&#x2F;lib&#x2F;Transforms&#x2F;EncodeFunctionName&#x2F;EncodeFunctionName.cpp里面实现上面的方法</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//在之前的pass的基础上实现createEncodeFunctionName方法即可</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Pass.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/Function.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Support/raw_ostream.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/LegacyPassManager.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Transforms/EncodeFunctionName/EncodeFunctionName.h&quot;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> llvm;</span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">EncodeFunctionName</span> : <span class="keyword">public</span> FunctionPass &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="type">static</span> <span class="type">char</span> ID;</span><br><span class="line">    <span class="built_in">EncodeFunctionName</span>() : <span class="built_in">FunctionPass</span>(ID)&#123;&#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">runOnFunction</span><span class="params">(Function &amp;F)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">      <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;EncodeFunctionName: &quot;</span>&lt;&lt;F.<span class="built_in">getName</span>()&lt;&lt;<span class="string">&quot;-&gt;&quot;</span>;</span><br><span class="line">      <span class="keyword">if</span>(F.<span class="built_in">getName</span>().<span class="built_in">compare</span>(<span class="string">&quot;main&quot;</span>)!=<span class="number">0</span>)&#123;</span><br><span class="line">        llvm::MD5 Md5;</span><br><span class="line">        Md5.<span class="built_in">update</span>(<span class="string">&quot;dfault0&quot;</span>);</span><br><span class="line">        Md5.<span class="built_in">update</span>(F.<span class="built_in">getName</span>());</span><br><span class="line">        llvm::MD5::MD5Result R;</span><br><span class="line">        Md5.<span class="built_in">final</span>(R);</span><br><span class="line">        SmallString&lt;<span class="number">32</span>&gt; Str;</span><br><span class="line">        llvm::MD5::<span class="built_in">stringifyResult</span>(R, Str);</span><br><span class="line">        F.<span class="built_in">setName</span>(Str);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">errs</span>().<span class="built_in">write_escaped</span>(F.<span class="built_in">getName</span>()) &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">char</span> EncodeFunctionName::ID = <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="type">static</span> RegisterPass&lt;EncodeFunctionName&gt; <span class="title">X</span><span class="params">(<span class="string">&quot;encode&quot;</span>, <span class="string">&quot;encode function name pass&quot;</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                             <span class="literal">false</span> <span class="comment">/* Only looks at CFG */</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                             <span class="literal">false</span> <span class="comment">/* Analysis Pass */</span>)</span></span>;</span><br><span class="line"><span class="comment">//static llvm::RegisterStandardPasses Y(</span></span><br><span class="line"><span class="comment">//    llvm::PassManagerBuilder::EP_EarlyAsPossible,</span></span><br><span class="line"><span class="comment">//    [](const llvm::PassManagerBuilder &amp;Builder,</span></span><br><span class="line"><span class="comment">//       llvm::legacy::PassManagerBase &amp;PM) &#123; PM.add(new EncodeFunctionName()); &#125;);</span></span><br><span class="line"><span class="function">Pass* <span class="title">llvm::createEncodeFunctionName</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">EncodeFunctionName</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改llvm&#x2F;lib&#x2F;Transforms&#x2F;EncodeFunctionName&#x2F;CMakeLists.txt</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">add_llvm_component_library( LLVMEncodeFunctionName</span><br><span class="line">        EncodeFunctionName.cpp</span><br><span class="line"></span><br><span class="line">        ADDITIONAL_HEADER_DIRS</span><br><span class="line">        <span class="variable">$&#123;LLVM_MAIN_INCLUDE_DIR&#125;</span>/llvm/Transforms</span><br><span class="line">        <span class="variable">$&#123;LLVM_MAIN_INCLUDE_DIR&#125;</span>/llvm/Transforms/EncodeFunctionName</span><br><span class="line"></span><br><span class="line">        DEPENDS</span><br><span class="line">        intrinsics_gen</span><br><span class="line"><span class="comment">#        COMPONENT_NAME</span></span><br><span class="line"><span class="comment">#        EncodeFunctionName</span></span><br><span class="line">        )</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改llvm&#x2F;lib&#x2F;Transforms&#x2F;IPO&#x2F;CMakeLists.txt：在最后加上EncodeFunctionName</p>
+</li>
+<li><p>修改llvm&#x2F;lib&#x2F;Transforms&#x2F;IPO&#x2F;PassManagerBuilder.cpp</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1. 添加头文件</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Transforms/EncodeFunctionName/EncodeFunctionName.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//2. 添加clang的参数</span></span><br><span class="line"><span class="function">cl::opt&lt;<span class="type">bool</span>&gt; <span class="title">EnableEncodeFunctionName</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="string">&quot;enable-encode-function-name&quot;</span>, cl::init(<span class="literal">false</span>), cl::Hidden,</span></span></span><br><span class="line"><span class="params"><span class="function">    cl::desc(<span class="string">&quot;Enable encode function name pass&quot;</span>))</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//3. 调用：在函数void PassManagerBuilder::populateModulePassManager(legacy::PassManagerBase &amp;MPM) 中添加</span></span><br><span class="line"><span class="keyword">if</span>(EnableEncodeFunctionName)&#123;</span><br><span class="line">    MPM.<span class="built_in">add</span>(<span class="built_in">createEncodeFunctionName</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><font color=red>这样是可以成功编译，但是llvm14上，使用clang -mllvm -encode-function-name hello.ll 是没有效果的</font>，经过查看资料，应该是在12以下是可以起作用的</p>
+</li>
+</ol>
+<h3 id="编写PASS-llvm12以上"><a href="#编写PASS-llvm12以上" class="headerlink" title="编写PASS llvm12以上"></a>编写PASS llvm12以上</h3><ol>
+<li><p>首先编写llvm&#x2F;include&#x2F;llvm&#x2F;Transforms&#x2F;EncodeFunctionName&#x2F;EncodeFunctionName.h文件</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> LLVM_ENCODEFUNCTIONNAME_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LLVM_ENCODEFUNCTIONNAME_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/PassManager.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Pass.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/Function.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/LegacyPassManager.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Pass.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Passes/PassBuilder.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Passes/PassPlugin.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Support/CommandLine.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Support/raw_ostream.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Transforms/IPO/PassManagerBuilder.h&quot;</span></span></span><br><span class="line"><span class="keyword">namespace</span> llvm&#123;</span><br><span class="line"> <span class="comment">//Pass* createEncodeFunctionName();</span></span><br><span class="line"> <span class="keyword">class</span> <span class="title class_">EncodeFunctionName</span> : <span class="keyword">public</span> PassInfoMixin&lt;EncodeFunctionName&gt; &#123;</span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">   <span class="function">PreservedAnalyses <span class="title">run</span><span class="params">(Function &amp;F, FunctionAnalysisManager &amp;AM)</span></span>;</span><br><span class="line">   <span class="type">char</span> ID = <span class="number">0</span>;</span><br><span class="line">   <span class="function"><span class="type">static</span> <span class="type">bool</span> <span class="title">isRequired</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 注册</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> ::<span class="function">llvm::PassPluginLibraryInfo LLVM_ATTRIBUTE_WEAK</span></span><br><span class="line"><span class="function"><span class="title">llvmGetPassPluginInfo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">      LLVM_PLUGIN_API_VERSION, <span class="string">&quot;EncodeFunctionName&quot;</span>, <span class="string">&quot;v0.1&quot;</span>,</span><br><span class="line">      [](llvm::PassBuilder &amp;PB) &#123;</span><br><span class="line">        PB.<span class="built_in">registerPipelineParsingCallback</span>(</span><br><span class="line">            [](llvm::StringRef Name, llvm::FunctionPassManager &amp;FPM,</span><br><span class="line">               llvm::ArrayRef&lt;llvm::PassBuilder::PipelineElement&gt;) &#123;</span><br><span class="line">              <span class="keyword">if</span>(Name == <span class="string">&quot;EncodeFunctionName&quot;</span>)&#123;</span><br><span class="line">                FPM.<span class="built_in">addPass</span>(llvm::<span class="built_in">EncodeFunctionName</span>());</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">              &#125;</span><br><span class="line">              <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        );</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">// LLVM_ENCODEFUNCTIONNAME_H</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编写llvm&#x2F;lib&#x2F;Transforms&#x2F;EncodeFunctionName&#x2F;EncodeFunctionName.cpp</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Transforms/EncodeFunctionName/EncodeFunctionName.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/Function.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/LegacyPassManager.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Pass.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Passes/PassBuilder.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Passes/PassPlugin.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Support/raw_ostream.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Transforms/IPO/PassManagerBuilder.h&quot;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> llvm;</span><br><span class="line"><span class="function">PreservedAnalyses <span class="title">EncodeFunctionName::run</span><span class="params">(Function &amp;F,</span></span></span><br><span class="line"><span class="params"><span class="function">                                          FunctionAnalysisManager &amp;AM)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;EncodeFunctionName: &quot;</span>&lt;&lt;F.<span class="built_in">getName</span>()&lt;&lt;<span class="string">&quot;-&gt;&quot;</span>;</span><br><span class="line">  <span class="keyword">if</span>(F.<span class="built_in">getName</span>().<span class="built_in">compare</span>(<span class="string">&quot;main&quot;</span>)!=<span class="number">0</span>)&#123;</span><br><span class="line">    llvm::MD5 Md5;</span><br><span class="line">    Md5.<span class="built_in">update</span>(<span class="string">&quot;dfault0&quot;</span>);</span><br><span class="line">    Md5.<span class="built_in">update</span>(F.<span class="built_in">getName</span>());</span><br><span class="line">    llvm::MD5::MD5Result R;</span><br><span class="line">    Md5.<span class="built_in">final</span>(R);</span><br><span class="line">    SmallString&lt;<span class="number">32</span>&gt; Str;</span><br><span class="line">    llvm::MD5::<span class="built_in">stringifyResult</span>(R, Str);</span><br><span class="line">    F.<span class="built_in">setName</span>(Str);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">errs</span>().<span class="built_in">write_escaped</span>(F.<span class="built_in">getName</span>()) &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">  <span class="keyword">return</span> PreservedAnalyses::<span class="built_in">all</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//static RegisterPass&lt;EncodeFunctionName&gt; X(&quot;encode&quot;, &quot;encode function name pass&quot;,</span></span><br><span class="line"><span class="comment">//                             false /* Only looks at CFG */,</span></span><br><span class="line"><span class="comment">//                             false /* Analysis Pass */);</span></span><br><span class="line"><span class="function"><span class="type">static</span> llvm::RegisterStandardPasses <span class="title">Y</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">    llvm::PassManagerBuilder::EP_EarlyAsPossible,</span></span></span><br><span class="line"><span class="params"><span class="function">    [](<span class="type">const</span> llvm::PassManagerBuilder &amp;Builder,</span></span></span><br><span class="line"><span class="params"><span class="function">       llvm::legacy::PassManagerBase &amp;PM) &#123; PM.add(<span class="keyword">reinterpret_cast</span>&lt;Pass *&gt;(<span class="keyword">new</span> EncodeFunctionName())); &#125;)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>llvm&#x2F;lib&#x2F;Passes&#x2F;PassRegistry.def中添加：FUNCTION_PASS(“encode-function-name”, EncodeFunctionName());</p>
+</li>
+<li><p>llvm&#x2F;lib&#x2F;Passes&#x2F;PassBuilder.cpp中添加：#include “llvm&#x2F;Transforms&#x2F;EncodeFunctionName&#x2F;EncodeFunctionName.h”</p>
+</li>
+<li><p>llvm&#x2F;lib&#x2F;Transforms&#x2F;IPO&#x2F;CMakeLists.txt的component添加：EncodeFunctionName</p>
+</li>
+<li><p>编译，运行：opt -disable-output &#x2F;tmp&#x2F;a.ll -passes&#x3D;encode-function-name</p>
+</li>
+<li><p>编译，结果生效</p>
+</li>
+</ol>
+<h2 id="使用pass"><a href="#使用pass" class="headerlink" title="使用pass"></a>使用pass</h2><ol>
+<li>编译编写的pass<ul>
+<li>可relase可debug</li>
+<li>cd cmake-build-release</li>
+<li>ninja EncodeFunctionName  [编译完成之后会生成.&#x2F;lib&#x2F;EncodeFunctionName  .so]</li>
+</ul>
+</li>
+<li>使用opt使用pass:<ul>
+<li>opt -enable-new-pm&#x3D;0 -load ‘&#x2F;home&#x2F;fourth&#x2F;ollvm&#x2F;llvm-project-llvmorg-14.0.6&#x2F;llvm&#x2F;cmake-build-release&#x2F;lib&#x2F;EncodeFunctionName.so’ -encode  .&#x2F;hello.bc -o hello.ll</li>
+<li>使用clang编译ll到可执行文件：clang hello.ll -o hello_encode</li>
+<li>最后生成的可执行文件就是经过了编写的pass的。</li>
+</ul>
+</li>
+<li>使用clang直接加载pass：<ul>
+<li>clang -Xclang -load -Xclang &#x2F;home&#x2F;fourth&#x2F;ollvm&#x2F;study&#x2F;outPass&#x2F;cmake-build-release&#x2F;EncodeFunctionName&#x2F;EncodeFunctionName2.so -encode hello.ll -o hello_encode_clang</li>
+</ul>
+</li>
+</ol>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li>llvm: <a target="_blank" rel="noopener" href="https://llvm.org/">https://llvm.org/</a></li>
+<li>llvm started:<a target="_blank" rel="noopener" href="https://releases.llvm.org/14.0.0/docs/GettingStarted.html">https://releases.llvm.org/14.0.0/docs/GettingStarted.html</a></li>
+<li>ndk: <a target="_blank" rel="noopener" href="https://developer.android.com/ndk/downloads#r24-downloads">https://developer.android.com/ndk/downloads#r24-downloads</a></li>
+<li>播放顺序：<a target="_blank" rel="noopener" href="https://www.kanxue.com/book-leaflet-72.htm">https://www.kanxue.com/book-leaflet-72.htm</a></li>
+</ul>
 
     </div>
 
@@ -289,7 +461,7 @@
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

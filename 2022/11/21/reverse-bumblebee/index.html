@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="主要目标 给定一个加密视频的文件，不需要对其进行授权以及登录就能直接播放  尝试分析分析Java层尝试播放的时候，使用的是师兄的已经授权登录的app的备份文件形式，就能够绕过登录这个步骤。  hook com.csd.newyunketang.utils.LogUtils.log函数  1234567891011121314151617181920212223242526*** entered l">
+<meta property="og:type" content="article">
+<meta property="og:title" content="reverse-bumblebee">
+<meta property="og:url" content="http://dfault0.github.io/2022/11/21/reverse-bumblebee/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="主要目标 给定一个加密视频的文件，不需要对其进行授权以及登录就能直接播放  尝试分析分析Java层尝试播放的时候，使用的是师兄的已经授权登录的app的备份文件形式，就能够绕过登录这个步骤。  hook com.csd.newyunketang.utils.LogUtils.log函数  1234567891011121314151617181920212223242526*** entered l">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-11-21T11:23:54.000Z">
+<meta property="article:modified_time" content="2022-11-30T05:41:15.928Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="reverse">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2022/11/21/reverse-bumblebee/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2022/11/21/reverse-bumblebee/","path":"2022/11/21/reverse-bumblebee/","title":"reverse-bumblebee"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>reverse-bumblebee | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E7%9B%AE%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">主要目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B0%9D%E8%AF%95%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">尝试分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90Java%E5%B1%82"><span class="nav-number">2.1.</span> <span class="nav-text">分析Java层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E5%89%8D%E5%88%86%E6%9E%90%E5%B0%8F%E6%80%BB%E7%BB%93-amp-%E5%B0%8F%E7%9B%AE%E6%A0%87"><span class="nav-number">2.2.</span> <span class="nav-text">目前分析小总结&amp;小目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90config-so"><span class="nav-number">2.3.</span> <span class="nav-text">分析config.so</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#NativeFile-getFileByte-localVideoDto2-getPath-config"><span class="nav-number">2.3.1.</span> <span class="nav-text">NativeFile.getFileByte(localVideoDto2.getPath(), config)</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2022/11/21/reverse-bumblebee/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="reverse-bumblebee | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          reverse-bumblebee
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-11-21 19:23:54" itemprop="dateCreated datePublished" datetime="2022-11-21T19:23:54+08:00">2022-11-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-11-30 13:41:15" itemprop="dateModified" datetime="2022-11-30T13:41:15+08:00">2022-11-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/reverse/" itemprop="url" rel="index"><span itemprop="name">reverse</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="主要目标"><a href="#主要目标" class="headerlink" title="主要目标"></a>主要目标</h1><ul>
+<li>给定一个加密视频的文件，不需要对其进行授权以及登录就能直接播放</li>
+</ul>
+<h1 id="尝试分析"><a href="#尝试分析" class="headerlink" title="尝试分析"></a>尝试分析</h1><h2 id="分析Java层"><a href="#分析Java层" class="headerlink" title="分析Java层"></a>分析Java层</h2><p>尝试播放的时候，使用的是师兄的已经授权登录的app的备份文件形式，就能够绕过登录这个步骤。</p>
+<ol>
+<li>hook com.csd.newyunketang.utils.LogUtils.log函数</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">*** entered log</span><br><span class="line">=======调用栈信息=======</span><br><span class="line">com.csd.newyunketang.utils.LogUtils.log(Native Method)</span><br><span class="line">        com.csd.newyunketang.utils.LogUtils.d(LogUtils.java:133)</span><br><span class="line">        com.csd.newyunketang.view.myLessons.activity.LocalVideoDetailActivity.initRecycler(LocalVideoDetailActivity.java:103)</span><br><span class="line">        com.csd.newyunketang.view.myLessons.activity.LocalVideoDetailActivity.initViews(LocalVideoDetailActivity.java:71)</span><br><span class="line">        com.csd.newyunketang.base.BaseActivity.onCreate(BaseActivity.java:71)</span><br><span class="line">        android.app.Activity.performCreate(Activity.java:7084)</span><br><span class="line">        android.app.Activity.performCreate(Activity.java:7075)</span><br><span class="line">        android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1215)</span><br><span class="line">        android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2767)</span><br><span class="line">        android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2892)</span><br><span class="line">        android.app.ActivityThread.-wrap11(Unknown Source:0)</span><br><span class="line">        android.app.ActivityThread$H.handleMessage(ActivityThread.java:1613)</span><br><span class="line">        android.os.Handler.dispatchMessage(Handler.java:106)</span><br><span class="line">        android.os.Looper.loop(Looper.java:176)</span><br><span class="line">        android.app.ActivityThread.main(ActivityThread.java:6635)</span><br><span class="line">        java.lang.reflect.Method.invoke(Native Method)</span><br><span class="line">        com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:547)</span><br><span class="line">        com.android.internal.os.ZygoteInit.main(ZygoteInit.java:823)</span><br><span class="line">======= Done =======</span><br><span class="line">arg[0]: 3</span><br><span class="line">arg[1]: null</span><br><span class="line">arg[2]: lessons=1</span><br><span class="line">retval: undefined</span><br><span class="line">*** exiting log</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>可以看出调用了com.csd.newyunketang.view.myLessons.activity.LocalVideoDetailActivity.initRecycler方法</p>
+</li>
+<li><p>并且关键activity是LocalVideoDetailActivity：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (OutLineLoginUtils.getInstance().isLogin()) &#123;</span><br><span class="line">    <span class="comment">//....</span></span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (System.currentTimeMillis() - LocalVideoDetailActivity.<span class="built_in">this</span>.getSharedPreferences(CSDConstant.SP_SAVE_AUTH_TIME, <span class="number">0</span>).getLong(CSDConstant.SP_SAVE_AUTH_TIME, <span class="number">0L</span>) &gt; <span class="number">86400000</span>) &#123;</span><br><span class="line">    </span><br><span class="line">    Toast.makeText(LocalVideoDetailActivity.<span class="built_in">this</span>.getApplicationContext(), <span class="string">&quot;本地授权已过期，请联网重新获取授权信息。&quot;</span>, <span class="number">1</span>).show();</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>主要逻辑就是获取当前的<code>currentTimeMillis()-SP_SAVE_AUTH_TIME(授权时间)&lt;=86400000</code>才可以绕过这个。</p>
+</li>
+<li><p>SP_SAVE_AUTH_TIME时间保存在sp下面的com.csd.newyunketang.SP_SAVE_AUTH_TIME.xml中</p>
+</li>
+<li><p>如果sp目录下面有bak文件则读取的是bak文件里面的内容，如果没有的话，会根据xml文件的内容来创建bak文件。所以需要修改.xml文件，并且需要删除.bak文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wayne:/data/data/com.csd.newyunketang/shared_prefs # cat com.csd.newyunketang.SP_SAVE_AUTH_TIME.xml                           &lt;?xml version=&#x27;1.0&#x27; encoding=&#x27;utf-8&#x27; standalone=&#x27;yes&#x27; ?&gt;</span><br><span class="line">&lt;map&gt;</span><br><span class="line">    &lt;long name=&quot;com.csd.newyunketang.SP_SAVE_AUTH_TIME&quot; value=&quot;1700209008000&quot; /&gt;</span><br><span class="line">&lt;/map&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="2">
+<li>修改了上面的文件之后，hook log，还是会发现出错：</li>
+</ol>
+<ul>
+<li><p><code>Process crashed: java.lang.NullPointerException: Attempt to invoke virtual method &#39;java.lang.String com.csd.video.dto.KeyDto.getStr()&#39; on a null object reference</code></p>
+</li>
+<li><p>主要的Java代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//com.csd.newyunketang.view.myLessons.activity.LocalVideoDetailActivity.initRecycler()</span></span><br><span class="line"><span class="keyword">if</span> (OutLineLoginUtils.getInstance().isLogin()) &#123;<span class="comment">//hook发现这里返回的是false</span></span><br><span class="line">    str = LessonUtil.decrypt(str2, config);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="type">KeyDto</span> <span class="variable">keyDto</span> <span class="operator">=</span> (KeyDto) <span class="keyword">new</span> <span class="title class_">GsonBuilder</span>().create().fromJson(NativeFile.decryptAuthCode(str2, AndroidUtil.getDeviceId(LocalVideoDetailActivity.<span class="built_in">this</span>), Integer.parseInt(config.getFileSign()), config.getRandomSeed_Enc()), (Class&lt;Object&gt;) KeyDto.class);</span><br><span class="line">    LogUtils.d(<span class="string">&quot;本地json=&quot;</span> + keyDto.getStr() + config.toString());</span><br><span class="line">    str = LessonUtil.decrypt(keyDto.getStr(), config);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//...</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>traceMethod(&quot;com.csd.video.NativeFile&quot;,&quot;decryptAuthCode&quot;)</code>:可以发现返回值为null说明解密失败了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">*** entered decryptAuthCode</span><br><span class="line">=======调用栈信息=======</span><br><span class="line">com.csd.video.NativeFile.decryptAuthCode(Native Method)</span><br><span class="line">        com.csd.newyunketang.view.myLessons.activity.LocalVideoDetailActivity$2.click(LocalVideoDetailActivity.java:185)</span><br><span class="line">        com.csd.newyunketang.view.home.adapter.LocalLessonVideoAdapter$2.onClick(LocalLessonVideoAdapter.java:70)</span><br><span class="line">        android.view.View.performClick(View.java:6304)</span><br><span class="line">        android.view.View$PerformClick.run(View.java:24803)</span><br><span class="line">        android.os.Handler.handleCallback(Handler.java:794)</span><br><span class="line">        android.os.Handler.dispatchMessage(Handler.java:99)</span><br><span class="line">        android.os.Looper.loop(Looper.java:176)</span><br><span class="line">        android.app.ActivityThread.main(ActivityThread.java:6635)</span><br><span class="line">        java.lang.reflect.Method.invoke(Native Method)</span><br><span class="line">        com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:547)</span><br><span class="line">        com.android.internal.os.ZygoteInit.main(ZygoteInit.java:823)</span><br><span class="line">======= Done =======</span><br><span class="line">arg[0]=localLessonDto.getAuthCode(): B0nTqyVgrOpLQcW0re0UOBlGJBQgz89zoxLDAB1NDEvLAWNUmWjgY3dQGbtfbUqk+gooIuAe/bz8G3zHb7SR51pvPbJ3PVuDMRaBfElM+qJrds13ePtfTmoCBtx1KnqGqT   </span><br><span class="line">arg[1]=&#x27;A&#x27;+md5(deviceid).substring(0,9): A09814B150</span><br><span class="line">arg[2]=config.getFileSign(): 96417</span><br><span class="line">arg[3]=config.getRandomSeed_Enc(): 0</span><br><span class="line">retval: </span><br><span class="line">*** exiting decryptAuthCode</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>可以看出java层主要得执行逻辑路径是：</strong></p>
+<ol>
+<li>com.csd.newyunketang.view.myLessons.activity.LocalVideoDetailActivity.initRecycler()-&gt;</li>
+<li>this.lessons.addAll((ArrayList) new GsonBuilder().create().fromJson(CacheDiskUtils.getInstance().getString(EXTRA_LOCAL_LESSONS), new TypeToken&lt;ArrayList<LocalLessonDto>&gt;() &#x2F;&#x2F;添加视频文件 -&gt;点击播放</li>
+<li>isLogin() false -&gt; </li>
+<li>System.currentTimeMillis() - LocalVideoDetailActivity.this.getSharedPreferences(CSDConstant.SP_SAVE_AUTH_TIME, 0).getLong(CSDConstant.SP_SAVE_AUTH_TIME, 0L) &gt; 86400000) &#x2F;&#x2F;查看本地授权是否过期-&gt; </li>
+<li>str2 &#x3D; localLessonDto.getAuthCode();&#x2F;&#x2F;获取视频得授权码-&gt;</li>
+<li><code>NativeFile.getFileByte(localVideoDto2.getPath(), config);</code>&#x2F;&#x2F;配置config,根据视频文件来设置<code>config =</code> Config{structVersion&#x3D;5, PwdCreaterVersion&#x3D;2, FileSign&#x3D;’96417’, RandomSeed_Enc&#x3D;0, UserHashKey&#x3D;’’, videoKey&#x3D;’12864_96417_1616606440059_课时8.1：移植OLLVM到NDK中_1.vep’, iEncryptType&#x3D;6, iFileType&#x3D;2, width&#x3D;1920, height&#x3D;1080, videoSize&#x3D;94271786} -&gt;</li>
+<li>KeyDto keyDto &#x3D; (KeyDto) new GsonBuilder().create().fromJson(NativeFile.decryptAuthCode(str2, AndroidUtil.getDeviceId(LocalVideoDetailActivity.this), Integer.parseInt(config.getFileSign()), config.getRandomSeed_Enc()), (Class<Object>) KeyDto.class);&#x2F;&#x2F;根据授权码和config得到key相关数据</li>
+<li>keyDto.getStr() &#x3D; FC654C7D589924FD4C75E4799CF9DCE1，</li>
+<li><code>key = str = LessonUtil.decrypt(keyDto.getStr(), config);</code></li>
+</ol>
+<h2 id="目前分析小总结-amp-小目标"><a href="#目前分析小总结-amp-小目标" class="headerlink" title="目前分析小总结&amp;小目标"></a>目前分析小总结&amp;小目标</h2><p>总结：</p>
+<blockquote>
+<p>首选需要根据视频获取授权码authCode-&gt;根据视频获取config-&gt;根据authCode和config得到keyDto-&gt;根据keyDto.getStr和config获取key</p>
+</blockquote>
+<p>及时调整得小目标,分析so中下面的关键函数：</p>
+<ol>
+<li>localLessonDto.<code>getAuthCode</code>() &#x2F;&#x2F;查看授权码是怎么得到的 </li>
+<li>NativeFile.<code>getFileByte</code>(localVideoDto2.getPath(), config)&#x2F;&#x2F;config配置规则</li>
+<li>NativeFile.<code>decryptAuthCode</code>(str2, AndroidUtil.getDeviceId(LocalVideoDetailActivity.this), Integer.parseInt(config.getFileSign()), config.getRandomSeed_Enc())&#x2F;&#x2F;解密authCode-&gt;config</li>
+<li>key &#x3D; str &#x3D; LessonUtil.<code>decrypt</code>(keyDto.getStr(), config);</li>
+</ol>
+<h2 id="分析config-so"><a href="#分析config-so" class="headerlink" title="分析config.so"></a>分析config.so</h2><ol>
+<li>分析com.csd.newyunketang.utils.OutLineLoginUtils.getAuthCode()&#x2F;&#x2F;存在com.csd.newyunketang.SP_AUTH_CODE.xml,说明是登陆了的，如果没有则是没有登录的。</li>
+<li>没有登录-&gt;根据离线视频获取授权码：com.csd.video.dto.localLessonDto.<code>getAuthCode</code>() <ul>
+<li>B0nTqyVgrOpLQcW0re0UOBlGJBQgz89zoxLDAB1NDEvLAWNUmWjgY3dQGbtfbUqk+gooIuAe&#x2F;bz8G3zHb7SR51pvPbJ3PVuDMRaBfElM+qJrds13ePtfTmoCBtx1KnqGqT</li>
+</ul>
+</li>
+</ol>
+<h3 id="NativeFile-getFileByte-localVideoDto2-getPath-config"><a href="#NativeFile-getFileByte-localVideoDto2-getPath-config" class="headerlink" title="NativeFile.getFileByte(localVideoDto2.getPath(), config)"></a>NativeFile.<code>getFileByte</code>(localVideoDto2.getPath(), config)</h3><p>hook关键的函数，由于通过查看ida发现，前四个参数是通过x0-x3来传递的，所以需要通过寄存器来获取，但是获取了之后好像也没有什么用</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">*</span>&#125; module_name </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">*</span>&#125; offset </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">*</span>&#125; method_name </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">hookNativeMethodByAddr</span>(<span class="params">module_name, offset, method_name</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> module_addr = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(module_name)</span><br><span class="line">    <span class="keyword">var</span> method_addr = module_addr.<span class="title function_">add</span>(offset)</span><br><span class="line">    <span class="keyword">var</span> log = <span class="string">&quot;[hookNativeMethodByAddr]:&quot;</span>+method_name+<span class="string">&quot; &quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(log + <span class="string">&quot;addr:&quot;</span> + method_addr)</span><br><span class="line"></span><br><span class="line">    <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(method_addr, &#123;</span><br><span class="line">        <span class="attr">onEnter</span>: <span class="keyword">function</span> (<span class="params">args</span>) &#123;</span><br><span class="line">            <span class="comment">//trans by register</span></span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(log+<span class="string">&quot;x0: &quot;</span>+<span class="variable language_">this</span>.<span class="property">context</span>.<span class="property">x0</span>)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(log+<span class="string">&quot;x0: \n&quot;</span>+<span class="title function_">hexdump</span>(<span class="variable language_">this</span>.<span class="property">context</span>.<span class="property">x0</span>,&#123;<span class="attr">header</span>:<span class="literal">true</span>,<span class="attr">length</span>:<span class="number">0x60</span>&#125;))</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(log+<span class="string">&quot;x1: &quot;</span>+<span class="variable language_">this</span>.<span class="property">context</span>.<span class="property">x1</span>)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(log+<span class="string">&quot;x1: \n&quot;</span>+<span class="title function_">hexdump</span>(<span class="variable language_">this</span>.<span class="property">context</span>.<span class="property">x1</span>,&#123;<span class="attr">header</span>:<span class="literal">true</span>,<span class="attr">length</span>:<span class="number">0x60</span>&#125;))</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(log+<span class="string">&quot;x2: &quot;</span>+<span class="variable language_">this</span>.<span class="property">context</span>.<span class="property">x2</span>)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(log+<span class="string">&quot;x2: \n&quot;</span>+<span class="title function_">hexdump</span>(<span class="variable language_">this</span>.<span class="property">context</span>.<span class="property">x2</span>,&#123;<span class="attr">header</span>:<span class="literal">true</span>,<span class="attr">length</span>:<span class="number">0x60</span>&#125;))</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(log+<span class="string">&quot;x3: &quot;</span>+<span class="variable language_">this</span>.<span class="property">context</span>.<span class="property">x3</span>)</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(log+<span class="string">&quot;x3: \n&quot;</span>+<span class="title function_">hexdump</span>(<span class="variable language_">this</span>.<span class="property">context</span>.<span class="property">x3</span>,&#123;<span class="attr">header</span>:<span class="literal">true</span>,<span class="attr">length</span>:<span class="number">0x60</span>&#125;))</span><br><span class="line"></span><br><span class="line">            <span class="comment">//other args</span></span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(log + <span class="string">&quot;args:&quot;</span> + <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(args))</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; args.<span class="property">length</span>; i++) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(log+ <span class="string">&quot;arg[&quot;</span> + i + <span class="string">&quot;]: &quot;</span> + args[i]);</span><br><span class="line">            &#125;</span><br><span class="line">            </span><br><span class="line">        &#125;, <span class="attr">onLeave</span>: <span class="keyword">function</span> (<span class="params">retval</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(log+ <span class="string">&#x27;retval:&#x27;</span>, retval)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(log+ <span class="string">&quot;end hook&quot;</span>  + <span class="string">&quot;\n&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>76 65 70 2e 05 00   vep.</p>
+<ol>
+<li><p>尝试调试apk：调试失败</p>
+</li>
+<li><p>观察config类得结构：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//com.csd.video.Config</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Config</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String FileSign;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> PwdCreaterVersion;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> RandomSeed_Enc;</span><br><span class="line">    <span class="keyword">private</span> String UserHashKey;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> height;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> iEncryptType;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> iFileType;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> structVersion;</span><br><span class="line">    <span class="keyword">private</span> String videoKey;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">long</span> videoSize;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> width;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>public static native byte[] com.csd.video.NativeFile.getFileByte(String str, Config config) <code>会修改参数config得内容</code></p>
+<ul>
+<li>执行之前：Config{structVersion&#x3D;0, PwdCreaterVersion&#x3D;0, FileSign&#x3D;’null’, RandomSeed_Enc&#x3D;0, UserHashKey&#x3D;’null’, videoKey&#x3D;’null’, iEncryptType&#x3D;0, iFileType&#x3D;0, width&#x3D;0, height&#x3D;0, videoSize&#x3D;0}</li>
+<li>执行之后：<code>Config&#123;structVersion=5, PwdCreaterVersion=2, FileSign=&#39;96417&#39;, RandomSeed_Enc=0, UserHashKey=&#39;&#39;, videoKey=&#39;12864_96417_1616606440059_课时8.1：移植OLLVM到NDK中_1.vep&#39;, iEncryptType=6, iFileType=2, width=1920, height=1080, videoSize=94271786&#125;</code></li>
+<li>显然这个config是没有改变得</li>
+</ul>
+</li>
+</ol>
+<p>本地json&#x3D;FC654C7D589924FD4C75E4799CF9DCE1 Config{structVersion&#x3D;5, PwdCreaterVersion&#x3D;2, FileSign&#x3D;’96417’, RandomSeed_Enc&#x3D;0, UserHashKey&#x3D;’’, videoKey&#x3D;’12864_96417_1616606440059_课时8.1：移植OLLVM到NDK中_1.vep’, iEncryptType&#x3D;6, iFileType&#x3D;2, width&#x3D;1920, height&#x3D;1080, videoSize&#x3D;94271786}   &#x2F;&#x2F;LogUtils.d(“本地json&#x3D;” + keyDto.getStr() + config.toString());</p>
+<p>arg[2]: 授权码：FC654C7D589924FD4C75E4799CF9DCE1,config:Config{structVersion&#x3D;5, PwdCreaterVersion&#x3D;2, FileSign&#x3D;’96417’, RandomSeed_Enc&#x3D;0, UserHashKey&#x3D;’’, videoKey&#x3D;’12864_96417_1616606440059_课时8.1：移植OLLVM到NDK中_1.vep’, iEncryptType&#x3D;6, iFileType&#x3D;2, width&#x3D;1920, height&#x3D;1080, videoSize&#x3D;94271786}   </p>
+<p>arg[2]: canHWDecode:Config{structVersion&#x3D;5, PwdCreaterVersion&#x3D;2, FileSign&#x3D;’96417’, RandomSeed_Enc&#x3D;0, UserHashKey&#x3D;’’, videoKey&#x3D;’12864_96417_1616606440059_课时8.1：移植OLLVM到NDK中_1.vep’, iEncryptType&#x3D;6, iFileType&#x3D;2, width&#x3D;1920, height&#x3D;1080, videoSize&#x3D;94271786},enable:true</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">traceMethod</span>(<span class="string">&quot;com.csd.video.NativeFile&quot;</span>,<span class="string">&quot;decryptAuthCode&quot;</span>)</span><br><span class="line"><span class="keyword">let</span> <span class="title class_">NativeFile</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.csd.video.NativeFile&quot;</span>);</span><br><span class="line"><span class="title class_">NativeFile</span>.<span class="property">decryptAuthCode</span>.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str, str2, i, i2</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;decryptAuthCode is called&#x27;</span>);</span><br><span class="line">    <span class="keyword">let</span> ret = <span class="variable language_">this</span>.<span class="title function_">decryptAuthCode</span>(str, str2, i, i2);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;decryptAuthCode ret value is &#x27;</span> + ret);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#123;&quot;str&quot;:&quot;FC654C7D589924FD4C75E4799CF9DCE1&quot;,&quot;deadline&quot;:20991231,&quot;watch_online&quot;:&quot;0&quot;&#125;&#x27;</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>getAuthCode ret value is B0nTqyVgrOpLQcW0re0UOBlGJBQgz89zoxLDAB1NDEvLAWNUmWjgY3dQGbtfbUqk+gooIuAe&#x2F;bz8G3zHb7SR51pvPbJ3PVuDMRaBfElM+qJrds13ePtfTmoCBtx1KnqGqT</p>
+<p>str &#x3D; LessonUtil.decrypt(keyDto.getStr(), config);&#x2F;&#x2F;key   A0E1A4F914DD24F5C8D9E4FDBCB9F4F9 </p>
+<p>arg[0]: FC654C7D589924FD4C75E4799CF9DCE1<br>arg[1]: Config{structVersion&#x3D;5, PwdCreaterVersion&#x3D;2, FileSign&#x3D;’96417’, RandomSeed_Enc&#x3D;0, UserHashKey&#x3D;’’, videoKey&#x3D;’12864_96417_1616606440059_课时8.1：移植OLLVM到NDK中_1.vep’, iEncryptType&#x3D;6, iFileType&#x3D;2, width&#x3D;1920, height&#x3D;1080, videoSize&#x3D;94271786}</p>
+<p><code>traceMethod(&quot;org.videolan.libvlc.Media&quot;,&quot;iniNative&quot;)</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">*** entered iniNative</span><br><span class="line">=======调用栈信息=======</span><br><span class="line">org.videolan.libvlc.Media.iniNative(Native Method)</span><br><span class="line">        com.csd.newyunketang.view.home.activity.VideoPlayActivity.initMedia(VideoPlayActivity.java:757)</span><br><span class="line">        com.csd.newyunketang.view.home.activity.VideoPlayActivity.initVlc(VideoPlayActivity.java:716)</span><br><span class="line">        com.csd.newyunketang.view.home.activity.VideoPlayActivity.initViews(VideoPlayActivity.java:246)</span><br><span class="line">        com.csd.newyunketang.base.BaseActivity.onCreate(BaseActivity.java:71)</span><br><span class="line">        android.app.Activity.performCreate(Activity.java:7084)</span><br><span class="line">        android.app.Activity.performCreate(Activity.java:7075)</span><br><span class="line">        android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1215)</span><br><span class="line">        android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2767)</span><br><span class="line">        android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2892)</span><br><span class="line">        android.app.ActivityThread.-wrap11(Unknown Source:0)</span><br><span class="line">        android.app.ActivityThread$H.handleMessage(ActivityThread.java:1613)</span><br><span class="line">        android.os.Handler.dispatchMessage(Handler.java:106)</span><br><span class="line">        android.os.Looper.loop(Looper.java:176)</span><br><span class="line">        android.app.ActivityThread.main(ActivityThread.java:6635)</span><br><span class="line">        java.lang.reflect.Method.invoke(Native Method)</span><br><span class="line">        com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:547)</span><br><span class="line">        com.android.internal.os.ZygoteInit.main(ZygoteInit.java:823)</span><br><span class="line">======= Done =======</span><br><span class="line">arg[0]: [object Object]</span><br><span class="line">arg[1]: A0E1A4F914DD24F5C8D9E4FDBCB9F4F9</span><br><span class="line">retval: undefined</span><br><span class="line">*** exiting iniNative</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/reverse/" rel="tag"># reverse</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/11/21/re-bumblebee/" rel="prev" title="reverse-bumblebee">
+                  <i class="fa fa-chevron-left"></i> reverse-bumblebee
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/11/22/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="next" title="工具使用">
+                  工具使用 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

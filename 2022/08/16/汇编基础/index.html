@@ -20,15 +20,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="ARM汇编跳转指令：  B[c]、BL[c]、BX[c]、BLX[c] label B： branch跳转指令，类似jmp L: 把下一条指令地址存入LR寄存器（R14，连接寄存器，保存子程序的返回地址） X：arm和thumb指令的切换，执行得时候先判断是否满足条件c，如果满足，则处理器判断label处地址得[0]位是否为1：为1，则将cpsr得T标志位置1，处理器切换为thumb指令状态，反之">
+    <meta name="description" content="ARM汇编基础指令跳转指令：  B[c]、BL[c]、BX[c]、BLX[c] label B： branch跳转指令，类似jmp L: 把下一条指令地址存入LR寄存器（R14，连接寄存器，保存子程序的返回地址） X：arm和thumb指令的切换，执行得时候先判断是否满足条件c，如果满足，则处理器判断label处地址得[0]位是否为1：为1，则将cpsr得T标志位置1，处理器切换为thumb指令状">
 <meta property="og:type" content="article">
 <meta property="og:title" content="汇编基础">
 <meta property="og:url" content="http://dfault0.github.io/2022/08/16/%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80/index.html">
 <meta property="og:site_name" content="Dfault0&#39;s blog">
-<meta property="og:description" content="ARM汇编跳转指令：  B[c]、BL[c]、BX[c]、BLX[c] label B： branch跳转指令，类似jmp L: 把下一条指令地址存入LR寄存器（R14，连接寄存器，保存子程序的返回地址） X：arm和thumb指令的切换，执行得时候先判断是否满足条件c，如果满足，则处理器判断label处地址得[0]位是否为1：为1，则将cpsr得T标志位置1，处理器切换为thumb指令状态，反之">
+<meta property="og:description" content="ARM汇编基础指令跳转指令：  B[c]、BL[c]、BX[c]、BLX[c] label B： branch跳转指令，类似jmp L: 把下一条指令地址存入LR寄存器（R14，连接寄存器，保存子程序的返回地址） X：arm和thumb指令的切换，执行得时候先判断是否满足条件c，如果满足，则处理器判断label处地址得[0]位是否为1：为1，则将cpsr得T标志位置1，处理器切换为thumb指令状">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-08-16T04:34:08.000Z">
-<meta property="article:modified_time" content="2022-08-17T03:16:51.773Z">
+<meta property="article:modified_time" content="2023-06-26T07:56:39.978Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="Android安全">
 <meta property="article:tag" content="汇编">
@@ -125,7 +125,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ARM%E6%B1%87%E7%BC%96"><span class="nav-number">1.</span> <span class="nav-text">ARM汇编</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">寄存器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A"><span class="nav-number">3.</span> <span class="nav-text">调用约定</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ARM%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A%EF%BC%9A"><span class="nav-number">3.1.</span> <span class="nav-text">ARM调用约定：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#X86-%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A"><span class="nav-number">3.2.</span> <span class="nav-text">X86 调用约定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#x64-%E5%8F%AA%E6%9C%89fastcall"><span class="nav-number">3.3.</span> <span class="nav-text">x64: 只有fastcall</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#thiscall%EF%BC%9A%E7%94%A8%E4%BA%8Ec-%E4%B8%AD%E5%BE%97%E7%B1%BB%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="nav-number">3.4.</span> <span class="nav-text">thiscall：用于c++中得类成员函数调用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%BF%9E%E6%8E%A5"><span class="nav-number">4.</span> <span class="nav-text">参考连接</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ARM%E6%B1%87%E7%BC%96"><span class="nav-number">1.</span> <span class="nav-text">ARM汇编</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E6%8C%87%E4%BB%A4"><span class="nav-number">1.1.</span> <span class="nav-text">基础指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E6%8C%87%E4%BB%A4"><span class="nav-number">1.2.</span> <span class="nav-text">特殊指令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">寄存器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A"><span class="nav-number">3.</span> <span class="nav-text">调用约定</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ARM%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A%EF%BC%9A"><span class="nav-number">3.1.</span> <span class="nav-text">ARM调用约定：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#X86-%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A"><span class="nav-number">3.2.</span> <span class="nav-text">X86 调用约定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#x64-%E5%8F%AA%E6%9C%89fastcall"><span class="nav-number">3.3.</span> <span class="nav-text">x64: 只有fastcall</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#thiscall%EF%BC%9A%E7%94%A8%E4%BA%8Ec-%E4%B8%AD%E5%BE%97%E7%B1%BB%E6%88%90%E5%91%98%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="nav-number">3.4.</span> <span class="nav-text">thiscall：用于c++中得类成员函数调用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%BF%9E%E6%8E%A5"><span class="nav-number">4.</span> <span class="nav-text">参考连接</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -138,18 +138,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">32</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">27</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -224,7 +224,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-08-17 11:16:51" itemprop="dateModified" datetime="2022-08-17T11:16:51+08:00">2022-08-17</time>
+      <time title="Modified: 2023-06-26 15:56:39" itemprop="dateModified" datetime="2023-06-26T15:56:39+08:00">2023-06-26</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -250,7 +250,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="ARM汇编"><a href="#ARM汇编" class="headerlink" title="ARM汇编"></a>ARM汇编</h1><p><strong>跳转指令：</strong></p>
+        <h1 id="ARM汇编"><a href="#ARM汇编" class="headerlink" title="ARM汇编"></a>ARM汇编</h1><h2 id="基础指令"><a href="#基础指令" class="headerlink" title="基础指令"></a>基础指令</h2><p><strong>跳转指令：</strong></p>
 <ul>
 <li>B[c]、BL[c]、BX[c]、BLX[c] label<ul>
 <li>B： branch跳转指令，类似jmp</li>
@@ -297,6 +297,10 @@
 </li>
 </ul>
 <p>寻址方式后面加！:先根据寻址规则修改寄存器，然后再根据寄存器得值访问内存。</p>
+<h2 id="特殊指令"><a href="#特殊指令" class="headerlink" title="特殊指令"></a>特殊指令</h2><ul>
+<li><code>MRS X26, #3, c13, c0, #2    ;  _ReadStatusReg(ARM64_SYSREG(3, 3, 13, 0, 2))</code>  #读取系统寄存器</li>
+<li>CBZ X0 label: 判断寄存器是不是为0，如果为0则跳转</li>
+</ul>
 <h1 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h1><p>运行模式：</p>
 <ul>
 <li>用户模式（usr) : ARM处理器正常的程序执行状态。</li>
@@ -307,7 +311,8 @@
 <li>系统模式（sys）：运行具有特权的操作系统任务。</li>
 <li>未定义指令中止模式（und） ：当未定义的指令执行时进入该模式。</li>
 </ul>
-<p>在32位的用户模式下，处理器可以访问的寄存器为不分组寄存器R0～R7、分组寄存器时～<br>R14、程序计数器R15 (PC）及当前程序状态寄存器CPSR。<strong>共17个</strong><br>ARM处理器有两种工作状态，即ARM状态与Thumb状态，处理器可以在这两种状态之间随<br>意切换。当处理器处于ARM状态时，会执行<strong>32位</strong>对齐的ARM指令；当处理器处于Thumb状态<br>时，执行的是<strong>16位</strong>对齐的Thumb指令</p>
+<p>在32位的用户模式下，处理器可以访问的寄存器为不分组寄存器R0～R7、分组寄存器时R8～R14、程序计数器R15 (PC）及当前程序状态寄存器CPSR。<strong>共17个</strong>。</p>
+<p>ARM处理器有两种工作状态，即ARM状态与Thumb状态，处理器可以在这两种状态之间随意切换。当处理器处于ARM状态时，会执行<strong>32位</strong>对齐的ARM指令；当处理器处于Thumb状态时，执行的是<strong>16位</strong>对齐的Thumb指令。</p>
 <ul>
 <li>Thumb状态下的R0～R7 与ARM状态下的RO～R7相同。</li>
 <li>Thumb状态下的CPSR 与ARM状态下的CPSR相同。</li>
@@ -335,9 +340,9 @@
 </li>
 <li>提供了无模式GP 寄存器组。</li>
 <li>提供了程序计数器（PC）和堆枝指针（SP）非通用寄存器。</li>
-<li>提供了可用于大多数指令的专用零寄存器XZR&#x2F;WZR。</li>
+<li>提供了可用于大多数指令的专用<code>零寄存器XZR/WZR：读出0，写入数据将会被忽略</code>。</li>
 </ul>
-<p>除了通用寄存器，arm64-v8a还提供了32个128 位NEON浮点寄存器V0～V31 ，它们可以作<br>为半精度寄存器H、单精度寄存器S、双精度寄存器D使用。</p>
+<p>除了通用寄存器，arm64-v8a还提供了32个128 位NEON浮点寄存器V0～V31 ，它们可以作为半精度寄存器H、单精度寄存器S、双精度寄存器D使用。</p>
 <h1 id="调用约定"><a href="#调用约定" class="headerlink" title="调用约定"></a>调用约定</h1><h2 id="ARM调用约定："><a href="#ARM调用约定：" class="headerlink" title="ARM调用约定："></a>ARM调用约定：</h2><ul>
 <li>armeabi：<ul>
 <li>R0～R3这四个寄存器用于传递子程序调用的第1个到第4个参数， 剩下得参数从右往左依次入栈；</li>
@@ -423,7 +428,7 @@
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

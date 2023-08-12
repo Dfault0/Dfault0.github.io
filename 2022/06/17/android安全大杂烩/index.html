@@ -28,7 +28,7 @@
 <meta property="og:description" content="双亲委派机制 在加载class文件时，首先会检查是否已经加载了当前class，如果已经加载了则直接返回，如果没有加载就委派给他父亲ClassLoader来进行加载 12345678910&#x2F;&#x2F;  &#x2F;libcore&#x2F;ojluni&#x2F;src&#x2F;main&#x2F;java&#x2F;java&#x2F;lang&#x2F;ClassLoader.java&#x2F;&#x2F;检查是否已经加载过了，protected final Class&lt;?&gt; fin">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-06-17T03:21:44.000Z">
-<meta property="article:modified_time" content="2022-06-17T08:04:39.879Z">
+<meta property="article:modified_time" content="2023-06-26T07:56:35.314Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="Android安全">
 <meta name="twitter:card" content="summary">
@@ -124,7 +124,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">双亲委派机制</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">双亲委派机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5%EF%BC%9A"><span class="nav-number">2.</span> <span class="nav-text">参考链接：</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -137,18 +137,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">32</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-count">27</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -215,9 +215,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-06-17 11:21:44 / Modified: 16:04:39" itemprop="dateCreated datePublished" datetime="2022-06-17T11:21:44+08:00">2022-06-17</time>
+      <time title="Created: 2022-06-17 11:21:44" itemprop="dateCreated datePublished" datetime="2022-06-17T11:21:44+08:00">2022-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-06-26 15:56:35" itemprop="dateModified" datetime="2023-06-26T15:56:35+08:00">2023-06-26</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -267,8 +273,7 @@
 <li>ClassLoader.loadClass：但是不会触发类的初始化(也就是说不会对类的静态变量,静态代码块进行初始化操作)</li>
 <li>Class.forName：不但会加载一个类,还会触发类的初始化阶段,也能够为这个类的静态变量,静态代码块进行初始化操作</li>
 </ul>
-<p>参考链接：</p>
-<p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-271538.htm">https://bbs.pediy.com/thread-271538.htm</a></p>
+<h1 id="参考链接："><a href="#参考链接：" class="headerlink" title="参考链接："></a>参考链接：</h1><p><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-271538.htm">https://bbs.pediy.com/thread-271538.htm</a></p>
 <p><a target="_blank" rel="noopener" href="http://androidxref.com/8.1.0_r33/xref/libcore/ojluni/src/main/java/java/lang/ClassLoader.java">http://androidxref.com/8.1.0_r33/xref/libcore/ojluni/src/main/java/java/lang/ClassLoader.java</a></p>
 
     </div>
@@ -286,8 +291,8 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2022/06/10/frida-%E5%9F%BA%E7%A1%80%E4%BA%8C/" rel="prev" title="frida-基础二">
-                  <i class="fa fa-chevron-left"></i> frida-基础二
+                <a href="/2022/06/10/frida-%E5%9F%BA%E7%A1%80%E4%BA%8C/" rel="prev" title="frida-native">
+                  <i class="fa fa-chevron-left"></i> frida-native
                 </a>
             </div>
             <div class="post-nav-item">
@@ -314,7 +319,7 @@
 
 <div class="copyright">
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
