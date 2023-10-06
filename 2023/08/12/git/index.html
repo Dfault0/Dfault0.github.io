@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
@@ -28,7 +28,7 @@
 <meta property="og:description" content="git常用命令 git init:初始化仓库 git status : 查看当前仓库状态 git add : 添加所有文件到仓库暂存区（修改的文件、新建的文件） 参数：. 表示所有文件 修改的文件：未暂存（unstaged） 新建的文件：未跟踪（untracked） 只添加部分文件：新建文件 .gitignore(不被git管理的文件)   git commit -m “注释” ：提交暂存到仓库">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-08-12T04:50:29.000Z">
-<meta property="article:modified_time" content="2023-08-12T04:53:20.986Z">
+<meta property="article:modified_time" content="2023-08-12T05:18:35.125Z">
 <meta property="article:author" content="Dfault0">
 <meta property="article:tag" content="git">
 <meta name="twitter:card" content="summary">
@@ -124,7 +124,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">git常用命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E6%94%AF"><span class="nav-number">2.</span> <span class="nav-text">分支</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">远程仓库</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">git常用命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E6%94%AF"><span class="nav-number">2.</span> <span class="nav-text">分支</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">远程仓库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%8B%E9%9A%86%E4%BB%93%E5%BA%93"><span class="nav-number">4.</span> <span class="nav-text">克隆仓库</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -137,13 +137,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-count">47</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-count">33</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -217,7 +217,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2023-08-12 12:50:29 / Modified: 12:53:20" itemprop="dateCreated datePublished" datetime="2023-08-12T12:50:29+08:00">2023-08-12</time>
+      <time title="Created: 2023-08-12 12:50:29 / Modified: 13:18:35" itemprop="dateCreated datePublished" datetime="2023-08-12T12:50:29+08:00">2023-08-12</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -290,7 +290,7 @@
 </li>
 </ol>
 <h1 id="远程仓库"><a href="#远程仓库" class="headerlink" title="远程仓库"></a>远程仓库</h1><ol>
-<li>添加全程仓库：<ul>
+<li>添加远程仓库：<ul>
 <li>git init </li>
 <li>git remote add origin &lt;仓库路径 SSH&gt;</li>
 <li>git remote: 查看远程仓库</li>
@@ -308,6 +308,19 @@
 <li>git push</li>
 </ul>
 </li>
+</ul>
+</li>
+</ol>
+<h1 id="克隆仓库"><a href="#克隆仓库" class="headerlink" title="克隆仓库"></a>克隆仓库</h1><ol>
+<li>git clone 仓库名</li>
+<li>抓取指令：git fetch  [remote name] [branch name]<ul>
+<li>只是把仓库中 的更新抓取到本地，并不会合并</li>
+<li>需要手动merge: git merge origin&#x2F;master</li>
+</ul>
+</li>
+<li>拉取指令：git pull [remote name] [branch name]<ul>
+<li>直接合并</li>
+<li>相当于fetch + merge</li>
 </ul>
 </li>
 </ol>
@@ -332,6 +345,9 @@
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/2023/09/30/Android%E5%A4%9A%E5%BC%80%E4%B8%8E%E6%A3%80%E6%B5%8B/" rel="next" title="Android多开与检测">
+                  Android多开与检测 <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>

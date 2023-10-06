@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" integrity="sha256-jTIdiMuX/e3DGJUGwl3pKSxuc6YOuqtJYkM0bGQESA4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"dfault0.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="多开原理多开概述Android多开技术是指在Android设备上同时运行多个相同或不同的应用实例。这种技术可以帮助用户在同一设备上同时使用多个账号或多个应用程序，提供更加便利和灵活的使用体验。  Android多开技术可以通过不同的方法实现，包括使用第三方应用程序或自定义开发。其中，一种常见的实现方式是使用虚拟环境或容器技术，例如在设备上创建多个用户或使用虚拟机来模拟多个设备。这样，每个实例都可以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android多开与检测">
+<meta property="og:url" content="http://dfault0.github.io/2023/09/30/Android%E5%A4%9A%E5%BC%80%E4%B8%8E%E6%A3%80%E6%B5%8B/index.html">
+<meta property="og:site_name" content="Dfault0&#39;s blog">
+<meta property="og:description" content="多开原理多开概述Android多开技术是指在Android设备上同时运行多个相同或不同的应用实例。这种技术可以帮助用户在同一设备上同时使用多个账号或多个应用程序，提供更加便利和灵活的使用体验。  Android多开技术可以通过不同的方法实现，包括使用第三方应用程序或自定义开发。其中，一种常见的实现方式是使用虚拟环境或容器技术，例如在设备上创建多个用户或使用虚拟机来模拟多个设备。这样，每个实例都可以">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-09-30T06:28:26.000Z">
+<meta property="article:modified_time" content="2023-09-30T14:18:14.008Z">
+<meta property="article:author" content="Dfault0">
+<meta property="article:tag" content="Android安全">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://dfault0.github.io/2023/09/30/Android%E5%A4%9A%E5%BC%80%E4%B8%8E%E6%A3%80%E6%B5%8B/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://dfault0.github.io/2023/09/30/Android%E5%A4%9A%E5%BC%80%E4%B8%8E%E6%A3%80%E6%B5%8B/","path":"2023/09/30/Android多开与检测/","title":"Android多开与检测"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Android多开与检测 | Dfault0's blog</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Dfault0's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li>
+        <li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+        <li class="menu-item menu-item-schedule"><a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>Schedule</a></li>
+        <li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a></li>
+        <li class="menu-item menu-item-commonweal"><a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>Commonweal 404</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E5%BC%80%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">多开原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%BC%80%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">多开概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%BC%80%E6%8A%80%E6%9C%AF"><span class="nav-number">1.2.</span> <span class="nav-text">多开技术</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E5%BC%80%E6%A3%80%E6%B5%8B"><span class="nav-number">2.</span> <span class="nav-text">多开检测</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E7%BA%A7%E5%A4%9A%E5%BC%80%E6%A3%80%E6%B5%8B"><span class="nav-number">2.1.</span> <span class="nav-text">系统级多开检测</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E7%BA%A7%E5%A4%9A%E5%BC%80%E6%A3%80%E6%B5%8B"><span class="nav-number">2.2.</span> <span class="nav-text">用户级多开检测</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Dfault0</p>
+  <div class="site-description" itemprop="description">I CAN</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://dfault0.github.io/2023/09/30/Android%E5%A4%9A%E5%BC%80%E4%B8%8E%E6%A3%80%E6%B5%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Dfault0">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dfault0's blog">
+      <meta itemprop="description" content="I CAN">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Android多开与检测 | Dfault0's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android多开与检测
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-09-30 14:28:26 / Modified: 22:18:14" itemprop="dateCreated datePublished" datetime="2023-09-30T14:28:26+08:00">2023-09-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">Android安全</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Android%E5%AE%89%E5%85%A8/%E5%9F%BA%E7%A1%80%E5%BB%BA%E8%AE%BE/" itemprop="url" rel="index"><span itemprop="name">基础建设</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="多开原理"><a href="#多开原理" class="headerlink" title="多开原理"></a>多开原理</h1><h2 id="多开概述"><a href="#多开概述" class="headerlink" title="多开概述"></a>多开概述</h2><p>Android多开技术是指在Android设备上同时运行多个相同或不同的应用实例。这种技术可以帮助用户在同一设备上同时使用多个账号或多个应用程序，提供更加便利和灵活的使用体验。</p>
+<ul>
+<li><p>Android多开技术可以通过不同的方法实现，包括使用第三方应用程序或自定义开发。其中，一种常见的实现方式是使用虚拟环境或容器技术，例如在设备上创建多个用户或使用虚拟机来模拟多个设备。这样，每个实例都可以独立运行，并且应用程序之间相互隔离，不会相互干扰。</p>
+</li>
+<li><p>另一种实现方式是使用应用程序级别的多开技术。这种技术通常由第三方应用程序提供，可以通过在应用程序内创建多个工作区或应用实例来实现多开。这样，用户可以在同一设备上同时登录多个账号或打开多个应用程序，而不会相互冲突。</p>
+</li>
+</ul>
+<p>但是多开技术也会存在一定的安全风险：</p>
+<ul>
+<li><p><strong>数据泄露</strong>：使用多开技术时，不同应用实例之间可能共享设备上的某些数据，如剪贴板内容、文件、账号信息等。如果其中一个应用实例存在安全漏洞，可能会导致用户的敏感数据被泄露。</p>
+</li>
+<li><p><strong>恶意软件和病毒</strong>：由于多开技术通常需要用户安装第三方应用程序或使用非官方渠道，存在一定的风险。不受信任的应用程序可能包含恶意软件或病毒，可能会对设备和用户的数据安全造成威胁。</p>
+</li>
+<li><p><strong>安全漏洞利用</strong>：使用多开技术时，每个应用实例都可以独立运行，因此可能存在各个实例之间的安全隔离问题。攻击者可能通过利用安全漏洞或共享资源来访问其他实例或窃取用户的敏感信息。</p>
+</li>
+<li><p><strong>账号安全问题</strong>：使用多开技术登录多个账号时，需要用户管理多个账号的安全性。如果用户在不同应用实例中使用相同的密码或弱密码，可能会增加账号被攻击或入侵的风险。</p>
+</li>
+</ul>
+<p>为了减少安全风险，建议用户采取以下措施：</p>
+<ul>
+<li><strong>仅使用可信的多开应用程序</strong>：选择来源可靠、经过安全认证的多开应用程序，并避免使用未知来源或不受信任的应用程序。</li>
+<li><strong>保持应用程序和设备的更新</strong>：及时安装应用程序和设备的安全更新，以修复已知的安全漏洞和问题。</li>
+<li><strong>使用强密码和多因素身份验证</strong>：为每个账号使用独立的强密码，并启用多因素身份验证以增加账号的安全性。</li>
+<li><strong>谨慎使用共享资源</strong>：注意在不同应用实例之间共享的资源，如剪贴板内容和文件。避免在敏感场景下使用多开技术。</li>
+<li><strong>定期备份数据</strong>：定期备份重要的个人数据，以防止数据丢失或泄露。</li>
+</ul>
+<p>请注意，以上是一些常见的安全风险和建议，具体的安全问题可能因多开技术的实现方式和用户行为而有所不同。因此，在使用多开技术时应根据自身情况和需求进行综合评估和风险管理。</p>
+<h2 id="多开技术"><a href="#多开技术" class="headerlink" title="多开技术"></a>多开技术</h2><p><strong>系统级多开：</strong></p>
+<ul>
+<li><p>多用户：多用户模式主要用到 <code>UserManager</code> 相关类，切换不同的用户，在不同的用户下运行 App，实现多开。最直观的例子是 Android 手机上的 <code>多用户</code> 功能， <code>手机分身</code> 功能，以及 <code>am switch-user</code> 命令，这种简单粗暴的用法会将 Android 服务都运行一份，如果只用于应用多开，且不说资源消耗，切换用户是在麻烦。</p>
+<p>在 Android 5.0 在基于多用户功能 添加了 <code>Android for work</code> 功能，可以在同一个桌面启动器下使用受限用户启动 APP，不再需要切换界面。同时将权限开发给了非系统应用。</p>
+</li>
+</ul>
+<p><strong>用户级多开：</strong></p>
+<ol>
+<li><p>虚拟化：</p>
+<ul>
+<li>原理：虚拟Framework层、虚拟文件系统、模拟Android对组件的管理、虚拟应用进程管理等一整套虚拟技术，将APK复制一份到虚拟空间中，通过<strong>代理常用系统服务</strong>（ActivityManager和PackageManager）的方式，在系统服务层与应用层之间添加了一层虚拟空间，从而允许在不安装应用的情况下运行应用。将其内部APP的全部系统请求进行拦截，通过这项技术对APP进行全面控制。</li>
+<li>源码：<a target="_blank" rel="noopener" href="https://github.com/asLody/VirtualApp">https://github.com/asLody/VirtualApp</a></li>
+<li>代表性技术：VirtualApp、MultiDroid</li>
+<li>代表性产品：VirtualXposed、DualSpace、LEB平行空间、360分身大师</li>
+</ul>
+</li>
+<li><p>应用程序级别的多开：</p>
+<ul>
+<li>原理：一些第三方应用程序提供了应用程序级别的多开功能。这些应用程序通过在设备上创建应用程序的副本，并在副本中独立运行应用程序，实现多个应用的同时登录。原理类似APP加壳。</li>
+</ul>
+</li>
+<li><p>热更新&#x2F;插件化：</p>
+<ul>
+<li>原理：利用反射替换、<strong>动态代理</strong>，hook了系统的大部分与<code>system_server</code>的函数（Binder hook ,ActivityManagerService hook, PackageManagerService hook等），以此欺骗系统以为只有一个APP在运行，让插件以为自己已经安装。同时，Android的多个APK可运行在同一个进程中。详见：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/35138070/answer/93903381">https://www.zhihu.com/question/35138070/answer/93903381</a></li>
+<li>代表技术：DroidPlugin、Excelliance</li>
+<li>代表性产品：双开助手</li>
+</ul>
+</li>
+</ol>
+<p><strong>其他：</strong></p>
+<ol>
+<li>虚拟系统：虚拟大师（云手机）</li>
+<li>修改APK：反编译APK，修改APK的包名、签名，将APK伪装成宁外一个不同的APK。</li>
+</ol>
+<h1 id="多开检测"><a href="#多开检测" class="headerlink" title="多开检测"></a>多开检测</h1><h2 id="系统级多开检测"><a href="#系统级多开检测" class="headerlink" title="系统级多开检测"></a>系统级多开检测</h2><p>系统级多开主要使用的是多用户模式来实现，则只需要检测当前系统的uid即可，通常情况下，主用户的uid是0，其余则是其他用户。</p>
+<p>检测方式：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">isMultiOpenApp</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span> != <span class="built_in">getuid</span>()/<span class="number">100000</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="用户级多开检测"><a href="#用户级多开检测" class="headerlink" title="用户级多开检测"></a>用户级多开检测</h2><p>用户级多开中，应用的数据目录一般是存在于宿主的数据目录中，同时，在同一个用户级多开软件中，内部的 APP 共享宿主的 UID，意味着他们都具有相同的权限。</p>
+<p>检测方式1：获取当前APP的DataDir,判断其上级目录是否可以访问，如果说，可以访问的话，则表明是多开，否则就不是多开。因为用户级多开hook了大量的系统函数，向直接获取APP的包名是不会得到正常的结果的，经测试，直接判断当前APP是否能够访问正常APP的私有目录是失效的，所以选择检测当前APP的dataDir目录的上级目录是否可以访问是有效的。</p>
+<ul>
+<li>正常App的私有目录：<code>/data/data/包名/files</code>或<code>/data/user/用户号/包名/files</code>。(通常情况下用户号是0，否则是多用户了)</li>
+<li>多开环境下私有目录为:目录会变为<code>/data/data/宿主APP包名/被多开的APP的包名/files</code>或<code>/data/user/用户号/宿主APP包名/被多开的APP的包名/files</code>。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">```</span><br><span class="line"></span><br><span class="line">检测方式<span class="number">2</span>：在当前运行的APP的/proc/self/maps中显示了当前进程的内存映射关系和访问权限。通过维护一个提供多开功能的APP列表，在APP运行过程中动态读取该文件，判断其中是否存在上述的APP包名关键字，如果存在则说明当前APP存在于多开环境中。需要注意的是，目前很多多开APP隐藏了自己的关键库文件，以至于不能准确检测出来。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<pre><code>
+
+
+# 相关链接
+
+- VirtualApp源码：https://github.com/asLody/VirtualApp
+- Android 双开沙箱 VirtualApp 源码分析（一）：https://blog.csdn.net/ganyao939543405/article/details/76146760
+- Android虚拟化引擎VirtualApp探究：https://developer.aliyun.com/article/616978?spm=5176.26934562.main.4.1ff1aa65CQe5g4
+- Android 应用多开对抗实践：https://bbs.kanxue.com/thread-255212.htm
+- DroidPlugin原理：https://www.zhihu.com/question/35138070/answer/93903381
+</code></pre>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android%E5%AE%89%E5%85%A8/" rel="tag"># Android安全</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/08/12/git/" rel="prev" title="git">
+                  <i class="fa fa-chevron-left"></i> git
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Dfault0</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
